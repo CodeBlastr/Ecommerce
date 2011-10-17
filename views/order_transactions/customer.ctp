@@ -2,16 +2,16 @@
 <h2><?php __('Customer Transaction History');?></h2>
 <p>
 <?php
-echo $paginator->counter(array(
+echo $this->Paginator->counter(array(
 'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
 ));
 ?></p>
 <table cellpadding="0" cellspacing="0">
 <tr>
-	<th><?php echo $paginator->sort('Order ID', 'id');?></th>
-	<th><?php echo $paginator->sort('status');?></th>
-	<th><?php echo $paginator->sort('total');?></th>
-	<th><?php echo $paginator->sort('processor_response');?></th>
+	<th><?php echo $this->Paginator->sort('Order ID', 'id');?></th>
+	<th><?php echo $this->Paginator->sort('status');?></th>
+	<th><?php echo $this->Paginator->sort('total');?></th>
+	<th><?php echo $this->Paginator->sort('processor_response');?></th>
 	<th class="actions"><?php __('Actions');?></th>
 </tr>
 <?php

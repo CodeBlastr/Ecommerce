@@ -2,22 +2,22 @@
 <h2><?php __('OrderItem Items');?></h2>
 <p>
 <?php
-echo $paginator->counter(array(
+echo $this->Paginator->counter(array(
 'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
 ));
 ?></p>
 <table cellpadding="0" cellspacing="0">
 <tr>
-	<th><?php echo $paginator->sort('id');?></th>
-	<th><?php echo $paginator->sort('order_payment_id');?></th>
-	<th><?php echo $paginator->sort('order_shipment_id');?></th>
-	<th><?php echo $paginator->sort('order_status_id');?></th>
-	<th><?php echo $paginator->sort('assignee_id');?></th>
-	<th><?php echo $paginator->sort('contact_id');?></th>
-	<th><?php echo $paginator->sort('creator_id');?></th>
-	<th><?php echo $paginator->sort('quantity');?></th>
-	<th><?php echo $paginator->sort('status');?></th>
-	<th><?php echo $paginator->sort('created');?></th>
+	<th><?php echo $this->Paginator->sort('id');?></th>
+	<th><?php echo $this->Paginator->sort('order_payment_id');?></th>
+	<th><?php echo $this->Paginator->sort('order_shipment_id');?></th>
+	<th><?php echo $this->Paginator->sort('order_status_id');?></th>
+	<th><?php echo $this->Paginator->sort('assignee_id');?></th>
+	<th><?php echo $this->Paginator->sort('contact_id');?></th>
+	<th><?php echo $this->Paginator->sort('creator_id');?></th>
+	<th><?php echo $this->Paginator->sort('quantity');?></th>
+	<th><?php echo $this->Paginator->sort('status');?></th>
+	<th><?php echo $this->Paginator->sort('created');?></th>
 	<th class="actions"><?php __('Actions');?></th>
 </tr>
 <?php
