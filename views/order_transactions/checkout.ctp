@@ -82,7 +82,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 		$width[$i] = $orderItem['CatalogItem']['width'];
 		# Hardcoded display none, because this shipping thing should never have been here.  You cannot choose different shipping type for each individual item.  That would just be a nightmare, and we've never gotten a request to make it this way.  So because of the time crunch I made it display none, but this needs to be removed all together, and the shipping needs to be calculator for the entire order --- there can be shipping difference for each item, but they would only be shown as part of the whole shipping cost. ?>
     <div id="shipping" class="hide">
-      <div id="dimmensions"> <?php echo $this->Form->hidden("length" , array('value' => $length[$i])); ?> <?php echo $form->hidden("width" , array('value' => $width[$i])); ?> <?php echo $form->hidden("height" , array('value' => $height[$i])); ?> <?php echo $form->hidden("weight" , array('value' => $weight[$i])); ?> <?php echo $this->Form->hidden("shipping_ammount", array('value' => '')); ?> </div>
+      <div id="dimmensions"> <?php echo $this->Form->hidden("length" , array('value' => $length[$i])); ?> <?php echo $this->Form->hidden("width" , array('value' => $width[$i])); ?> <?php echo $this->Form->hidden("height" , array('value' => $height[$i])); ?> <?php echo $this->Form->hidden("weight" , array('value' => $weight[$i])); ?> <?php echo $this->Form->hidden("shipping_ammount", array('value' => '')); ?> </div>
       <div id="selector"> <?php echo $this->Form->select("shippingType", $fedexSettings, $orderItem['CatalogItem']['shipping_type'], array('empty'=> false , 'class' => 'shipping_type')); ?> </div>
     </div>
     <?php 

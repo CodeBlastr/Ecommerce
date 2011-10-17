@@ -1,14 +1,14 @@
 <div class="transactions form">
-<?php echo $form->create('OrderTransaction');?>
+<?php echo $this->Form->create('OrderTransaction');?>
 	<fieldset>
  		<legend><?php __('Add OrderTransaction');?></legend>
 	<?php
-		echo $form->input('processor_response');
-		echo $form->input('status');
-		echo $form->input('total');
+		echo $this->Form->input('processor_response');
+		echo $this->Form->input('status');
+		echo $this->Form->input('total');
 	?>
 	</fieldset>
-<?php echo $form->end('Submit');?>
+<?php echo $this->Form->end('Submit');?>
 </div>
 <div class="actions">
 	<ul>

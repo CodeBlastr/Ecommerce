@@ -48,8 +48,8 @@
   <h2>
     <?php  __('Items');?>
   </h2>
-  <?php echo $form->create('OrderItem', array('action' => 'change_status'))?> 
-  <?php echo $form->hidden('OrderTransaction.id', array('value' => $orderTransaction['OrderTransaction']['id'])); ?> 
+  <?php echo $this->Form->create('OrderItem', array('action' => 'change_status'))?> 
+  <?php echo $this->Form->hidden('OrderTransaction.id', array('value' => $orderTransaction['OrderTransaction']['id'])); ?> 
   <table>
     <tr>
       <th>Item </th>
@@ -66,13 +66,13 @@
 		'returnRequest' => 'Request Return');
 		foreach($orderTransaction['OrderItem'] as $key => $oi) : ?>
     <tr>
-      <td><?php echo $form->hidden('OrderItem.'.$key.'.id', array('value' => $oi['id'])); ?> <?php echo $oi['name']?></td>
+      <td><?php echo $this->Form->hidden('OrderItem.'.$key.'.id', array('value' => $oi['id'])); ?> <?php echo $oi['name']?></td>
       <td><?php if(!empty($oi['CatalogItem']['CatalogItemBrand']))echo $oi['CatalogItem']['CatalogItemBrand']['name']?></td>
-      <td><?php echo $form->input('OrderItem.'.$key.'.tracking_no', array('value' => $oi['tracking_no'], 'label' => false)); ?></td>
-      <td><?php echo $form->input('OrderItem.'.$key.'.status', array('options'=>$status, 'selected'=>$oi['status'], 'label'=>false)); ?></td>
+      <td><?php echo $this->Form->input('OrderItem.'.$key.'.tracking_no', array('value' => $oi['tracking_no'], 'label' => false)); ?></td>
+      <td><?php echo $this->Form->input('OrderItem.'.$key.'.status', array('options'=>$status, 'selected'=>$oi['status'], 'label'=>false)); ?></td>
     </tr>
-  		<?php echo $form->hidden('OrderItem.'.$key.'.order_transaction_id', array('value' => $oi['order_transaction_id'])); ?>
+  		<?php echo $this->Form->hidden('OrderItem.'.$key.'.order_transaction_id', array('value' => $oi['order_transaction_id'])); ?>
     <?php endforeach; ?>
   </table>
-  <?php echo $form->end('Update')?>
+  <?php echo $this->Form->end('Update')?>
 </div>
