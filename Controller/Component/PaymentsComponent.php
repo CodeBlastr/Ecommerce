@@ -9,6 +9,10 @@ class PaymentsComponent extends Object{
 	var $paymentComponent = null;
 	var $Controller = null;
 	var $recurring = false; 	
+	
+	function initialize() { }
+	function beforeRender() { }
+	function shutdown() { }
 		
 		// class variables go here 
 	function startup(&$controller) {

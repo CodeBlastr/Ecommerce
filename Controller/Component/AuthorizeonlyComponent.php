@@ -1,5 +1,5 @@
 <?php
-require('authcim.php');
+require('AuthnetCIM.php');
 class AuthorizeonlyComponent extends Object { 
 	
 	var $response = array();

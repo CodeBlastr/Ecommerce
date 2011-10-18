@@ -1,6 +1,5 @@
 <?php
- 
- Class AuthorizesController extends OrdersAppController {
+ class AuthorizesController extends OrdersAppController {
  	var $name = 'Authorizes';
  	var $components = array('AuthorizeNet');
 
@@ -25,5 +24,4 @@
         $response = $this->AuthorizeNet->chargeCard('########', '##############', '4111111111111111', '01', '2010', '123', true, 110, 5, 5, "Purchase of Goods", $billinginfo, "email@email.com", "555-555-5555", $shippinginfo);
  	}
  }
- 
 ?>

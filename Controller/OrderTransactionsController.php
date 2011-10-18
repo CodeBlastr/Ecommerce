@@ -25,7 +25,7 @@
 class OrderTransactionsController extends OrdersAppController {
 
 	var $name = 'OrderTransactions';
-	var $components = array('Ssl', 'Payments' /*, 'Shipping.Fedex'*/);
+	var $components = array('Ssl', 'Orders.Payments' /*, 'Shipping.Fedex'*/);
 	
 	function index() {
 		#$this->OrderTransaction->recursive = 0;
