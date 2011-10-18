@@ -82,12 +82,12 @@ class OrderTransactionsController extends OrdersAppController {
 	/** 
 	 * Method for sending variables to the checkout view
 	 *
-	 * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->data, back with any callback to cover a wide range of use cases for the callback.
+	 * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->request->data, back with any callback to cover a wide range of use cases for the callback.
 	 */
 	function checkout(){
 		# a payment was submitted
-		if (!empty($this->data)) :
-			$this->_paymentSubmitted($this->data);
+		if (!empty($this->request->data)) :
+			$this->_paymentSubmitted($this->request->data);
 		endif;
 		
 		$this->_checkoutVariables();
@@ -96,46 +96,46 @@ class OrderTransactionsController extends OrdersAppController {
 
 
 	function _paymentSubmitted($data) {
-		$this->data = $data;
-		$total = $this->data['OrderTransaction']['total'];
+		$this->request->data = $data;
+		$total = $this->request->data['OrderTransaction']['total'];
 			
 		# if arb is true then will get arb_profile_id for current user
-		if($this->data['OrderPayment']['arb'] == 1) {
+		if($this->request->data['OrderPayment']['arb'] == 1) {
 			$order_transaction_id = $this->OrderTransaction->getArbTransactionId($this->Auth->user('id'));
 			
 			# if we find order_transaction_id for user then we will update the old transaction  
 			if(!empty($order_transaction_id)) {
-				$this->data['OrderPayment']['arb_profile_id'] = 
+				$this->request->data['OrderPayment']['arb_profile_id'] = 
 					$this->OrderTransaction->OrderPayment->getArbProfileId($order_transaction_id);
-					$this->data['OrderTransaction']['id'] = $order_transaction_id;
+					$this->request->data['OrderTransaction']['id'] = $order_transaction_id;
 			}
 		}
 			
-		if ($this->data['OrderTransaction']['shipping'] == 'on') {
-			$this->data['OrderShipment'] = $this->data['OrderPayment'];
+		if ($this->request->data['OrderTransaction']['shipping'] == 'on') {
+			$this->request->data['OrderShipment'] = $this->request->data['OrderPayment'];
 		} 
 			
 		# Charge the card
-		$response = $this->_charge($this->data , $total, $this->data['OrderTransaction']['mode']);
+		$response = $this->_charge($this->request->data , $total, $this->request->data['OrderTransaction']['mode']);
 		if($response['response_code'] != 1){
 			//OrderTransaction failed
 			$trdata["OrderTransaction"]["status"] = 'failed';
 			// save the billing and shipping details anyway
-			$this->OrderTransaction->OrderPayment->save($this->data);
-			$this->OrderTransaction->OrderShipment->save($this->data);
+			$this->OrderTransaction->OrderPayment->save($this->request->data);
+			$this->OrderTransaction->OrderShipment->save($this->request->data);
 			$this->Session->setFlash($response['reason_text'] . ' '.$response['description']);
 			$this->redirect(array('plugin' => 'orders', 'controller'=>'order_transactions' , 'action' => 'checkout'));
 		} else {
-			$this->data['Response'] = $response;
+			$this->request->data['Response'] = $response;
 			# setup order transaction data
-			$this->data['OrderTransaction']['order_payment_id'] = $response['transaction_id'];
-			$this->data['OrderTransaction']['processor_response'] = $response['reason_text'];
-			$this->data['OrderTransaction']['total'] = $response['amount'];
-			$this->data['OrderTransaction']['status'] = 'paid';
-			$this->data['OrderTransaction']['is_arb'] = isset($response['is_arb']) ? $response['is_arb'] : 0;
-			$this->data['OrderTransaction']['customer_id'] = $this->Auth->user('id');
-			$this->data['OrderTransaction']['assignee_id'] = $this->Auth->user('id');
-			if ($this->OrderTransaction->add($this->data)) {
+			$this->request->data['OrderTransaction']['order_payment_id'] = $response['transaction_id'];
+			$this->request->data['OrderTransaction']['processor_response'] = $response['reason_text'];
+			$this->request->data['OrderTransaction']['total'] = $response['amount'];
+			$this->request->data['OrderTransaction']['status'] = 'paid';
+			$this->request->data['OrderTransaction']['is_arb'] = isset($response['is_arb']) ? $response['is_arb'] : 0;
+			$this->request->data['OrderTransaction']['customer_id'] = $this->Auth->user('id');
+			$this->request->data['OrderTransaction']['assignee_id'] = $this->Auth->user('id');
+			if ($this->OrderTransaction->add($this->request->data)) {
 				$msg = __($response['reason_text'] . ' '.$response['description'], true);
 			} else {
 				$msg = 'Transaction was successful but some error has occured. Please contact Admin with transaction id: '. $response['transaction_id'];
@@ -235,9 +235,9 @@ class OrderTransactionsController extends OrdersAppController {
                            ), 
                           'Order'=> 
                           	array('theTotal'=>$total),
-                          'Billing'=> $this->data['OrderPayment'],
-                          'Shipping'=> $this->data['OrderShipment'],
-                          'Meta'=> isset($this->data['Meta']) ? $this->data['Meta'] : null,
+                          'Billing'=> $this->request->data['OrderPayment'],
+                          'Shipping'=> $this->request->data['OrderShipment'],
+                          'Meta'=> isset($this->request->data['Meta']) ? $this->request->data['Meta'] : null,
                           'Mode'=> $mode , 	
                     );
             // set if this is recurring type or not
@@ -260,9 +260,9 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 
 	function add() {
-		if (!empty($this->data)) {
+		if (!empty($this->request->data)) {
 			$this->OrderTransaction->create();
-			if ($this->OrderTransaction->save($this->data)) {
+			if ($this->OrderTransaction->save($this->request->data)) {
 				$this->flash(__('OrderTransaction saved.', true), array('action'=>'index'));
 			} else {
 			}
@@ -315,9 +315,9 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 
 	function admin_add() {
-		if (!empty($this->data)) {
+		if (!empty($this->request->data)) {
 			$this->OrderTransaction->create();
-			if ($this->OrderTransaction->save($this->data)) {
+			if ($this->OrderTransaction->save($this->request->data)) {
 				$this->flash(__('OrderTransaction saved.', true), array('action'=>'index'));
 			} else {
 			}
@@ -325,17 +325,17 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 
 	function admin_edit($id = null) {
-		if (!$id && empty($this->data)) {
+		if (!$id && empty($this->request->data)) {
 			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
 		}
-		if (!empty($this->data)) {
-			if ($this->OrderTransaction->save($this->data)) {
+		if (!empty($this->request->data)) {
+			if ($this->OrderTransaction->save($this->request->data)) {
 				$this->flash(__('The OrderTransaction has been saved.', true), array('action'=>'index'));
 			} else {
 			}
 		}
-		if (empty($this->data)) {
-			$this->data = $this->OrderTransaction->read(null, $id);
+		if (empty($this->request->data)) {
+			$this->request->data = $this->OrderTransaction->read(null, $id);
 		}
 	}
 
@@ -371,7 +371,7 @@ class OrderTransactionsController extends OrdersAppController {
 		# used to prefill customer billing and shipping data if it exists
 		$customer = $this->OrderTransaction->Customer->find('first', 
 			array('conditions' => array('Customer.id' => $this->Auth->user('id'))));
-		$this->data['OrderTransaction'] = $customer['Customer'];
+		$this->request->data['OrderTransaction'] = $customer['Customer'];
 		$shippingOptions = $this->_shippingOptions($orderItems);
 		
 		# please clean this up by moving it to separate functions, or to the model.  Its a mess
@@ -414,12 +414,12 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->set('isArb', 0);
 	
 		# form field values
-		$this->data['OrderTransaction']['order_charge'] = $orderItems[0]['total_price'] ;
-		$this->data['OrderTransaction']['quantity'] = $orderItems[0]['total_quantity'] ;
-		$this->data['OrderPayment'] = $billingAddress['OrderPayment'];
-		$this->data['OrderShipment'] = $shippingAddress['OrderShipment'];
-		$this->data['OrderPayment']['first_name'] = !empty($this->data['OrderTransaction']['first_name']) ? $this->data['OrderTransaction']['first_name'] : $this->Session->read('Auth.User.first_name');
-		$this->data['OrderPayment']['last_name'] = !empty($this->data['OrderTransaction']['last_name']) ? $this->data['OrderTransaction']['last_name'] :  $this->Session->read('Auth.User.last_name');
+		$this->request->data['OrderTransaction']['order_charge'] = $orderItems[0]['total_price'] ;
+		$this->request->data['OrderTransaction']['quantity'] = $orderItems[0]['total_quantity'] ;
+		$this->request->data['OrderPayment'] = $billingAddress['OrderPayment'];
+		$this->request->data['OrderShipment'] = $shippingAddress['OrderShipment'];
+		$this->request->data['OrderPayment']['first_name'] = !empty($this->request->data['OrderTransaction']['first_name']) ? $this->request->data['OrderTransaction']['first_name'] : $this->Session->read('Auth.User.first_name');
+		$this->request->data['OrderPayment']['last_name'] = !empty($this->request->data['OrderTransaction']['last_name']) ? $this->request->data['OrderTransaction']['last_name'] :  $this->Session->read('Auth.User.last_name');
 		
 	}
 

@@ -197,10 +197,10 @@ class OrderTransaction extends OrdersAppModel {
 	 */
 	function changeStatus($order_transaction_id, $status, $processor_response){
 		
-		$this->data['OrderTransaction']['id'] = $order_transaction_id ;
-		$this->data['OrderTransaction']['status'] = $status;
-		$this->data['OrderTransaction']['processor_response'] = $processor_response;
-		$this->save($this->data);
+		$this->request->data['OrderTransaction']['id'] = $order_transaction_id ;
+		$this->request->data['OrderTransaction']['status'] = $status;
+		$this->request->data['OrderTransaction']['processor_response'] = $processor_response;
+		$this->save($this->request->data);
 	}
 	
 	/** 

@@ -6,7 +6,7 @@
 	<?php
 		echo $this->Form->input('id');
 		echo $this->Form->input('processor_response');
-		echo $this->Form->input('status' , array('options' => $status, 'selected' => $this->data['OrderTransaction']['status']));
+		echo $this->Form->input('status' , array('options' => $status, 'selected' => $this->request->data['OrderTransaction']['status']));
 		echo $this->Form->input('total');
 	?>
 	</fieldset>

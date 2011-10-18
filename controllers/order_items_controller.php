@@ -31,10 +31,10 @@ class OrderItemsController extends OrdersAppController {
   	function add() {
 		$userId = $this->Session->read('Auth.User.id');
 		# if there are multiple items then we will go to the checkout page, instead of the cart view page
-		$redirect = !empty($this->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
+		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
 		
 		if (!empty($userId)) : 
-	  		$ret = $this->OrderItem->addToCart($this->data, $userId);
+	  		$ret = $this->OrderItem->addToCart($this->request->data, $userId);
 	  		if ($ret['state']) {
 	  			$cart_count = $this->OrderItem->prepareCartData($this->Session->read('Auth.User.id'), $this->userRoleId);
 	  			$cart_count = $cart_count[0]['total_quantity'];
@@ -48,7 +48,7 @@ class OrderItemsController extends OrdersAppController {
 	  			$this->Session->setFlash(__($ret['msg'], true));
 	  		}
 		else :
-			$this->_addToCookieCart($this->data);
+			$this->_addToCookieCart($this->request->data);
 	  		$this->redirect($redirect);
 		endif;
 	}
@@ -109,9 +109,9 @@ class OrderItemsController extends OrdersAppController {
 
 
 	function admin_add() {
-		if (!empty($this->data)) {
+		if (!empty($this->request->data)) {
 			$this->OrderItem->create();
-			if ($this->OrderItem->save($this->data)) {
+			if ($this->OrderItem->save($this->request->data)) {
 				$this->Session->setFlash(__('The order item has been saved', true));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -125,20 +125,20 @@ class OrderItemsController extends OrdersAppController {
 
 
 	function admin_edit($id = null) {
-		if (!$id && empty($this->data)) {
+		if (!$id && empty($this->request->data)) {
 			$this->Session->setFlash(__('Invalid order item', true));
 			$this->redirect(array('action' => 'index'));
 		}
-		if (!empty($this->data)) {
-			if ($this->OrderItem->save($this->data)) {
+		if (!empty($this->request->data)) {
+			if ($this->OrderItem->save($this->request->data)) {
 				$this->Session->setFlash(__('The order item has been saved', true));
 				$this->redirect(array('action' => 'index'));
 			} else {
 				$this->Session->setFlash(__('The order item could not be saved. Please, try again.', true));
 			}
 		}
-		if (empty($this->data)) {
-			$this->data = $this->OrderItem->read(null, $id);
+		if (empty($this->request->data)) {
+			$this->request->data = $this->OrderItem->read(null, $id);
 		}
 		$creators = $this->OrderItem->Creator->find('list');
 		$modifiers = $this->OrderItem->Modifier->find('list');
@@ -166,19 +166,19 @@ class OrderItemsController extends OrdersAppController {
 	 * @todo	When all order items are sent, we should have a status for the order_transaction of "shipped".  But it really should be in the model not specifically here.
 	 */
 	function change_status() {
-		if(!empty($this->data['OrderItem'])) {
+		if(!empty($this->request->data['OrderItem'])) {
 			# if all items are sent then set status of the whole transaction to shipped
-			$statuses = Set::extract('/status', $this->data['OrderItem']);
+			$statuses = Set::extract('/status', $this->request->data['OrderItem']);
 			foreach ($statuses as $status) : 
 				if ($status != 'sent') :
-					unset($this->data['OrderTransaction']['status']);
+					unset($this->request->data['OrderTransaction']['status']);
 					break;
 				else : 
-					$this->data['OrderTransaction']['status'] = 'shipped';
+					$this->request->data['OrderTransaction']['status'] = 'shipped';
 				endif;
 			endforeach; 
 			
-			if ($this->OrderItem->OrderTransaction->saveAll($this->data)) : 
+			if ($this->OrderItem->OrderTransaction->saveAll($this->request->data)) : 
 				$this->Session->setFlash(__('Order updated', true));
 			else :
 				$this->Session->setFlash(__('Order could not be updated', true));

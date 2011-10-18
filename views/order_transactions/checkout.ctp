@@ -97,7 +97,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 					shippingCharge = 0;
 				
 				shippingCharge += shippingamnt;
-				var orderCharge = parseFloat(<?php echo $this->data['OrderTransaction']['order_charge'] ;?>);
+				var orderCharge = parseFloat(<?php echo $this->request->data['OrderTransaction']['order_charge'] ;?>);
 				if(isNaN(orderCharge))
 					orderCharge = 0;
 				orderCharge += shippingCharge;	
@@ -173,7 +173,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 	  echo $this->Form->hidden('OrderPayment.country' , array('label'=>'Country', 'value' => 'US'));
 	  echo $this->Form->hidden('OrderPayment.user_id' , array('value' => $this->Session->read('Auth.User.id')));
 	  echo $this->Form->hidden('customer_id' , array('value' => $this->Session->read('Auth.User.id')));
-      echo $this->Form->input('shipping', array('type' => 'checkbox', 'label' => 'Click here if your shipping address is different than your contact information.', 'checked' => $this->data['OrderPayment'] != $this->data['OrderShipment'] ? '' : 'checked' )); ?>
+      echo $this->Form->input('shipping', array('type' => 'checkbox', 'label' => 'Click here if your shipping address is different than your contact information.', 'checked' => $this->request->data['OrderPayment'] != $this->request->data['OrderShipment'] ? '' : 'checked' )); ?>
     </fieldset>
     <fieldset id="shippingAddress">
       <legend><?php __('Shipping Address'); ?></legend>
@@ -196,8 +196,8 @@ echo $this->Form->create('OrderTransaction');  ?>
       <legend><?php __('Payment Information'); ?></legend>
       <?php 
       echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => formatPrice($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => '')); 
-	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => formatPrice($this->data['OrderTransaction']['order_charge'])));
-	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total ' ,'readonly' => true, 'value' => formatPrice(floatval($defaultShippingCharge) + floatval($this->data['OrderTransaction']['order_charge'])))); 
+	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => formatPrice($this->request->data['OrderTransaction']['order_charge'])));
+	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total ' ,'readonly' => true, 'value' => formatPrice(floatval($defaultShippingCharge) + floatval($this->request->data['OrderTransaction']['order_charge'])))); 
 	  echo $this->Form->hidden('OrderTransaction.quantity'); 
 	  echo $this->Form->input('mode', array('label' => 'Payment Type', 'options' => $paymentOptions, 'default' => $paymentMode));
 	  echo $this->Element(strtolower($paymentMode)); ?>
@@ -276,7 +276,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 		if (shipTypeValue == ' ') {
 			//$('#step3').hide();
 			$('#OrderTransactionShippingCharge').val(0);
-			$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->data['OrderTransaction']['order_charge'] ;?>));
+			$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->request->data['OrderTransaction']['order_charge'] ;?>));
 			return;
 		}
 
@@ -309,7 +309,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 				ordershipcharge += parseFloat(response['amount']) ;
 				$('#OrderTransactionShippingCharge').val(ordershipcharge);
 				
-				$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->data['OrderTransaction']['order_charge'] ;?>) + parseFloat(response['amount']) );
+				$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->request->data['OrderTransaction']['order_charge'] ;?>) + parseFloat(response['amount']) );
 				//$('#step3').show();
 			}
 		}
@@ -321,7 +321,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 			if(response['amount']) {
 				$('#OrderTransactionShippingType').append('<option value="' + option_value + '">'+ option_key +'</option>');
 				$('#OrderTransactionShippingCharge').val(response['amount']);
-				$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->data['OrderTransaction']['order_charge'] ;?>) + parseFloat(response['amount']) );
+				$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->request->data['OrderTransaction']['order_charge'] ;?>) + parseFloat(response['amount']) );
 			}
 		}
 	}

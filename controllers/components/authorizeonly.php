@@ -24,10 +24,10 @@ class AuthorizeonlyComponent extends Object {
  *
  */
 	function Pay($data) {
-		$this->data = $data;
+		$this->request->data = $data;
 		//create AuthnetCIM class object
 		$this->authnetCIM = new AuthnetCIM($this->login, $this->transkey, 1);
-		$this->cimCustomerProfile($this->data);	
+		$this->cimCustomerProfile($this->request->data);	
 	}
 
 	function cimPayment() {
@@ -35,9 +35,9 @@ class AuthorizeonlyComponent extends Object {
 		//@todo: make this refID (optional) to come from some field or store this for later use
 		$this->authnetCIM->setParameter('refID', 150);
 		
-		$this->authnetCIM->setParameter('customerProfileId', $this->data['Billing']['cim_profile_id']);
-		$this->authnetCIM->setParameter('customerPaymentProfileId', $this->data['Billing']['cim_payment_profile_id']);
-		$this->authnetCIM->setParameter('amount', $this->data['Order']['theTotal']);
+		$this->authnetCIM->setParameter('customerProfileId', $this->request->data['Billing']['cim_profile_id']);
+		$this->authnetCIM->setParameter('customerPaymentProfileId', $this->request->data['Billing']['cim_payment_profile_id']);
+		$this->authnetCIM->setParameter('amount', $this->request->data['Order']['theTotal']);
 		$this->authnetCIM->setParameter('cardCode', 125);
 		$this->authnetCIM->createCustomerProfileTransaction('profileTransAuthOnly');
 		$this->_parseCIMResponse($this->authnetCIM);
@@ -48,18 +48,18 @@ class AuthorizeonlyComponent extends Object {
 		//@todo: make this refID (optional) to come from some field or store this for later use
 		$this->authnetCIM->setParameter('refID', 150);
 		
-		$this->authnetCIM->setParameter('customerProfileId', $this->data['Billing']['cim_profile_id']);
-		$this->authnetCIM->setParameter('billToFirstName', $this->data['Billing']['first_name']); 
-		$this->authnetCIM->setParameter('billToLastName', $this->data['Billing']['last_name']); 
-		$this->authnetCIM->setParameter('billToAddress', $this->data['Billing']['street_address_1'] . ' ' . $this->data['Billing']['street_address_2']);
-		$this->authnetCIM->setParameter('billToCity', $this->data['Billing']['city']);
-		$this->authnetCIM->setParameter('billToState', $this->data['Billing']['state']);
+		$this->authnetCIM->setParameter('customerProfileId', $this->request->data['Billing']['cim_profile_id']);
+		$this->authnetCIM->setParameter('billToFirstName', $this->request->data['Billing']['first_name']); 
+		$this->authnetCIM->setParameter('billToLastName', $this->request->data['Billing']['last_name']); 
+		$this->authnetCIM->setParameter('billToAddress', $this->request->data['Billing']['street_address_1'] . ' ' . $this->request->data['Billing']['street_address_2']);
+		$this->authnetCIM->setParameter('billToCity', $this->request->data['Billing']['city']);
+		$this->authnetCIM->setParameter('billToState', $this->request->data['Billing']['state']);
 		
-		$this->authnetCIM->setParameter('billToZip', $this->data['Billing']['zip']);
-		$this->authnetCIM->setParameter('billToCountry', $this->data['Billing']['country']);
-		$this->authnetCIM->setParameter('cardNumber',$this->data['CreditCard']['card_number']); 
-		$this->authnetCIM->setParameter('expirationDate', $this->data['CreditCard']['expiration_year']
-				."-".$this->data['CreditCard']['expiration_month']);
+		$this->authnetCIM->setParameter('billToZip', $this->request->data['Billing']['zip']);
+		$this->authnetCIM->setParameter('billToCountry', $this->request->data['Billing']['country']);
+		$this->authnetCIM->setParameter('cardNumber',$this->request->data['CreditCard']['card_number']); 
+		$this->authnetCIM->setParameter('expirationDate', $this->request->data['CreditCard']['expiration_year']
+				."-".$this->request->data['CreditCard']['expiration_month']);
 	
 		$this->authnetCIM->createCustomerPaymentProfile();
 		$this->_parseCIMResponse($this->authnetCIM);
@@ -70,27 +70,27 @@ class AuthorizeonlyComponent extends Object {
 			
 		//@todo: make this refID (optional) to come from some field or store this for later use
 		$this->authnetCIM->setParameter('refID', 150);
-		$this->authnetCIM->setParameter('merchantCustomerId', $this->data['Billing']['user_id']);
+		$this->authnetCIM->setParameter('merchantCustomerId', $this->request->data['Billing']['user_id']);
 		
-		$this->authnetCIM->setParameter('billToFirstName', $this->data['Billing']['first_name']); 
-		$this->authnetCIM->setParameter('billToLastName', $this->data['Billing']['last_name']); 
-		$this->authnetCIM->setParameter('billToAddress', $this->data['Billing']['street_address_1'] . ' ' . $this->data['Billing']['street_address_2']);
-		$this->authnetCIM->setParameter('billToCity', $this->data['Billing']['city']);
-		$this->authnetCIM->setParameter('billToState', $this->data['Billing']['state']);
+		$this->authnetCIM->setParameter('billToFirstName', $this->request->data['Billing']['first_name']); 
+		$this->authnetCIM->setParameter('billToLastName', $this->request->data['Billing']['last_name']); 
+		$this->authnetCIM->setParameter('billToAddress', $this->request->data['Billing']['street_address_1'] . ' ' . $this->request->data['Billing']['street_address_2']);
+		$this->authnetCIM->setParameter('billToCity', $this->request->data['Billing']['city']);
+		$this->authnetCIM->setParameter('billToState', $this->request->data['Billing']['state']);
 		
-		$this->authnetCIM->setParameter('billToZip', $this->data['Billing']['zip']);
-		$this->authnetCIM->setParameter('billToCountry', $this->data['Billing']['country']);
-		$this->authnetCIM->setParameter('cardNumber',$this->data['CreditCard']['card_number']); 
-		$this->authnetCIM->setParameter('expirationDate', $this->data['CreditCard']['expiration_year']
-				."-".$this->data['CreditCard']['expiration_month']);
+		$this->authnetCIM->setParameter('billToZip', $this->request->data['Billing']['zip']);
+		$this->authnetCIM->setParameter('billToCountry', $this->request->data['Billing']['country']);
+		$this->authnetCIM->setParameter('cardNumber',$this->request->data['CreditCard']['card_number']); 
+		$this->authnetCIM->setParameter('expirationDate', $this->request->data['CreditCard']['expiration_year']
+				."-".$this->request->data['CreditCard']['expiration_month']);
 	
-		$this->authnetCIM->setParameter('shipToFirstName', $this->data['Shipping']['first_name']); 
-		$this->authnetCIM->setParameter('shipToLastName', $this->data['Shipping']['last_name']); 
-		$this->authnetCIM->setParameter('shipToAddress', $this->data['Shipping']['street_address_1'] . ' ' . $this->data['Shipping']['street_address_2']);
-		$this->authnetCIM->setParameter('shipToCity', $this->data['Shipping']['city']);
-		$this->authnetCIM->setParameter('shipToState', $this->data['Shipping']['state']);
-		$this->authnetCIM->setParameter('shipToZip', $this->data['Shipping']['zip']);
-		$this->authnetCIM->setParameter('shipToCountry', $this->data['Shipping']['country']);
+		$this->authnetCIM->setParameter('shipToFirstName', $this->request->data['Shipping']['first_name']); 
+		$this->authnetCIM->setParameter('shipToLastName', $this->request->data['Shipping']['last_name']); 
+		$this->authnetCIM->setParameter('shipToAddress', $this->request->data['Shipping']['street_address_1'] . ' ' . $this->request->data['Shipping']['street_address_2']);
+		$this->authnetCIM->setParameter('shipToCity', $this->request->data['Shipping']['city']);
+		$this->authnetCIM->setParameter('shipToState', $this->request->data['Shipping']['state']);
+		$this->authnetCIM->setParameter('shipToZip', $this->request->data['Shipping']['zip']);
+		$this->authnetCIM->setParameter('shipToCountry', $this->request->data['Shipping']['country']);
 		
 		$this->authnetCIM->createCustomerProfile();
 		
@@ -113,7 +113,7 @@ class AuthorizeonlyComponent extends Object {
 				foreach($this->authnetCIM->paymentProfiles['paymentProfiles'] as $profile ) {
 					$payment_profile_id = $profile->customerPaymentProfileId;
 					$profile_card_number = $profile->payment->creditCard->cardNumber;
-					if(substr($profile_card_number, -4) == substr($this->data['CreditCard']['card_number'], -4)){
+					if(substr($profile_card_number, -4) == substr($this->request->data['CreditCard']['card_number'], -4)){
 						$found = true;
 						break; // found existing profile
 					}
@@ -173,7 +173,7 @@ class AuthorizeonlyComponent extends Object {
 		$parsedResponse['cim_profile_id'] = $profile_id;
 		$parsedResponse['cim_payment_profile_id'] = $payment_profile_id;
 		$parsedResponse['transaction_id'] = $profile_id; // The payment gateway assigned identification number for the transaction
-		$parsedResponse['amount'] = $this->data['Order']['theTotal'];
+		$parsedResponse['amount'] = $this->request->data['Order']['theTotal'];
 	   	$this->response = $parsedResponse;
 	}
 	
