@@ -1,72 +1,72 @@
 <div class="orderItems view">
 <h2><?php  __('OrderItem');?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Id'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Id'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['id']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('OrderItem Payment'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('OrderItem Payment'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link($orderItem['OrderPayment']['name'], array('controller' => 'order_payments', 'action' => 'view', $orderItem['OrderPayment']['id'])); ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('OrderItem Shipment'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('OrderItem Shipment'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $this->Html->link($orderItem['OrderShipment']['name'], array('controller' => 'order_shipments', 'action' => 'view', $orderItem['OrderShipment']['id'])); ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('OrderItem Status Id'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('OrderItem Status Id'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['order_status_id']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Introduction'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Introduction'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['introduction']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Conclusion'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Conclusion'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['conclusion']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Assignee Id'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Assignee Id'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['assignee_id']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Contact Id'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Contact Id'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['contact_id']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Creator Id'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Creator Id'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['creator_id']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Modifier Id'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Modifier Id'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['modifier_id']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Amount'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Amount'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['quantity']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Status'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Status'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['status']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Created'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Created'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['created']; ?>
 			&nbsp;
 		</dd>
-		<dt<?php if ($i % 2 == 0) echo $class;?>><?php __('Modified'); ?></dt>
+		<dt<?php if ($i % 2 == 0) echo $class;?>><?php echo __('Modified'); ?></dt>
 		<dd<?php if ($i++ % 2 == 0) echo $class;?>>
 			<?php echo $orderItem['OrderItem']['modified']; ?>
 			&nbsp;
@@ -88,29 +88,29 @@
 	</ul>
 </div>
 <div class="related">
-	<h3><?php __('Related Catalog Items');?></h3>
+	<h3><?php echo __('Related Catalog Items');?></h3>
 	<?php if (!empty($orderItem['CatalogItem'])):?>
 	<table cellpadding = "0" cellspacing = "0">
 	<tr>
-		<th><?php __('Id'); ?></th>
-		<th><?php __('Name'); ?></th>
-		<th><?php __('Cost'); ?></th>
-		<th><?php __('Wholesale'); ?></th>
-		<th><?php __('Retail'); ?></th>
-		<th><?php __('Summary'); ?></th>
-		<th><?php __('Introduction'); ?></th>
-		<th><?php __('Description'); ?></th>
-		<th><?php __('Additional'); ?></th>
-		<th><?php __('Start Date'); ?></th>
-		<th><?php __('End Date'); ?></th>
-		<th><?php __('Published'); ?></th>
-		<th><?php __('Catalog Brand Id'); ?></th>
-		<th><?php __('Catalog Id'); ?></th>
-		<th><?php __('Creator Id'); ?></th>
-		<th><?php __('Modifier Id'); ?></th>
-		<th><?php __('Created'); ?></th>
-		<th><?php __('Modified'); ?></th>
-		<th class="actions"><?php __('Actions');?></th>
+		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('Name'); ?></th>
+		<th><?php echo __('Cost'); ?></th>
+		<th><?php echo __('Wholesale'); ?></th>
+		<th><?php echo __('Retail'); ?></th>
+		<th><?php echo __('Summary'); ?></th>
+		<th><?php echo __('Introduction'); ?></th>
+		<th><?php echo __('Description'); ?></th>
+		<th><?php echo __('Additional'); ?></th>
+		<th><?php echo __('Start Date'); ?></th>
+		<th><?php echo __('End Date'); ?></th>
+		<th><?php echo __('Published'); ?></th>
+		<th><?php echo __('Catalog Brand Id'); ?></th>
+		<th><?php echo __('Catalog Id'); ?></th>
+		<th><?php echo __('Creator Id'); ?></th>
+		<th><?php echo __('Modifier Id'); ?></th>
+		<th><?php echo __('Created'); ?></th>
+		<th><?php echo __('Modified'); ?></th>
+		<th class="actions"><?php echo __('Actions');?></th>
 	</tr>
 	<?php
 		$i = 0;

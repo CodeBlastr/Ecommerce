@@ -1,7 +1,7 @@
 <div class="transactions form">
 <?php echo $this->Form->create('OrderTransaction');?>
 	<fieldset>
- 		<legend><?php __('Edit OrderTransaction');?></legend>
+ 		<legend><?php echo __('Edit OrderTransaction');?></legend>
  		<?php $status = array('pending' =>'Pending','sent'=>'Sent' ,'paid'=>'Paid','frozen'=>'Frozen','cancelled'=>'Cancelled');?>
 	<?php
 		echo $this->Form->input('id');

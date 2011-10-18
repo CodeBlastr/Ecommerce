@@ -28,7 +28,7 @@ echo $this->Html->script('system/jquery.validate.min');
 echo $this->Form->create('OrderTransaction');  ?>
   <div id="orderTransactionItems" class="orderTransactionItems">
     <h2>
-      <?php __('You are 30 seconds away from ordering...'); ?>
+      <?php echo __('You are 30 seconds away from ordering...'); ?>
     </h2>
     <?php 
 	foreach ($orderItems as $i => $orderItem) :
@@ -156,11 +156,11 @@ echo $this->Form->create('OrderTransaction');  ?>
   <!-- end orderTransactionItems -->
   <?php # This form needs to go into an element so that we can use it on different pages besides this checkout page.  If this was an element it would allow us to put a checkout form on any page, give it some settings regarding price and then it would be a content management (a page from the webpages table) with a checkout element on it, giving us a way to make quick one product landing pages which are fully editable with the normal page editor ?>
   <div id="orderTransactionForm" class="orderTransactionForm text-inputs">
-    <h3><?php __('Please fill in your billing details'); ?></h3>
+    <h3><?php echo __('Please fill in your billing details'); ?></h3>
   	<div id="orderTransactionAddress">
     <fieldset id="billingAddress">
       <legend>
-      <?php __('Billing Address'); ?>
+      <?php echo __('Billing Address'); ?>
       </legend>
       <?php 
 	  echo $this->Form->input('OrderPayment.first_name' , array('class' => 'required'));
@@ -176,7 +176,7 @@ echo $this->Form->create('OrderTransaction');  ?>
       echo $this->Form->input('shipping', array('type' => 'checkbox', 'label' => 'Click here if your shipping address is different than your contact information.', 'checked' => $this->request->data['OrderPayment'] != $this->request->data['OrderShipment'] ? '' : 'checked' )); ?>
     </fieldset>
     <fieldset id="shippingAddress">
-      <legend><?php __('Shipping Address'); ?></legend>
+      <legend><?php echo __('Shipping Address'); ?></legend>
       <div id="shipping_error"></div>
       <?php 
 	  echo $this->Form->input('OrderShipment.first_name' , array('label' => 'First Name '));
@@ -193,7 +193,7 @@ echo $this->Form->create('OrderTransaction');  ?>
     
     
     <fieldset id="paymentInformation">
-      <legend><?php __('Payment Information'); ?></legend>
+      <legend><?php echo __('Payment Information'); ?></legend>
       <?php 
       echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => formatPrice($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => '')); 
 	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => formatPrice($this->request->data['OrderTransaction']['order_charge'])));

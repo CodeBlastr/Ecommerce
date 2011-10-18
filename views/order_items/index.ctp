@@ -1,5 +1,5 @@
 <div class="orderItems index">
-<h2><?php __('OrderItem Items');?></h2>
+<h2><?php echo __('OrderItem Items');?></h2>
 <p>
 <?php
 echo $this->Paginator->counter(array(
@@ -18,7 +18,7 @@ echo $this->Paginator->counter(array(
 	<th><?php echo $this->Paginator->sort('quantity');?></th>
 	<th><?php echo $this->Paginator->sort('status');?></th>
 	<th><?php echo $this->Paginator->sort('created');?></th>
-	<th class="actions"><?php __('Actions');?></th>
+	<th class="actions"><?php echo __('Actions');?></th>
 </tr>
 <?php
 $i = 0;

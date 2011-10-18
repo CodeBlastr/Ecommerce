@@ -4,13 +4,13 @@
       <?php  __('Transaction Details');?>
     </h2>
     <p class="transactionDetail" id="transactionDetailStatus"><span class="label">
-      <?php __('Amount: '); ?>
+      <?php echo __('Amount: '); ?>
       </span><?php echo $orderTransaction['OrderTransaction']['total']; ?></p>
     <p class="transactionDetail" id="transactionDetailSystemStatus"><span class="label">
-      <?php __('System Status: '); ?>
+      <?php echo __('System Status: '); ?>
       </span><?php echo $orderTransaction['OrderTransaction']['status']; ?></p>
     <p class="transactionDetail" id="transactionDetailPaymentStatus"><span class="label">
-      <?php __('Payment Status: '); ?>
+      <?php echo __('Payment Status: '); ?>
       </span><?php echo $orderTransaction['OrderTransaction']['processor_response']; ?></p>
   </div>
   <div class="shippingDetails">
@@ -18,31 +18,31 @@
       <?php  __('Shipping Details');?>
     </h2>
     <p class="shippingDetail" id="shippingDetailName"><span class="label">
-      <?php __('Name: '); ?>
+      <?php echo __('Name: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['first_name']; ?> <?php echo $orderTransaction['OrderShipment']['last_name']; ?></p>
     <!--p class="shippingDetail" id="shippingDetailCompany"><span class="label">
-      <?php __('Company: '); ?>
+      <?php echo __('Company: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['company']; ?></p>
     <p class="shippingDetail" id="shippingDetailEmail"><span class="label">
-      <?php __('Email: '); ?>
+      <?php echo __('Email: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['email']; ?></p-->
     <p class="shippingDetail" id="shippingDetailStreetOne"><span class="label">
-      <?php __('Street: '); ?>
+      <?php echo __('Street: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['street_address_1']; ?></p>
     <p class="shippingDetail" id="shippingDetailStreetTwo"><span class="label">
-      <?php __('Street: '); ?>
+      <?php echo __('Street: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['street_address_2']; ?></p>
     <p class="shippingDetail" id="shippingDetailCity"><span class="label">
-      <?php __('City: '); ?>
+      <?php echo __('City: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['city']; ?></p>
     <p class="shippingDetail" id="shippingDetailZip"><span class="label">
-      <?php __('Zip: '); ?>
+      <?php echo __('Zip: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['zip']; ?></p>
     <p class="shippingDetail" id="shippingDetailCountry"><span class="label">
-      <?php __('Country: '); ?>
+      <?php echo __('Country: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['country']; ?></p>
     <!--p class="shippingDetail" id="shippingDetailPhone"><span class="label">
-      <?php __('Phone: '); ?>
+      <?php echo __('Phone: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['phone']; ?></p-->
   </div>
   <h2>

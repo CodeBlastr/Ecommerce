@@ -1,7 +1,7 @@
 <div class="orderItems form">
 <?php echo $this->Form->create('OrderItem');?>
 	<fieldset>
- 		<legend><?php __('Edit OrderItem');?></legend>
+ 		<legend><?php echo __('Edit OrderItem');?></legend>
 	<?php
 		echo $this->Form->input('id');
 		echo $this->Form->input('order_payment_id');

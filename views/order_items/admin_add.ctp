@@ -1,7 +1,7 @@
 <div class="orderItems form">
 <?php echo $this->Form->create('OrderItem');?>
 	<fieldset>
- 		<legend><?php __('Add Catalog Item stock');?></legend>
+ 		<legend><?php echo __('Add Catalog Item stock');?></legend>
 	<?php
 		echo $this->Form->input('catalog_item_id');
 		echo $this->Form->input('quantity');
