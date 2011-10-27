@@ -155,7 +155,7 @@ class OrderTransactionsController extends OrdersAppController {
 			if(defined('__ORDERS_CHECKOUT_REDIRECT')) {
 				# extract the settings 
 				extract(unserialize(__ORDERS_CHECKOUT_REDIRECT));
-				$plugin = pluginize($model);
+				$plugin = strtolower(pluginize($model));
 				$controller = Inflector::tableize($model);
 				# get foreign key of OrderItem using given setings
 				$foreign_key = $this->OrderTransaction->OrderItem->find('first', 
