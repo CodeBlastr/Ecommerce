@@ -32,7 +32,7 @@
     		
     		<?php $model = $cartItem['OrderItem']['model'];  $plugin = pluginize($model); $controller = Inflector::tableize($model);?>
     		<?php echo !empty($cartItem['OrderItem']['name']) ? 
-					$this->element('thumb', array('plugin' => 'galleries', 'model' => 'CatalogItem', 'foreignKey' => $cartItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'small', 'thumbLink' => '/catalogs/catalog_items/view/'.$cartItem['OrderItem']['catalog_item_id'])).
+					$this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $cartItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'small', 'thumbLink' => '/catalogs/catalog_items/view/'.$cartItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries')).
 					$this->Html->link($cartItem['OrderItem']['name'] , array('plugin' => 'catalogs', 'controller'=>'catalog_items', 'action' => 'view' , $cartItem['OrderItem']['catalog_item_id'])) : 
 					$this->Html->link(substr($name, 0, 20), 
 							array('plugin' => $plugin, 

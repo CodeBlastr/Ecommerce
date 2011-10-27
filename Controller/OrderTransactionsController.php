@@ -370,7 +370,7 @@ class OrderTransactionsController extends OrdersAppController {
 		
 		# used to prefill customer billing and shipping data if it exists
 		$customer = $this->OrderTransaction->Customer->find('first', 
-			array('conditions' => array('Customer.id' => $this->Auth->user('id'))));
+			array('conditions' => array('Customer.id' => $this->Session->read('Auth.User.id'))));
 		$this->request->data['OrderTransaction'] = $customer['Customer'];
 		$shippingOptions = $this->_shippingOptions($orderItems);
 		
