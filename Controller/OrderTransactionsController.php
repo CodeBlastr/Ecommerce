@@ -407,6 +407,15 @@ class OrderTransactionsController extends OrdersAppController {
 		$fedexSettings = defined('__ORDERS_FEDEX') ? unserialize(__ORDERS_FEDEX) : null;
 		$paymentMode = defined('__ORDERS_DEFAULT_PAYMENT') ? __ORDERS_DEFAULT_PAYMENT : null;
 		$paymentOptions = defined('__ORDERS_ENABLE_PAYMENT_OPTIONS') ? unserialize(__ORDERS_ENABLE_PAYMENT_OPTIONS) : null;
+
+		if(defined('__ORDERS_ENABLE_SINGLE_PAYMENT_TYPE')) :
+			$singlePaymentKeys = $this->Session->read('OrderPaymentType');
+			if(!empty($singlePaymentKeys)) :
+				$singlePaymentKeys = array_flip($singlePaymentKeys);
+				$paymentOptions = array_intersect_key($paymentOptions, $singlePaymentKeys);
+			endif;
+		endif;
+
 		$defaultShippingCharge = defined('__ORDERS_FLAT_SHIPPING_RATE') ? __ORDERS_FLAT_SHIPPING_RATE : 0;
 		
 		# set the variables

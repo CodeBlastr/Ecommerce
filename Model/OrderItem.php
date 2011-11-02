@@ -117,6 +117,7 @@ class OrderItem extends OrdersAppModel {
 		$defaults['OrderItem']['weight'] = $catalogItem['CatalogItem']['weight'];
 		$defaults['OrderItem']['customer_id'] = !empty($userId) ? $userId : null;
 		$defaults['OrderItem']['arb_settings'] = $catalogItem['CatalogItem']['arb_settings'];
+		$defaults['OrderItem']['payment_type'] = $catalogItem['CatalogItem']['payment_type'];
 		$defaults['OrderItem']['is_virtual'] = $catalogItem['CatalogItem']['is_virtual'];
 		$defaults['OrderItem']['model'] = !empty($catalogItem['CatalogItem']['model']) ? $catalogItem['CatalogItem']['model'] : 'Catalog';
 		$defaults['OrderItem']['foreign_key'] = !empty($catalogItem['CatalogItem']['foreign_key']) ? $catalogItem['CatalogItem']['foreign_key'] : $catalogItem['CatalogItem']['id'];
@@ -151,6 +152,7 @@ class OrderItem extends OrdersAppModel {
 				'OrderItem.catalog_item_id',
 				'OrderItem.customer_id',
 				'OrderItem.arb_settings',
+				'OrderItem.payment_type',
 				'OrderItem.model',
 				'OrderItem.foreign_key',
 				'OrderItem.is_virtual',

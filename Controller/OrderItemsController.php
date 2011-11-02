@@ -32,27 +32,50 @@ class OrderItemsController extends OrdersAppController {
 		$userId = $this->Session->read('Auth.User.id');
 		# if there are multiple items then we will go to the checkout page, instead of the cart view page
 		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
-		
-		if (!empty($userId)) : 
-	  		$ret = $this->OrderItem->addToCart($this->request->data, $userId);
-	  		if ($ret['state']) {
-	  			$cart_count = $this->OrderItem->prepareCartData($this->Session->read('Auth.User.id'), $this->userRoleId);
-	  			$cart_count = $cart_count[0]['total_quantity'];
+
+		$this->check_payment_type($this->request->data);
+		if (!empty($userId)) :
+			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
+			if ($ret['state']) {
+				$cart_count = $this->OrderItem->prepareCartData($this->Session->read('Auth.User.id'), $this->userRoleId);
+				$cart_count = $cart_count[0]['total_quantity'];
 				if ($this->Session->check('OrdersCartCount')) {
 					$this->Session->delete('OrdersCartCount');
 				}
-	  			$this->Session->write('OrdersCartCount', $cart_count);
-	  			$this->Session->setFlash($ret['msg']);
-	  			$this->redirect($redirect);
-	  		} else {
-	  			$this->Session->setFlash(__($ret['msg'], true));
-	  		}
+		  		$this->Session->write('OrdersCartCount', $cart_count);
+		  		$this->Session->setFlash($ret['msg']);
+		  		$this->redirect($redirect);
+			} else {
+				$this->Session->setFlash(__($ret['msg'], true));
+			}
 		else :
 			$this->_addToCookieCart($this->request->data);
 	  		$this->redirect($redirect);
 		endif;
 	}
 	
+	/*
+	 * Check Payment Type
+	 * @params $this->request->data
+	 * write the common payment type in session
+	 */
+	function check_payment_type($orderItem = null){
+		if(!empty($orderItem['OrderItem']['payment_type'])) :
+			if($this->Session->check('OrderPaymentType')) :
+				$paymentTypes = $this->Session->read('OrderPaymentType');
+				$newPaymentTypes = explode(',', $orderItem['OrderItem']['payment_type']);
+				$commonPaymentType = array_intersect($paymentTypes, $newPaymentTypes);
+				if(!empty($commonPaymentType)) :
+					$this->Session->write('OrderPaymentType', $commonPaymentType);
+				else :
+					$this->Session->setFlash('Please checkout with existing cart items.');
+		  			$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
+				endif;
+			else :
+				$this->Session->write('OrderPaymentType', explode(',', $orderItem['OrderItem']['payment_type']));	 
+			endif;
+		endif;	
+	}
 	
 	/**
 	 * View Cart 
