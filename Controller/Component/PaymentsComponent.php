@@ -12,7 +12,7 @@ class PaymentsComponent extends Object{
 	
 	function initialize() { }
 	function beforeRender() { }
-	function beforeRedirect() { return true; }
+	function beforeRedirect() { }
 	function shutdown() { }
 		
 		// class variables go here 
