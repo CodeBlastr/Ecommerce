@@ -150,6 +150,9 @@ class OrderTransactionsController extends OrdersAppController {
 			$message = '<p>Thank you for your order. You can always log in and view your order status here : <a href="'.$_SERVER['HTTP_HOST'].'/orders/order_transactions/view/'.$this->OrderTransaction->id.'">'.$_SERVER['HTTP_HOST'].'/orders/order_transactions/view/'.$this->OrderTransaction->id.'</a></p>';
 			$this->__sendMail($this->Session->read('Auth.User.email'), 'Successful Order', $message, $template = 'default');
 			
+			#delete the session for payment type 
+			$this->Session->delete('OrderPaymentType');
+			
 			# this is the redirect for successful transactions
 			# if settings given for orders checkout  
 			if(defined('__ORDERS_CHECKOUT_REDIRECT')) {
