@@ -5,29 +5,40 @@
 //App::import('model' , 'Users.User');
 class CreditComponent extends Object{
 	var $name = 'Credit';
-	
+	var $controller = null;
 	//var $uses = array('Users.User');
-	var $components = array('Session', 'Auth');
+	var $components = array('Auth');
 	
 	function startup(&$controller) {
+		if (!$this->controller) {
+			$this->controller = $controller;
+		}
 	}	
 	function initialize(&$controller) {
+		if (!$this->controller) {
+			$this->controller = $controller;
+		}
 	}
 	
-	
-	
 	function Pay($data){
-		App::import('Component', 'Session');
-		$Session = new SessionComponent();
-		
+
+		$user_id = AuthComponent::user('id');		
 		$userObject = ClassRegistry::init('User');
 		$creditData = $userObject->find('first' , array('conditions' => 
 				array('User.credit_total >=' => $data['Order']['theTotal'],
-						'User.id' => $Session->read('Auth.User.id'))));
-		if(!empty($creditData) && intval($creditData['User']['credit_total']) >= intval($data['Order']['theTotal'])) {
-			$creditData['User']['credit_total'] = (intval($creditData['User']['credit_total']) - intval($data['Order']['theTotal']));  
+						'User.id' => $user_id
+				)));
+				
+		#if setting defined then multiply it by order Amount		
+		if(defined('__USERS_CREDITS_PER_PRICE_UNIT')) :
+			$credits = $data['Order']['theTotal'] * __USERS_CREDITS_PER_PRICE_UNIT ;
+		endif;
+		
+		if(!empty($creditData) && intval($creditData['User']['credit_total']) >= intval($credits)) {
+			$creditData['User']['credit_total'] = (intval($creditData['User']['credit_total']) - intval($credits));  
 			$userObject->updateAll( array("User.credit_total" => $creditData['User']['credit_total']), 
-									array( "User.id" => $Session->read('Auth.User.id') ) );
+									array( "User.id" => $user_id
+								 ));
 			$response['transaction_id'] = $userObject->__uid('ot');
 			$response['response_code'] = 1;
 			$response['amount'] = $data['Order']['theTotal'];

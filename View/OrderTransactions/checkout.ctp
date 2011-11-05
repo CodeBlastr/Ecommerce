@@ -254,8 +254,10 @@ echo $this->Form->create('OrderTransaction');  ?>
 	$('#OrderTransactionMode').change(function(e){
 		if ($('#OrderTransactionMode').val() == 'CREDIT') {
 			if ($('#creditCardInfo').is(":visible"))
+				$('#OrderTransactionCardNumber').removeClass('required');
 				$('#creditCardInfo').hide();
 		} else {
+			$('#OrderTransactionCardNumber').addClass('required');
 			$('#creditCardInfo').show();
 		}
 	});
