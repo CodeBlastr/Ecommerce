@@ -35,6 +35,38 @@ foreach ($orderTransactions as $orderTransaction):
 			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $orderTransaction['OrderTransaction']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $orderTransaction['OrderTransaction']['id'])); ?>
 		</td>
 	</tr>
+	<tr>
+		<div>
+		<table>
+			<tr>
+				<th>Item </th>
+				<th>Brand </th>
+				<th>Status </th>
+				<th>Virtual Items Link </th>
+			</tr>
+		<?php 
+			foreach($orderTransaction['OrderItem'] as $key => $oi) :
+		?>
+			<tr>
+				<td><?php echo $oi['name']?></td>
+				<td><?php if(!empty($oi['CatalogItem']['CatalogItemBrand']))echo $oi['CatalogItem']['CatalogItemBrand']['name']?></td>
+				<td><?php echo $oi['status']; ?></td>
+				<td>
+				<?php 
+					if($oi['is_virtual'] == 1) :
+						echo $this->Html->link('Click here to See Virtual Item : '  . $oi['name'],
+								array('plugin' => 'webpages', 'controller' => 'webpages', 
+									'action' => 'view', $oi['foreign_key']));
+					endif;
+				?>
+				</td>
+			</tr>
+		<?php
+			endforeach; 
+		?>
+		</table>
+		</div>
+	</tr>
 <?php endforeach; ?>
 </table>
 </div>

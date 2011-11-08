@@ -66,13 +66,13 @@ foreach($orderTransaction['OrderItem'] as $key => $oi) { ?>
     <?php }?>
   </table>
 </div>
-<div>
+<div class="OrderTransactionVirtualItemsView">
 <?php
 	foreach($orderTransaction['OrderItem'] as $orderItem) :
 		if($orderItem['is_virtual'] == 1) :
 			echo '<br/>' .
 				$this->Html->link('Click here for Virtual Item : '  . $orderItem['name'], 
-				array('plugin' => 'webpages', 'controller' => 'webpages', 'action' => 'view', $orderItem['foreign_key']), array('style'=>'font-weight:bold;color:red'));
+				array('plugin' => 'webpages', 'controller' => 'webpages', 'action' => 'view', $orderItem['foreign_key']));
 		endif;
 	endforeach;
 ?>
