@@ -160,6 +160,7 @@ class OrderTransactionsController extends OrdersAppController {
 				extract(unserialize(__ORDERS_CHECKOUT_REDIRECT));
 				$plugin = strtolower(pluginize($model));
 				$controller = Inflector::tableize($model);
+				$url = !empty($url) ? $url : array('plugin' => $plugin, 'controller'=>$controller , 'action'=>$action, !empty($foreign_key['OrderItem']['foreign_key']) ? $foreign_key['OrderItem']['foreign_key'] : '' );
 				# get foreign key of OrderItem using given setings
 				$foreign_key = $this->OrderTransaction->OrderItem->find('first', 
 						array('fields' => $pass, 
@@ -167,8 +168,7 @@ class OrderTransactionsController extends OrdersAppController {
 								'OrderItem.order_transaction_id' => $this->OrderTransaction->id,
 								)
 							));
-				$this->redirect(array('plugin' => $plugin, 'controller'=>$controller , 'action'=>$action, 
-										!empty($foreign_key['OrderItem']['foreign_key']) ? $foreign_key['OrderItem']['foreign_key'] : '' ));
+				$this->redirect($url);
 			} else {
 				$this->redirect(array('controller' => 'order_transactions' , 'action' => 'view', $this->OrderTransaction->id));
 			}
