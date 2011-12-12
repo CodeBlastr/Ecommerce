@@ -39,7 +39,7 @@ class CreditComponent extends Object{
 			$userObject->updateAll( array("User.credit_total" => $creditData['User']['credit_total']), 
 									array( "User.id" => $user_id
 								 ));
-			$response['transaction_id'] = $userObject->__uid('ot');
+			$response['transaction_id'] = $userObject->__uuid('ot');
 			$response['response_code'] = 1;
 			$response['amount'] = $data['Order']['theTotal'];
 			$this->_parseCreditResponse($response);
