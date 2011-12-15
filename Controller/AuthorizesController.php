@@ -1,7 +1,8 @@
 <?php
  class AuthorizesController extends OrdersAppController {
- 	var $name = 'Authorizes';
- 	var $components = array('AuthorizeNet');
+ 	public $name = 'Authorizes';
+	public $uses = 'Orders.Authorize';
+ 	public $components = array('AuthorizeNet');
 
  	function index(){
  		        // You would need to add in necessary information here from your data collector 

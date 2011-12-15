@@ -1,8 +1,9 @@
 <?php
 class OrderItemsController extends OrdersAppController {
 
-	var $name = 'OrderItems';
-	var $allowedActions = array('delete');
+	public $name = 'OrderItems';
+	public $uses = 'Orders.OrderItem';
+	public $allowedActions = array('delete');
 
 
 	function index($status = null) {

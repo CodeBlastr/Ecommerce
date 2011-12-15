@@ -1,7 +1,7 @@
 <?php
 class OrdersAppController extends AppController {
 	
-	var $components = array('Cookie'); // used for the guest cart
+	public $components = array('Cookie'); // used for the guest cart
 	
 	function beforeFilter() {
 		parent::beforeFilter();	
