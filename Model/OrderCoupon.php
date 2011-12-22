@@ -1,11 +1,11 @@
 <?php
-App::uses('AppModel', 'Model');
+App::uses('OrdersAppModel', 'Orders.Model');
 /**
  * OrderCoupon Model
  *
  * @property OrderTransaction $OrderTransaction
  */
-class OrderCoupon extends AppModel {
+class OrderCoupon extends OrdersAppModel {
 /**
  * Display field
  *
@@ -62,5 +62,13 @@ class OrderCoupon extends AppModel {
 			'counterQuery' => ''
 		)
 	);
+	
+	
+	public function types() {
+		return array(
+			'fixed' => 'Fixed discount for cart total.',
+			'percent' => 'Percent discount for cart total.',
+			);
+	}
 
 }

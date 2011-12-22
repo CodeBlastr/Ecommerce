@@ -1,4 +1,5 @@
 <?php
+App::uses('OrdersAppController', 'Orders.Controller');
 /**
  * Order Transactions Controller
  *

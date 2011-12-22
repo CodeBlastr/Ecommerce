@@ -1,4 +1,10 @@
 <?php
+App::uses('OrdersAppModel', 'Orders.Model');
+/**
+ * OrderTransaction Model
+ *
+ * @property OrderTransaction $OrderTransaction
+ */
 class OrderTransaction extends OrdersAppModel {
 	var $name = 'OrderTransaction';
 	//The Associations below have been created with all possible keys, those that are not needed can be removed

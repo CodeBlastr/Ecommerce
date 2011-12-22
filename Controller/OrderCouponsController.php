@@ -1,11 +1,14 @@
 <?php
-App::uses('AppController', 'Controller');
+App::uses('OrdersAppController', 'Orders.Controller');
 /**
  * OrderCoupons Controller
  *
  * @property OrderCoupon $OrderCoupon
  */
-class OrderCouponsController extends AppController {
+class OrderCouponsController extends OrdersAppController {
+	
+	public $name = 'OrderCoupons';
+	public $uses = 'Orders.OrderCoupon';
 
 
 /**
@@ -14,7 +17,6 @@ class OrderCouponsController extends AppController {
  * @return void
  */
 	public function index() {
-		$this->OrderCoupon->recursive = 0;
 		$this->set('orderCoupons', $this->paginate());
 	}
 
@@ -47,6 +49,7 @@ class OrderCouponsController extends AppController {
 				$this->Session->setFlash(__('The order coupon could not be saved. Please, try again.'));
 			}
 		}
+		$this->set('discountTypes', $this->OrderCoupon->types());
 	}
 
 /**

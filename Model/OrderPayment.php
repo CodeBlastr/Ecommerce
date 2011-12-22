@@ -1,4 +1,10 @@
 <?php
+App::uses('OrdersAppModel', 'Orders.Model');
+/**
+ * OrderPayment Model
+ *
+ * @property OrderPayment $OrderPayment
+ */
 class OrderPayment extends OrdersAppModel {
 	var $name = 'OrderPayment';
 	var $displayField = 'name';

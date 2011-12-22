@@ -1,4 +1,10 @@
 <?php
+App::uses('AppController', 'Controller');
+/**
+ * OrdersAppController Controller
+ *
+ * @property OrdersAppController $Order
+ */
 class OrdersAppController extends AppController {
 	
 	public $components = array('Cookie'); // used for the guest cart

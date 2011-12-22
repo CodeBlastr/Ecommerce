@@ -199,7 +199,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => formatPrice($this->request->data['OrderTransaction']['order_charge'])));
 	  $orderTotal = floatval($defaultShippingCharge) + floatval($this->request->data['OrderTransaction']['order_charge']); 
 	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total ' ,'readonly' => true, 
-	  		'value' => formatPrice($orderTotal), 'after' => defined('__USERS_CREDITS_PER_PRICE_UNIT') ? " Or Credits : " . __USERS_CREDITS_PER_PRICE_UNIT * $orderTotal : "Or Credits : " .  $orderTotal ));
+	  		'value' => formatPrice($orderTotal), /*'after' => defined('__USERS_CREDITS_PER_PRICE_UNIT') ? " Or Credits : " . __USERS_CREDITS_PER_PRICE_UNIT * $orderTotal : "Or Credits : " .  $orderTotal*/ ));
 	  echo $this->Form->hidden('OrderTransaction.quantity'); 
 	  echo $this->Form->input('mode', array('label' => 'Payment Type', 'options' => $paymentOptions, 'default' => $paymentMode));
 	  echo $this->Element(strtolower($paymentMode)); ?>

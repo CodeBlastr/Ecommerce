@@ -1,4 +1,10 @@
 <?php
+App::uses('OrdersAppController', 'Orders.Controller');
+/**
+ * OrderItems Controller
+ *
+ * @property OrderItem $Order
+ */
 class OrderItemsController extends OrdersAppController {
 
 	public $name = 'OrderItems';
