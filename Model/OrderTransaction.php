@@ -28,6 +28,13 @@ class OrderTransaction extends OrdersAppModel {
 //			'fields' => '',
 //			'order' => ''
 //		),
+		'Coupon' => array(
+			'className' => 'Orders.OrderCoupon',
+			'foreignKey' => 'order_coupon_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 		'Customer' => array(
 			'className' => 'Users.User',
 			'foreignKey' => 'customer_id',
