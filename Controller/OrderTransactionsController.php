@@ -93,7 +93,6 @@ class OrderTransactionsController extends OrdersAppController {
 		if (!empty($this->request->data)) :
 			$this->_paymentSubmitted($this->request->data);
 		endif;
-		
 		$this->_checkoutVariables();
 	}
 	
@@ -427,7 +426,6 @@ class OrderTransactionsController extends OrdersAppController {
 		endif;
 
 		$defaultShippingCharge = defined('__ORDERS_FLAT_SHIPPING_RATE') ? __ORDERS_FLAT_SHIPPING_RATE : 0;
-		
 		# set the variables
 		$this->set(compact('orderItems', 'shippingOptions', 'defaultShippingCharge', 'shippingAddress', 'billingAddress', 'allVirtual', 'enableShipping', 'fedexSettings', 'paymentMode', 'paymentOptions'));
 		$this->set('isArb', 0);

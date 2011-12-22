@@ -198,9 +198,9 @@ echo $this->Form->create('OrderTransaction');  ?>
       echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => formatPrice($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => '')); 
 	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => formatPrice($this->request->data['OrderTransaction']['order_charge'])));
 	  $orderTotal = floatval($defaultShippingCharge) + floatval($this->request->data['OrderTransaction']['order_charge']); 
-	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total <small><a id="applyCode" name="OrderCouponCode" href="/orders/order_coupons/apply">Apply Code</a></small>' ,'readonly' => true, 
+	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total <small><a id="enterPromo" name="OrderCouponCode" href="/orders/order_coupons/apply">Enter Promo</a></small>' ,'readonly' => true, 
 	  		'value' => formatPrice($orderTotal), /*'after' => defined('__USERS_CREDITS_PER_PRICE_UNIT') ? " Or Credits : " . __USERS_CREDITS_PER_PRICE_UNIT * $orderTotal : "Or Credits : " .  $orderTotal*/ ));
-	  echo $this->Form->input('OrderCoupon.code', array('label' => 'Code'));
+	  echo $this->Form->input('OrderCoupon.code', array('label' => 'Code <small><a id="applyCode" name="OrderCouponCode" href="/orders/order_coupons/apply">Apply Code</a></small>'));
 	  echo $this->Form->hidden('OrderTransaction.quantity'); 
 	  echo $this->Form->input('mode', array('label' => 'Payment Type', 'options' => $paymentOptions, 'default' => $paymentMode));
 	  echo $this->Element(strtolower($paymentMode)); ?>
@@ -222,11 +222,17 @@ echo $this->Form->create('OrderTransaction');  ?>
   </div><!--  id="orderTransactionForm" class="orderTransactionForm text-inputs" -->
 </div>
 <script type="text/javascript">
-	$("#OrderCouponCode").parent().hide();
+	if (!$("#OrderCouponCode").val()) {
+		$("#OrderCouponCode").parent().hide();
+		$("#enterPromo").click(function(e){
+			e.preventDefault();
+			$("#OrderCouponCode").parent().toggle();
+		});
+	}
 	$("#applyCode").click(function(e){
 		e.preventDefault();
-		$("#OrderCouponCode").parent().toggle();
-	});
+		alert('This is where we make an ajax request to update the price');
+    });
 	
 	var shipTypeValue = $('#OrderTransactionShippingType').val();
 	<?php

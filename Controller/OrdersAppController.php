@@ -10,12 +10,12 @@ class OrdersAppController extends AppController {
 	public $components = array('Cookie'); // used for the guest cart
 	
 	function beforeFilter() {
-		parent::beforeFilter();	
 		# used for guest cart
 		$this->Cookie->name = 'zuhaCart';
 		$this->Cookie->time = '2 Weeks';
 		$this->Cookie->domain = $_SERVER['HTTP_HOST'];
 		$this->Cookie->key = 'ghh8398kjfkju3889';
+		parent::beforeFilter();	
 	}
 	
 	
