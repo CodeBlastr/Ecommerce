@@ -40,6 +40,71 @@ class OrderTransactionsController extends OrdersAppController {
 			);
 		$this->set('orderTransactions', $this->paginate());
 	}
+	
+	function view($id = null) {
+		if (!$id) {
+			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
+		}
+		$this->set('orderTransaction', $this->OrderTransaction->find('first',
+			array('conditions' => array('OrderTransaction.id' => $id),
+				'contain' => array('OrderItem' => array('CatalogItem'=>'CatalogItemBrand'), 'Creator', 'OrderShipment')
+		)));
+	}
+
+	function add() {
+		if (!empty($this->request->data)) {
+			$this->OrderTransaction->create();
+			if ($this->OrderTransaction->save($this->request->data)) {
+				$this->flash(__('OrderTransaction saved.', true), array('action'=>'index'));
+			} else {
+			}
+		}
+	}
+
+/** 
+ * 
+ * @todo 	The transaction doesn't actually get edited on this page, only the order item status, and that goes to a different function (OrderItems.change_status()):
+ */
+	function edit($id = null) {
+		if (!$id) {
+			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
+		}
+		$this->set('orderTransaction', $this->OrderTransaction->find('first', array(
+			'conditions' => array(
+				'OrderTransaction.id' => $id
+				),
+			'contain' => array(
+				'OrderItem' => array(
+					'CatalogItem' => 'CatalogItemBrand',
+					),
+				'Creator', 'OrderShipment'
+				)
+			)
+		));
+	}
+
+	function delete($id = null) {
+		if (!$id) {
+			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
+		}
+		if ($this->OrderTransaction->delete($id)) {
+			$this->flash(__('OrderTransaction deleted', true), array('action'=>'index'));
+		}
+	}
+	
+
+/** 
+ * Method for sending variables to the checkout view
+ *
+ * @param {string}		noPayment means don't submit the form, instead just update the checkoutVariables
+ * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->request->data, back with any callback to cover a wide range of use cases for the callback.
+ */
+	function checkout(){
+		if (!empty($this->request->data)) {
+			$this->_paymentSubmitted();
+		} 
+		$this->_checkoutVariables();
+	}
 
 
 /**
@@ -82,28 +147,176 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->set('orderTransactions', $this->paginate());
 	}
 	
-
+	
 /** 
- * Method for sending variables to the checkout view
- *
- * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->request->data, back with any callback to cover a wide range of use cases for the callback.
+ * There was a ton of variables in the checkout() action, so moved them here to help clean up a bit.
  */
-	function checkout(){
-		# a payment was submitted
-		if (!empty($this->request->data)) :
-			$this->_paymentSubmitted($this->request->data);
+	function _checkoutVariables() {
+		# setup ssl variables (note: https rarely works on localhost, so its removed)
+		if (defined('__ORDERS_SSL') && !strpos($_SERVER['HTTP_HOST'], 'localhost')) : $this->Ssl->force(); endif;
+		$ssl = defined('__ORDERS_SSL') ? unserialize(__ORDERS_SSL) : null;
+		$trustLogos = !empty($ssl['trustLogos']) ? $ssl['trustLogos'] : null;
+		$this->set(compact('trustLogos'));
+
+		# setup the view variables from here down
+		$orderItems = $this->_prepareCartData();
+		
+		# go to cart if there are no items to checkout with
+		if (empty($orderItems[0]['OrderItem'])) :
+			$this->Session->setFlash(__('Cart is empty, can\'t checkout.', true));
+			$this->redirect(array('plugin' => 'orders', 'controller'=>'order_items' , 'action' => 'cart'));
 		endif;
-		$this->_checkoutVariables();
+		
+		# used to prefill customer billing and shipping data if it exists
+		$customer = $this->OrderTransaction->Customer->find('first', 
+			array('conditions' => array('Customer.id' => $this->Session->read('Auth.User.id'))));
+		$this->request->data['OrderTransaction'] = $customer['Customer'];
+		$shippingOptions = $this->_shippingOptions($orderItems);
+		
+		# please clean this up by moving it to separate functions, or to the model.  Its a mess
+		$shippingAddress = $this->OrderTransaction->OrderShipment->find('first', array(
+			'conditions' => array(
+				'OrderShipment.user_id' => $this->Auth->user('id'),
+				// 'OrderShipment.order_transaction_id' => null,  // not sure why this matters - RK?
+				),
+			'order' => array(
+				'OrderShipment.modified',
+				),
+			));
+		
+		$billingAddress = $this->OrderTransaction->OrderPayment->find('first', array(
+			'conditions' => array('OrderPayment.user_id' => $this->Auth->user('id'),
+				// 'OrderPayment.order_transaction_id' => null,  // not sure why this matters - RK?
+				),
+			'order' => array(
+				'OrderPayment.modified',
+				),
+			));
+		
+		# see if all items are virtual
+		foreach ($orderItems as $orderItem) : 
+			$allVirtual = $orderItem['OrderItem']['is_virtual'];
+			if ($allVirtual != 1) :
+				break;
+			endif;
+		endforeach;
+		
+		# constants for per site options
+   		$enableShipping = defined('__ORDERS_ENABLE_SHIPPING') ? __ORDERS_ENABLE_SHIPPING : false;
+		$fedexSettings = defined('__ORDERS_FEDEX') ? unserialize(__ORDERS_FEDEX) : null;
+		$paymentMode = defined('__ORDERS_DEFAULT_PAYMENT') ? __ORDERS_DEFAULT_PAYMENT : null;
+		$paymentOptions = defined('__ORDERS_ENABLE_PAYMENT_OPTIONS') ? unserialize(__ORDERS_ENABLE_PAYMENT_OPTIONS) : null;
+
+		if(defined('__ORDERS_ENABLE_SINGLE_PAYMENT_TYPE')) :
+			$singlePaymentKeys = $this->Session->read('OrderPaymentType');
+			if(!empty($singlePaymentKeys)) :
+				$singlePaymentKeys = array_flip($singlePaymentKeys);
+				$paymentOptions = array_intersect_key($paymentOptions, $singlePaymentKeys);
+			endif;
+		endif;
+
+		$defaultShippingCharge = defined('__ORDERS_FLAT_SHIPPING_RATE') ? __ORDERS_FLAT_SHIPPING_RATE : 0;
+		# set the variables
+		$this->set(compact('orderItems', 'shippingOptions', 'defaultShippingCharge', 'shippingAddress', 'billingAddress', 'allVirtual', 'enableShipping', 'fedexSettings', 'paymentMode', 'paymentOptions'));
+		$this->set('isArb', 0);
+	
+		# form field values
+		$this->request->data['OrderTransaction']['order_charge'] = $orderItems[0]['total_price'] ;
+		$this->request->data['OrderTransaction']['quantity'] = $orderItems[0]['total_quantity'] ;
+		$this->request->data['OrderPayment'] = $billingAddress['OrderPayment'];
+		$this->request->data['OrderShipment'] = $shippingAddress['OrderShipment'];
+		$this->request->data['OrderPayment']['first_name'] = !empty($this->request->data['OrderTransaction']['first_name']) ? $this->request->data['OrderTransaction']['first_name'] : $this->Session->read('Auth.User.first_name');
+		$this->request->data['OrderPayment']['last_name'] = !empty($this->request->data['OrderTransaction']['last_name']) ? $this->request->data['OrderTransaction']['last_name'] :  $this->Session->read('Auth.User.last_name');
+		
 	}
 	
+	
+	/**
+	 * Used to decide whether shipping options are necessary, and if they are which shipping options should be available
+	 *
+	 * @param {array}	an array of order items to check for shipping options that should be available
+	 * @todo 			Move more of the shipping logic into this function from checkout()
+	 */
+	function _shippingOptions($orderItems = null) {
+		if (!empty($orderItems) && defined('__ORDERS_ENABLE_SHIPPING')) {
+			# if all items are virtual return null
+			foreach ($orderItems as $orderItem) {
+				if ($orderItem['OrderItem']['is_virtual'] != 1) {
+					$return = true;
+					break;
+				} else {
+					$return  = false;
+				}
+			}
+			if ($return == true && defined('__ORDERS_FEDEX')) {
+				$return = unserialize(__ORDERS_FEDEX);
+			}
+		} else {
+			$return = false;
+		}
+		return $return;
+	}
+
+
+/**
+ * Where the actual transfer of money is approved or denied.
+ *
+ * @param {data} 	billing information
+ * @param {total} 	the total to try and get approved
+ */	
+	function _charge($data , $total, $mode){
+		$response = null;
+		if (!empty($data)) {
+			// Split card expiration date into month and year
+			$year =  $data['OrderTransaction']['card_exp_year'];
+			$month = $data['OrderTransaction']['card_exp_month'];
+			$cNum = $data['OrderTransaction']["card_number"];
+	   
+			$paymentInfo = array(
+				'Member'=> array( 
+					'first_name'=> $data['OrderPayment']['first_name'], 
+					'last_name'=> $data['OrderPayment']['last_name'], 
+					'billing_address'=> $data['OrderPayment']['street_address_1'], 
+					'billing_address2'=> $data['OrderPayment']['street_address_2'], 
+					'billing_country'=> $data['OrderPayment']['country'], 
+					'billing_city'=> $data['OrderPayment']['city'], 
+					'billing_state'=> $data['OrderPayment']['state'], 
+					'billing_zip'=> $data['OrderPayment']['zip']
+					), 
+				'CreditCard'=> array(
+					'credit_type' => isset($data['OrderTransaction']['credit_type']) ? $data['OrderTransaction']['credit_type'] : '', 
+					'card_number'=>$cNum, 
+					'expiration_month'=>$month,
+					'expiration_year'=> $year,
+					'cv_code'=>$data['OrderTransaction']['card_sec']
+					), 
+				'Order'=> array(
+					'theTotal' => $total
+					),
+				'Billing'=> $this->request->data['OrderPayment'],
+				'Shipping'=> $this->request->data['OrderShipment'],
+				'Meta'=> isset($this->request->data['Meta']) ? $this->request->data['Meta'] : null,
+				'Mode'=> $mode , 	
+				);
+			
+			// set if this is recurring type or not
+            $this->Payments->recurring($data['OrderPayment']['arb']);
+
+			$response = $this->Payments->pay($paymentInfo);
+		}
+		return $response;
+	}
+
 
 /**
  * @todo		As much as possible this needs to go to the model.
+ * @todo		The coupon gets "used" even if the transaction fails.  Need to fix that.
  */
-	function _paymentSubmitted($data) {
-		$this->request->data = $data;
+	function _paymentSubmitted() {
+		# update pricing by applying final price check
+		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data['OrderTransaction']['total'];
 		$total = $this->request->data['OrderTransaction']['total'];
-			
+					
 		# if arb is true then will get arb_profile_id for current user
 		if($this->request->data['OrderPayment']['arb'] == 1) {
 			$orderTransactionId = $this->OrderTransaction->getArbTransactionId($this->Auth->user('id'));
@@ -182,262 +395,11 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 	
 	
-	/**
-	 * Used to decide whether shipping options are necessary, and if they are which shipping options should be available
-	 *
-	 * @param {array}	an array of order items to check for shipping options that should be available
-	 * @todo 			Move more of the shipping logic into this function from checkout()
-	 */
-	function _shippingOptions($orderItems = null) {
-		if (!empty($orderItems) && defined('__ORDERS_ENABLE_SHIPPING')) {
-			# if all items are virtual return null
-			foreach ($orderItems as $orderItem) {
-				if ($orderItem['OrderItem']['is_virtual'] != 1) {
-					$return = true;
-					break;
-				} else {
-					$return  = false;
-				}
-			}
-			if ($return == true && defined('__ORDERS_FEDEX')) {
-				$return = unserialize(__ORDERS_FEDEX);
-			}
-		} else {
-			$return = false;
-		}
-		return $return;
-	}
-
-
-	/**
-	 * Where the actual transfer of money is approved or denied.
-	 *
-	 * @param {data} 	billing information
-	 * @param {total} 	the total to try and get approved
-	 */	
-	function _charge($data , $total, $mode){
-		$response = null;
-		if (!empty($data)) {
-			// Split card expiration date into month and year
-			$year =  $data['OrderTransaction']['card_exp_year'];
-			$month = $data['OrderTransaction']['card_exp_month'];
-			$cNum = $data['OrderTransaction']["card_number"];
-	   
-			$paymentInfo = array(
-				'Member'=> array( 
-					'first_name'=> $data['OrderPayment']['first_name'], 
-					'last_name'=> $data['OrderPayment']['last_name'], 
-					'billing_address'=> $data['OrderPayment']['street_address_1'], 
-					'billing_address2'=> $data['OrderPayment']['street_address_2'], 
-					'billing_country'=> $data['OrderPayment']['country'], 
-					'billing_city'=> $data['OrderPayment']['city'], 
-					'billing_state'=> $data['OrderPayment']['state'], 
-					'billing_zip'=> $data['OrderPayment']['zip']
-					), 
-				'CreditCard'=> array(
-					'credit_type' => isset($data['OrderTransaction']['credit_type']) ? $data['OrderTransaction']['credit_type'] : '', 
-					'card_number'=>$cNum, 
-					'expiration_month'=>$month,
-					'expiration_year'=> $year,
-					'cv_code'=>$data['OrderTransaction']['card_sec']
-					), 
-				'Order'=> array(
-					'theTotal' => $total
-					),
-				'Billing'=> $this->request->data['OrderPayment'],
-				'Shipping'=> $this->request->data['OrderShipment'],
-				'Meta'=> isset($this->request->data['Meta']) ? $this->request->data['Meta'] : null,
-				'Mode'=> $mode , 	
-				);
-			
-			// set if this is recurring type or not
-            $this->Payments->recurring($data['OrderPayment']['arb']);
-
-			$response = $this->Payments->pay($paymentInfo);
-		}
-		return $response;
-	}
-	
-	function view($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
-		}
-		$this->set('orderTransaction', $this->OrderTransaction->find('first',
-			array('conditions' => array('OrderTransaction.id' => $id),
-				'contain' => array('OrderItem' => array('CatalogItem'=>'CatalogItemBrand'), 'Creator', 'OrderShipment')
-		)));
-	}
-
-	function add() {
-		if (!empty($this->request->data)) {
-			$this->OrderTransaction->create();
-			if ($this->OrderTransaction->save($this->request->data)) {
-				$this->flash(__('OrderTransaction saved.', true), array('action'=>'index'));
-			} else {
-			}
-		}
-	}
-
-	/** 
-	 * 
-	 * @todo 	The transaction doesn't actually get edited on this page, only the order item status, and that goes to a different function (OrderItems.change_status()):
-	 */
-	function edit($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
-		}
-		$this->set('orderTransaction', $this->OrderTransaction->find('first', array(
-			'conditions' => array(
-				'OrderTransaction.id' => $id
-				),
-			'contain' => array(
-				'OrderItem' => array(
-					'CatalogItem' => 'CatalogItemBrand',
-					),
-				'Creator', 'OrderShipment'
-				)
-			)
-		));
-	}
-
-	function delete($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
-		}
-		if ($this->OrderTransaction->delete($id)) {
-			$this->flash(__('OrderTransaction deleted', true), array('action'=>'index'));
-		}
-	}
-
-
-	function admin_index($status = null) {
-		$this->paginate['conditions'] = !empty($status) ? array('OrderTransaction.status' => $status) : null;
-		#$this->OrderTransaction->recursive = 0;
-		$this->set('orderTransactions', $this->paginate());
-	}
-
-	function admin_view($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
-		}
-		$this->set('orderTransaction', $this->OrderTransaction->read(null, $id));
-	}
-
-	function admin_add() {
-		if (!empty($this->request->data)) {
-			$this->OrderTransaction->create();
-			if ($this->OrderTransaction->save($this->request->data)) {
-				$this->flash(__('OrderTransaction saved.', true), array('action'=>'index'));
-			} else {
-			}
-		}
-	}
-
-	function admin_edit($id = null) {
-		if (!$id && empty($this->request->data)) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
-		}
-		if (!empty($this->request->data)) {
-			if ($this->OrderTransaction->save($this->request->data)) {
-				$this->flash(__('The OrderTransaction has been saved.', true), array('action'=>'index'));
-			} else {
-			}
-		}
-		if (empty($this->request->data)) {
-			$this->request->data = $this->OrderTransaction->read(null, $id);
-		}
-	}
-
-	function admin_delete($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
-		}
-		if ($this->OrderTransaction->delete($id)) {
-			$this->flash(__('OrderTransaction deleted', true), array('action'=>'index'));
-		}
-	}
-	
-	
-	/** 
-	 * There was a ton of variables in the checkout() action, so moved them here to help clean up a bit.
-	 */
-	function _checkoutVariables() {
-		# setup ssl variables (note: https rarely works on localhost, so its removed)
-		if (defined('__ORDERS_SSL') && !strpos($_SERVER['HTTP_HOST'], 'localhost')) : $this->Ssl->force(); endif;
-		$ssl = defined('__ORDERS_SSL') ? unserialize(__ORDERS_SSL) : null;
-		$trustLogos = !empty($ssl['trustLogos']) ? $ssl['trustLogos'] : null;
-		$this->set(compact('trustLogos'));
-
-		# setup the view variables from here down
-		$orderItems = $this->_prepareCartData();
+	private function _finalPrice() {
+		$data = $this->request->data;
+		$data['OrderTransaction']['total'] = $this->OrderTransaction->OrderCoupon->apply($this->request->data);
 		
-		# go to cart if there are no items to checkout with
-		if (empty($orderItems[0]['OrderItem'])) :
-			$this->Session->setFlash(__('Cart is empty, can\'t checkout.', true));
-			$this->redirect(array('plugin' => 'orders', 'controller'=>'order_items' , 'action' => 'cart'));
-		endif;
-		
-		# used to prefill customer billing and shipping data if it exists
-		$customer = $this->OrderTransaction->Customer->find('first', 
-			array('conditions' => array('Customer.id' => $this->Session->read('Auth.User.id'))));
-		$this->request->data['OrderTransaction'] = $customer['Customer'];
-		$shippingOptions = $this->_shippingOptions($orderItems);
-		
-		# please clean this up by moving it to separate functions, or to the model.  Its a mess
-		$shippingAddress = $this->OrderTransaction->OrderShipment->find('first', array(
-			'conditions' => array(
-				'OrderShipment.user_id' => $this->Auth->user('id'),
-				// 'OrderShipment.order_transaction_id' => null,  // not sure why this matters - RK?
-				),
-			'order' => array(
-				'OrderShipment.modified',
-				),
-			));
-		
-		$billingAddress = $this->OrderTransaction->OrderPayment->find('first', array(
-			'conditions' => array('OrderPayment.user_id' => $this->Auth->user('id'),
-				// 'OrderPayment.order_transaction_id' => null,  // not sure why this matters - RK?
-				),
-			'order' => array(
-				'OrderPayment.modified',
-				),
-			));
-		
-		# see if all items are virtual
-		foreach ($orderItems as $orderItem) : 
-			$allVirtual = $orderItem['OrderItem']['is_virtual'];
-			if ($allVirtual != 1) :
-				break;
-			endif;
-		endforeach;
-		
-		# constants for per site options
-   		$enableShipping = defined('__ORDERS_ENABLE_SHIPPING') ? __ORDERS_ENABLE_SHIPPING : false;
-		$fedexSettings = defined('__ORDERS_FEDEX') ? unserialize(__ORDERS_FEDEX) : null;
-		$paymentMode = defined('__ORDERS_DEFAULT_PAYMENT') ? __ORDERS_DEFAULT_PAYMENT : null;
-		$paymentOptions = defined('__ORDERS_ENABLE_PAYMENT_OPTIONS') ? unserialize(__ORDERS_ENABLE_PAYMENT_OPTIONS) : null;
-
-		if(defined('__ORDERS_ENABLE_SINGLE_PAYMENT_TYPE')) :
-			$singlePaymentKeys = $this->Session->read('OrderPaymentType');
-			if(!empty($singlePaymentKeys)) :
-				$singlePaymentKeys = array_flip($singlePaymentKeys);
-				$paymentOptions = array_intersect_key($paymentOptions, $singlePaymentKeys);
-			endif;
-		endif;
-
-		$defaultShippingCharge = defined('__ORDERS_FLAT_SHIPPING_RATE') ? __ORDERS_FLAT_SHIPPING_RATE : 0;
-		# set the variables
-		$this->set(compact('orderItems', 'shippingOptions', 'defaultShippingCharge', 'shippingAddress', 'billingAddress', 'allVirtual', 'enableShipping', 'fedexSettings', 'paymentMode', 'paymentOptions'));
-		$this->set('isArb', 0);
-	
-		# form field values
-		$this->request->data['OrderTransaction']['order_charge'] = $orderItems[0]['total_price'] ;
-		$this->request->data['OrderTransaction']['quantity'] = $orderItems[0]['total_quantity'] ;
-		$this->request->data['OrderPayment'] = $billingAddress['OrderPayment'];
-		$this->request->data['OrderShipment'] = $shippingAddress['OrderShipment'];
-		$this->request->data['OrderPayment']['first_name'] = !empty($this->request->data['OrderTransaction']['first_name']) ? $this->request->data['OrderTransaction']['first_name'] : $this->Session->read('Auth.User.first_name');
-		$this->request->data['OrderPayment']['last_name'] = !empty($this->request->data['OrderTransaction']['last_name']) ? $this->request->data['OrderTransaction']['last_name'] :  $this->Session->read('Auth.User.last_name');
-		
+		return $data;
 	}
 
 }

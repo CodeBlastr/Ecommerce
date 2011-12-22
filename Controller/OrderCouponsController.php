@@ -96,4 +96,12 @@ class OrderCouponsController extends OrdersAppController {
 		$this->Session->setFlash(__('Order coupon was not deleted'));
 		$this->redirect(array('action' => 'index'));
 	}
+	
+	
+	public function verify() {
+		// currently used at orders/order_transactions/checkout only
+		$this->request->data = $this->OrderCoupon->verify($this->request->data);
+		$this->set('data', $this->request->data);
+	}
+	
 }

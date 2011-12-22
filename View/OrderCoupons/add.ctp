@@ -1,5 +1,5 @@
 <div class="orderCoupons form">
-<?php echo $this->Form->create('Condition');?>
+<?php echo $this->Form->create('OrderCoupon');?>
 	<fieldset>
 		<legend><?php echo __('Add Checkout Coupon'); ?></legend>
 	<?php
