@@ -40,12 +40,13 @@ class OrderTransactionsController extends OrdersAppController {
 			);
 		$this->set('orderTransactions', $this->paginate());
 	}
-	
-	/**
-	 * Order Transactions by Assignee
-	 *
-	 * Using this function we set the variables for an index of transactions have been assigned to the logged in user.
-	 */
+
+
+/**
+ * Order Transactions by Assignee
+ *
+ * Using this function we set the variables for an index of transactions have been assigned to the logged in user.
+ */
 	function assigned() {
 		$orderItems = $this->OrderTransaction->OrderItem->find('all', array(
 			'conditions' => array(
@@ -61,12 +62,13 @@ class OrderTransactionsController extends OrdersAppController {
 			);
 		$this->set('orderTransactions', $this->paginate());
 	}
-	
-	/**
-	 * Order Transactions by Customer
-	 *
-	 * Using this function we set the variables for an index of transactions which are for the logged in user.
-	 */
+
+
+/**
+ * Order Transactions by Customer
+ *
+ * Using this function we set the variables for an index of transactions which are for the logged in user.
+ */
 	function customer() {
 		#$this->OrderTransaction->recursive = 0;
 		$this->paginate = array(
@@ -81,11 +83,11 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 	
 
-	/** 
-	 * Method for sending variables to the checkout view
-	 *
-	 * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->request->data, back with any callback to cover a wide range of use cases for the callback.
-	 */
+/** 
+ * Method for sending variables to the checkout view
+ *
+ * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->request->data, back with any callback to cover a wide range of use cases for the callback.
+ */
 	function checkout(){
 		# a payment was submitted
 		if (!empty($this->request->data)) :
@@ -96,20 +98,22 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 	
 
-
+/**
+ * @todo		As much as possible this needs to go to the model.
+ */
 	function _paymentSubmitted($data) {
 		$this->request->data = $data;
 		$total = $this->request->data['OrderTransaction']['total'];
 			
 		# if arb is true then will get arb_profile_id for current user
 		if($this->request->data['OrderPayment']['arb'] == 1) {
-			$order_transaction_id = $this->OrderTransaction->getArbTransactionId($this->Auth->user('id'));
+			$orderTransactionId = $this->OrderTransaction->getArbTransactionId($this->Auth->user('id'));
 			
 			# if we find order_transaction_id for user then we will update the old transaction  
-			if(!empty($order_transaction_id)) {
+			if(!empty($orderTransactionId)) {
 				$this->request->data['OrderPayment']['arb_profile_id'] = 
-					$this->OrderTransaction->OrderPayment->getArbProfileId($order_transaction_id);
-					$this->request->data['OrderTransaction']['id'] = $order_transaction_id;
+					$this->OrderTransaction->OrderPayment->getArbProfileId($orderTransactionId);
+					$this->request->data['OrderTransaction']['id'] = $orderTransactionId;
 			}
 		}
 			
@@ -119,6 +123,7 @@ class OrderTransactionsController extends OrdersAppController {
 			
 		# Charge the card
 		$response = $this->_charge($this->request->data , $total, $this->request->data['OrderTransaction']['mode']);
+		
 		if($response['response_code'] != 1){
 			//OrderTransaction failed
 			$trdata["OrderTransaction"]["status"] = 'failed';
@@ -219,38 +224,38 @@ class OrderTransactionsController extends OrdersAppController {
 			$month = $data['OrderTransaction']['card_exp_month'];
 			$cNum = $data['OrderTransaction']["card_number"];
 	   
-			$paymentInfo = array('Member'=> 
-                           array( 
-                               'first_name'=> $data['OrderPayment']['first_name'], 
-                               'last_name'=> $data['OrderPayment']['last_name'], 
-                               'billing_address'=> $data['OrderPayment']['street_address_1'], 
-                               'billing_address2'=> $data['OrderPayment']['street_address_2'], 
-                               'billing_country'=> $data['OrderPayment']['country'], 
-                               'billing_city'=> $data['OrderPayment']['city'], 
-                               'billing_state'=> $data['OrderPayment']['state'], 
-                               'billing_zip'=> $data['OrderPayment']['zip']
-                           ), 
-                          'CreditCard'=> 
-                           array(
-                           	   'credit_type' => isset($data['OrderTransaction']['credit_type']) ? $data['OrderTransaction']['credit_type'] : '', 
-                               'card_number'=>$cNum, 
-                               'expiration_month'=>$month,
-                               'expiration_year'=> $year,
-                               'cv_code'=>$data['OrderTransaction']['card_sec']
-                           ), 
-                          'Order'=> 
-                          	array('theTotal'=>$total),
-                          'Billing'=> $this->request->data['OrderPayment'],
-                          'Shipping'=> $this->request->data['OrderShipment'],
-                          'Meta'=> isset($this->request->data['Meta']) ? $this->request->data['Meta'] : null,
-                          'Mode'=> $mode , 	
-                    );
-            // set if this is recurring type or not
+			$paymentInfo = array(
+				'Member'=> array( 
+					'first_name'=> $data['OrderPayment']['first_name'], 
+					'last_name'=> $data['OrderPayment']['last_name'], 
+					'billing_address'=> $data['OrderPayment']['street_address_1'], 
+					'billing_address2'=> $data['OrderPayment']['street_address_2'], 
+					'billing_country'=> $data['OrderPayment']['country'], 
+					'billing_city'=> $data['OrderPayment']['city'], 
+					'billing_state'=> $data['OrderPayment']['state'], 
+					'billing_zip'=> $data['OrderPayment']['zip']
+					), 
+				'CreditCard'=> array(
+					'credit_type' => isset($data['OrderTransaction']['credit_type']) ? $data['OrderTransaction']['credit_type'] : '', 
+					'card_number'=>$cNum, 
+					'expiration_month'=>$month,
+					'expiration_year'=> $year,
+					'cv_code'=>$data['OrderTransaction']['card_sec']
+					), 
+				'Order'=> array(
+					'theTotal' => $total
+					),
+				'Billing'=> $this->request->data['OrderPayment'],
+				'Shipping'=> $this->request->data['OrderShipment'],
+				'Meta'=> isset($this->request->data['Meta']) ? $this->request->data['Meta'] : null,
+				'Mode'=> $mode , 	
+				);
+			
+			// set if this is recurring type or not
             $this->Payments->recurring($data['OrderPayment']['arb']);
 
 			$response = $this->Payments->pay($paymentInfo);
 		}
-
 		return $response;
 	}
 	
