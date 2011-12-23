@@ -16,11 +16,15 @@
 	</fieldset>
 <?php echo $this->Form->end(__('Submit'));?>
 </div>
-<div class="actions">
-	<h3><?php echo __('Actions'); ?></h3>
-	<ul>
-
-		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('Condition.id')), null, __('Are you sure you want to delete # %s?', $this->Form->value('Condition.id'))); ?></li>
-		<li><?php echo $this->Html->link(__('List Order Coupons'), array('action' => 'index'));?></li>
-	</ul>
-</div>
+<?php 
+// set the contextual menu items
+$this->set('context_menu', array('menus' => array(
+	array(
+		'heading' => 'Coupons',
+		'items' => array(
+			$this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('Condition.id')), null, __('Are you sure you want to delete # %s?', $this->Form->value('Condition.id'))),
+			$this->Html->link(__('List Order Coupons'), array('action' => 'index')),
+			)
+		),
+	)));
+?>
