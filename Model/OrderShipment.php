@@ -1,4 +1,10 @@
 <?php
+App::uses('OrdersAppModel', 'Orders.Model');
+/**
+ * OrderShipment Model
+ *
+ * @property OrderShipment $OrderShipment
+ */
 class OrderShipment extends OrdersAppModel {
 	var $name = 'OrderShipment';
 	var $displayField = 'name';

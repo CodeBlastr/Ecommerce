@@ -1,4 +1,10 @@
 <?php
+App::uses('OrdersAppModel', 'Orders.Model');
+/**
+ * OrderTransaction Model
+ *
+ * @property OrderTransaction $OrderTransaction
+ */
 class OrderTransaction extends OrdersAppModel {
 	var $name = 'OrderTransaction';
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -28,6 +34,13 @@ class OrderTransaction extends OrdersAppModel {
 //			'fields' => '',
 //			'order' => ''
 //		),
+		'OrderCoupon' => array(
+			'className' => 'Orders.OrderCoupon',
+			'foreignKey' => 'order_coupon_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 		'Customer' => array(
 			'className' => 'Users.User',
 			'foreignKey' => 'customer_id',
@@ -161,88 +174,96 @@ class OrderTransaction extends OrdersAppModel {
 		}
 	}
 	
-	/** 
-	 * Get Arb Profile Id
-	 * 
-	 * @param {$user_id}		user id according to which profile id return
-	 * return {OrderTransaction.id}
-	 */
+
+/** 
+ * Get Arb Profile Id
+ * 
+ * @param {$user_id}		user id according to which profile id return
+ * return {OrderTransaction.id}
+ */
 	function getArbTransactionId($user_id = null) {
-		
-		$arb_ot_id = $this->find('first', array('conditions' => array('is_arb' => 1, 
-							'customer_id' => $user_id), 'order' => array('created DESC')
-						));
-		return $arb_ot_id['OrderTransaction']['id'] ;			 
+		$orderTransaction = $this->find('first', array(
+			'conditions' => array(
+				'is_arb' => 1, 
+				'customer_id' => $user_id
+				), 
+			'order' => array(
+				'created DESC'
+				),
+			));
+		return $orderTransaction['OrderTransaction']['id'] ;			 
 	}
 	
-	/** 
-	 * Get Arb Payment Mode
-	 * 
-	 * @param {$order_transaction_id}	user id according to which profile id return
-	 * return {OrderTransaction.mode}
-	 */
-	function getArbPaymentMode($order_transaction_id = null) {
-		
-		$arb_payment_mode = $this->find('first', array('conditions' => array('id' => $order_transaction_id) 
-						));
-		return $arb_payment_mode['OrderTransaction']['mode'] ;			 
+
+/** 
+ * Get Arb Payment Mode
+ * 
+ * @param {$order_transaction_id}	user id according to which profile id return
+ * return {OrderTransaction.mode}
+ */
+	function getArbPaymentMode($orderTransactionId = null) {
+		$orderTransaction = $this->find('first', array('conditions' => array('id' => $orderTransactionId)));
+		return $orderTransaction['OrderTransaction']['mode'] ;			 
+	}
+
+
+/**
+ *Change Status
+ *@param {$transactionId} profile id of arb transaction in order payment 
+ *@param {$status}
+ *@param {$processor_response}
+ *Fetch Transaction Id from Order Payment Table and update 
+ *Order Transaction with new Status
+ */
+	function changeStatus($orderTransactionId, $status, $processorResponse){		
+		$data['OrderTransaction']['id'] = $orderTransactionId ;
+		$data['OrderTransaction']['status'] = $status;
+		$data['OrderTransaction']['processor_response'] = $processorResponse;
+		$this->save($data);
+	}
+
+
+/** 
+ * Get Arb Transaction Amount
+ * 
+ * @param {$order_transaction_id} transaction_id according to which transaction amount return
+ * return {OrderTransaction.total}
+ */
+	function getArbTransactionAmount($orderTransactionId = null) {		
+		$orderTransaction = $this->find('first', array(
+			'fields' => array('total'),
+			'conditions' => array('id' => $orderTransactionId) 
+			));
+		return $orderTransaction['OrderTransaction']['total'] ;			 
+	}
+
+
+/** 
+ * Get Arb Transaction User Id
+ * 
+ * @param {$order_transaction_id} transaction_id according to which transaction amount return
+ * return {OrderTransaction.customer_id}
+ */
+	function getArbTransactionUserId($orderTransactionId = null) {
+		$orderTransaction = $this->find('first', array(
+			'fields' => array('customer_id'),
+			'conditions' => array('id' => $orderTransactionId) 
+			));
+		return $orderTransaction['OrderTransaction']['customer_id'] ;			 
 	}
 	
-	/*Change Status
-	 *@param {$transactionId} profile id of arb transaction in order payment 
-	 *@param {$status}
-	 *@param {$processor_response}
-	 *Fetch Transaction Id from Order Payment Table and update 
-	 *Order Transaction with new Status
-	 */
-	function changeStatus($order_transaction_id, $status, $processor_response){
-		
-		$this->request->data['OrderTransaction']['id'] = $order_transaction_id ;
-		$this->request->data['OrderTransaction']['status'] = $status;
-		$this->request->data['OrderTransaction']['processor_response'] = $processor_response;
-		$this->save($this->request->data);
-	}
-	
-	/** 
-	 * Get Arb Transaction Amount
-	 * 
-	 * @param {$order_transaction_id} transaction_id according to which transaction amount return
-	 * return {OrderTransaction.total}
-	 */
-	function getArbTransactionAmount($order_transaction_id = null) {
-		
-		$arb_amount = $this->find('first', array('fields' => array('total'),
-						'conditions' => array('id' => $order_transaction_id) 
-						));
-		return $arb_amount['OrderTransaction']['total'] ;			 
-	}
-	
-	/** 
-	 * Get Arb Transaction User Id
-	 * 
-	 * @param {$order_transaction_id} transaction_id according to which transaction amount return
-	 * return {OrderTransaction.customer_id}
-	 */
-	function getArbTransactionUserId($order_transaction_id = null) {
-		
-		$arb_amount = $this->find('first', array('fields' => array('customer_id'),
-						'conditions' => array('id' => $order_transaction_id) 
-						));
-		return $arb_amount['OrderTransaction']['customer_id'] ;			 
-	}
-	
-	/** 
-	 * Get Arb Transaction Status
-	 * 
-	 * @param {$order_transaction_id} transaction_id according to which transaction status return
-	 * return {OrderTransaction.status}
-	 */
-	function getArbTransactionStatus($order_transaction_id = null) {
-		
-		$arb_amount = $this->find('first', array('fields' => array('status'),
-						'conditions' => array('id' => $order_transaction_id) 
-						));
-		return $arb_amount['OrderTransaction']['status'] ;			 
+/** 
+ * Get Arb Transaction Status
+ * 
+ * @param {$order_transaction_id} transaction_id according to which transaction status return
+ * return {OrderTransaction.status}
+ */
+	function getArbTransactionStatus($orderTransactionId = null) {
+		$orderTransaction = $this->find('first', array(
+			'fields' => array('status'),
+			'conditions' => array('id' => $orderTransactionId) 
+			));
+		return $orderTransaction['OrderTransaction']['status'] ;			 
 	}
 }
 ?>

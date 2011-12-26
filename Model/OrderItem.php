@@ -1,4 +1,5 @@
 <?php
+App::uses('OrdersAppModel', 'Orders.Model');
 /**
  * OrderItem Item Model
  *
