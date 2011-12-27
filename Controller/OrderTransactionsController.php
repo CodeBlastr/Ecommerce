@@ -314,7 +314,7 @@ class OrderTransactionsController extends OrdersAppController {
  */
 	function _paymentSubmitted() {
 		# update pricing by applying final price check
-		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data['OrderTransaction']['total'];
+		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data;
 		$total = $this->request->data['OrderTransaction']['total'];
 					
 		# if arb is true then will get arb_profile_id for current user
