@@ -372,5 +372,76 @@ class OrderItem extends OrdersAppModel {
 	
 	
 	
+/*
+ * Handle virtual order items
+ * It will give access of a particular record to a particular user
+ * This is only used in database driven workflows at the moment so there are no references
+ * to this function in other code on the system.
+ * 
+ * @param {array} 		An array of data like you would get from any form.
+ */
+	function handleVirtualItems($data = null){
+		$this->Aro = ClassRegistry::init('Aro');
+		$this->Aco = ClassRegistry::init('Aco');
+		$this->ArosAco = ClassRegistry::init('ArosAco');
+
+		$aroData = $this->Aro->find('first', array(
+			'conditions' => array(
+				'model' => 'User',
+				'foreign_key' => $data['OrderItem']['customer_id'],
+				),
+			));
+		$aroId = $aroData['Aro']['id'];
+
+		$acoData = $this->Aco->find('first', array(
+			'conditions' => array(
+				'model' => $data['OrderItem']['model'],
+				'foreign_key' => $data['OrderItem']['foreign_key'],
+				),
+			));
+		if(!empty($acoData)) :
+			$acoId = $acoData['Aco']['id'];
+		else :
+			$acoData = array(
+				'model' => $data['OrderItem']['model'],
+				'foreign_key' => $data['OrderItem']['foreign_key'],
+				);
+			if($this->Aco->save($acoData)) :
+				$acoId = $this->Aco->id;
+			endif;
+		endif;
+		
+		$arosAcosNode = $this->ArosAco->find('first', array(
+			'conditions' => array(
+				'ArosAco.aro_id' => $aroId,
+				'ArosAco.aco_id' => $acoId,
+				),
+			));
+		if (empty($arosAcosNode)) {
+			$acoAroData = array(
+				'aro_id' => $aroId,
+				'aco_id' => $acoId,
+				'_create' => 1,
+				'_read' => 1,
+				'_update' => 1,
+				'_delete' => 1,
+				);
+
+			if ($this->ArosAco->save($acoAroData)) {
+				# aros acos record was saved
+				return true;
+			} else {
+				echo 'Uncaught Exception: 9108710923801928347';
+				break;
+			}
+		} else {
+			# already has access
+			return true;
+		}
+
+	}
+	
+	
+	
 }
 ?>
