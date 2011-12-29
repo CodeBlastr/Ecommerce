@@ -123,6 +123,7 @@ class OrderItem extends OrdersAppModel {
 		$defaults['OrderItem']['model'] = !empty($catalogItem['CatalogItem']['model']) ? $catalogItem['CatalogItem']['model'] : 'Catalog';
 		$defaults['OrderItem']['foreign_key'] = !empty($catalogItem['CatalogItem']['foreign_key']) ? $catalogItem['CatalogItem']['foreign_key'] : $catalogItem['CatalogItem']['id'];
 		# merge the defaults with the submitted data
+		
 		return Set::merge($defaults, $data);
 	}
 	
