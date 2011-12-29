@@ -222,7 +222,7 @@ echo $this->Form->create('OrderTransaction');  ?>
   </div><!--  id="orderTransactionForm" class="orderTransactionForm text-inputs" -->
 </div>
 <script type="text/javascript">
-
+	changePaymentInputs();
 	// hide / show the coupon code input dependent on value
 	if (!$("#OrderCouponCode").val()) {
 		$("#OrderCouponCode").parent().hide();
@@ -294,14 +294,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 	});
 
 	$('#OrderTransactionMode').change(function(e){
-		if ($('#OrderTransactionMode').val() == 'CREDIT') {
-			if ($('#creditCardInfo').is(":visible"))
-				$('#OrderTransactionCardNumber').removeClass('required');
-				$('#creditCardInfo').hide();
-		} else {
-			$('#OrderTransactionCardNumber').addClass('required');
-			$('#creditCardInfo').show();
-		}
+		changePaymentInputs();
 	});
 
 
@@ -315,6 +308,16 @@ echo $this->Form->create('OrderTransaction');  ?>
 		getShipRate(shipTypeValue, dimmensions);
 	});
 
+	function changePaymentInputs() {
+		if ($('#OrderTransactionMode').val() == 'CREDIT') {
+			if ($('#creditCardInfo').is(":visible"))
+				$('#OrderTransactionCardNumber').removeClass('required');
+				$('#creditCardInfo').hide();
+		} else {
+			$('#OrderTransactionCardNumber').addClass('required');
+			$('#creditCardInfo').show();
+		}
+	}
 
 	function getShipRate(shipTypeValue, dimmensions) {
 		if (shipTypeValue == ' ') {

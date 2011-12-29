@@ -180,7 +180,7 @@ class OrderTransactionsController extends OrdersAppController {
 				// 'OrderShipment.order_transaction_id' => null,  // not sure why this matters - RK?
 				),
 			'order' => array(
-				'OrderShipment.modified',
+				'OrderShipment.modified DESC',
 				),
 			));
 		
@@ -189,7 +189,7 @@ class OrderTransactionsController extends OrdersAppController {
 				// 'OrderPayment.order_transaction_id' => null,  // not sure why this matters - RK?
 				),
 			'order' => array(
-				'OrderPayment.modified',
+				'OrderPayment.modified DESC',
 				),
 			));
 		
@@ -314,7 +314,7 @@ class OrderTransactionsController extends OrdersAppController {
  */
 	function _paymentSubmitted() {
 		# update pricing by applying final price check
-		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data['OrderTransaction']['total'];
+		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data;
 		$total = $this->request->data['OrderTransaction']['total'];
 					
 		# if arb is true then will get arb_profile_id for current user
@@ -352,8 +352,9 @@ class OrderTransactionsController extends OrdersAppController {
 			$this->request->data['OrderTransaction']['total'] = $response['amount'];
 			$this->request->data['OrderTransaction']['status'] = 'paid';
 			$this->request->data['OrderTransaction']['is_arb'] = isset($response['is_arb']) ? $response['is_arb'] : 0;
-			$this->request->data['OrderTransaction']['customer_id'] = $this->Auth->user('id');
-			$this->request->data['OrderTransaction']['assignee_id'] = $this->Auth->user('id');
+			$this->request->data['OrderTransaction']['customer_id'] = $this->Session->read('Auth.User.id');
+			$this->request->data['OrderTransaction']['assignee_id'] = $this->Session->read('Auth.User.id');
+			
 			if ($this->OrderTransaction->add($this->request->data)) {
 				$msg = __($response['reason_text'] . ' '.$response['description'], true);
 			} else {
