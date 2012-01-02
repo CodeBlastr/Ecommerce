@@ -366,7 +366,7 @@ class OrderItem extends OrdersAppModel {
 				}
 			}
 		endif;
-
+		
 		return $return;
 	}
 	
@@ -440,8 +440,6 @@ class OrderItem extends OrdersAppModel {
 		}
 
 	}
-	
-	
 	
 }
 ?>
