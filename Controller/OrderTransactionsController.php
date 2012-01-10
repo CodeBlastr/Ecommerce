@@ -378,7 +378,7 @@ class OrderTransactionsController extends OrdersAppController {
 			if(defined('__ORDERS_CHECKOUT_REDIRECT')) {
 				# extract the settings 
 				extract(unserialize(__ORDERS_CHECKOUT_REDIRECT));
-				$plugin = strtolower(pluginize($model));
+				$plugin = strtolower(ZuhaInflector::pluginize($model));
 				$controller = Inflector::tableize($model);
 				$url = !empty($url) ? $url : array('plugin' => $plugin, 'controller'=>$controller , 'action'=>$action, !empty($foreign_key['OrderItem']['foreign_key']) ? $foreign_key['OrderItem']['foreign_key'] : '' );
 				# get foreign key of OrderItem using given setings

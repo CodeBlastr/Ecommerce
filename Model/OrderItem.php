@@ -110,7 +110,7 @@ class OrderItem extends OrdersAppModel {
 		# set up the default values from the db catalog item
 		$defaults['OrderItem']['status'] = 'incart';
 		//$defaults['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
-		$defaults['OrderItem']['price'] = formatPrice($catalogItem['CatalogItem']['price']);
+		$defaults['OrderItem']['price'] = ZuhaInflector::pricify($catalogItem['CatalogItem']['price']);
 		$defaults['OrderItem']['name'] = $catalogItem['CatalogItem']['name'];
 		$defaults['OrderItem']['length'] = $catalogItem['CatalogItem']['length'];;
 		$defaults['OrderItem']['width'] = $catalogItem['CatalogItem']['width'];

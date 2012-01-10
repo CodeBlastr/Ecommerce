@@ -88,10 +88,10 @@ class OrderCoupon extends OrdersAppModel {
 	private function _applyPriceChange($type = 'fixed', $discount = 0, $data = null) {
 		if ($type == 'percent') {
 			# for now it does the total 
-			$data['OrderTransaction']['order_charge'] = formatPrice(((100 - $discount) / 100) * $data['OrderTransaction']['order_charge']);
+			$data['OrderTransaction']['order_charge'] = ZuhaInflector::pricify(((100 - $discount) / 100) * $data['OrderTransaction']['order_charge']);
 		} else {
 			# do fixed coupon price change 
-			$data['OrderTransaction']['order_charge'] = formatPrice($data['OrderTransaction']['order_charge'] - $discount);
+			$data['OrderTransaction']['order_charge'] = ZuhaInflector::pricify($data['OrderTransaction']['order_charge'] - $discount);
 		}
 		
 		return $data;		
