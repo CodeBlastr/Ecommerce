@@ -1,11 +1,5 @@
 <div class="orderItems index">
 <h2><?php echo __('OrderItem Items');?></h2>
-<p>
-<?php
-echo $this->Paginator->counter(array(
-'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
-));
-?></p>
 <table cellpadding="0" cellspacing="0">
 <tr>
 	<th><?php echo $this->Paginator->sort('id');?></th>
@@ -16,7 +10,6 @@ echo $this->Paginator->counter(array(
 	<th><?php echo $this->Paginator->sort('contact_id');?></th>
 	<th><?php echo $this->Paginator->sort('creator_id');?></th>
 	<th><?php echo $this->Paginator->sort('quantity');?></th>
-	<th><?php echo $this->Paginator->sort('status');?></th>
 	<th><?php echo $this->Paginator->sort('created');?></th>
 	<th class="actions"><?php echo __('Actions');?></th>
 </tr>
@@ -52,9 +45,6 @@ foreach ($orderItems as $orderItem):
 		</td>
 		<td>
 			<?php echo $orderItem['OrderItem']['quantity']; ?>
-		</td>
-		<td>
-			<?php echo $orderItem['OrderItem']['status']; ?>
 		</td>
 		<td>
 			<?php echo $orderItem['OrderItem']['created']; ?>

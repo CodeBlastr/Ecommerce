@@ -12,13 +12,36 @@ class OrderItemsController extends OrdersAppController {
 	public $allowedActions = array('delete');
 
 
-	function index($status = null) {
-		#$this->OrderItem->recursive = 0;
+	public function index($status = null) {
+		$this->OrderItem->recursive = 0;
 		$this->set('orderItems', $this->paginate());
 	}
 
 
-	function view($id = null) {
+
+	private function _namedParameterJoins() {
+		# category id named
+		if (!empty($this->request->params['named']['category'])) {
+			$categoryId = $this->request->params['named']['category'];
+			$this->params['joins'] = array(array(
+				'table' => 'categorizeds',
+				'alias' => 'Categorized',
+				'type' => 'INNER',
+				'conditions' => array(
+					"Categorized.foreign_key = CatalogItem.id",
+					"Categorized.model = 'CatalogItem'",
+					"Categorized.category_id = '{$categoryId}'",
+				),
+			));
+			$contain = $this->params['contain'][] = 'Category';
+			return $this->params;
+		} else {
+			return null;
+		}
+	}
+
+
+	public function view($id = null) {
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid order item', true));
 			$this->redirect(array('action' => 'index'));
@@ -104,7 +127,7 @@ class OrderItemsController extends OrdersAppController {
  * View Cart 
  * @param {int} user_id
  */
-	function cart(){
+	public function cart(){
 		//get Items in Cart
 		//Configure::write('debug' , 0);
 		$orderItems = $this->_prepareCartData();
@@ -121,7 +144,7 @@ class OrderItemsController extends OrdersAppController {
  * @param {mixed} 	The id of the Order Item or X if it is a guest cart item
  * @param {int}		The array integer index of the guest cart item
  */
-	function delete($id, $index = null) {
+	public function delete($id, $index = null) {
 		if ($id == 'X') {
 			# X means it is a guest cart item
 			#$cartCount = $this->Cookie->read('OrdersCartCount');
@@ -144,7 +167,7 @@ class OrderItemsController extends OrdersAppController {
  * @todo 	These status fields need to be updated to use "enumerations".  Enumerations are what allow us to have different labels in multi-sites.  One site might call a completed transaction, "Shipped", the other might call it, "Completed".  We have to use enumerations for all drop downs for this reason.  (just set the enumeration to is_system, if its id number is hard coded anywhere, and then we'll make sure its included with the install of zuha.)
  * @todo	When all order items are sent, we should have a status for the order_transaction of "shipped".  But it really should be in the model not specifically here.
  */
-	function change_status() {
+	public function change_status() {
 		if(!empty($this->request->data['OrderItem'])) {
 			# if all items are sent then set status of the whole transaction to shipped
 			$statuses = Set::extract('/status', $this->request->data['OrderItem']);
