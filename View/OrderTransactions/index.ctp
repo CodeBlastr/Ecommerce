@@ -1,9 +1,8 @@
 <div class="transactions index">
-<h2><?php echo __('Recent Transactions');?></h2>
+<h2><?php echo __('Transactions');?></h2>
 <table cellpadding="0" cellspacing="0">
 <tr>
-	<!--<th><?php echo $this->Paginator->sort('id');?></th>
-	--><th><?php echo $this->Paginator->sort('status');?></th>
+	<th><?php echo $this->Paginator->sort('status');?></th>
 	<th><?php echo $this->Paginator->sort('total');?></th>
 	<th><?php echo $this->Paginator->sort('created');?></th>
 	<th class="actions"><?php echo __('Actions');?></th>
@@ -16,11 +15,8 @@ foreach ($orderTransactions as $orderTransaction):
 		$class = ' class="altrow"';
 	}
 ?>
-	<tr<?php echo $class;?>><!--
-		<td>
-			<?php echo $orderTransaction['OrderTransaction']['id']; ?>
-		</td>
-		--><td>
+	<tr<?php echo $class;?>>
+    	<td>
 			<?php echo $orderTransaction['OrderTransaction']['status']; ?>
 		</td>
 		<td>
@@ -36,7 +32,6 @@ foreach ($orderTransactions as $orderTransaction):
 		</td>
 	</tr>
 	<tr>
-		<div>
 		<table>
 		<?php 
 			foreach($orderTransaction['OrderItem'] as $key => $oi) :
@@ -58,7 +53,6 @@ foreach ($orderTransactions as $orderTransaction):
 			endforeach; 
 		?>
 		</table>
-		</div>
 	</tr>
 <?php endforeach; ?>
 </table>

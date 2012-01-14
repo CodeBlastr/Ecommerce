@@ -31,13 +31,8 @@ class OrderTransactionsController extends OrdersAppController {
 	
 	function index() {
 		#$this->OrderTransaction->recursive = 0;
-		$this->paginate= array(
-			'order' => 'OrderTransaction.status, OrderTransaction.created',
-			'contain' => array(
-				'OrderItem', 
-				'Creator'
-				),
-			);
+		$this->paginate['order'] = array('OrderTransaction.status, OrderTransaction.created');
+		$this->paginate['contain'] = array('OrderItem', 'Creator');
 		$this->set('orderTransactions', $this->paginate());
 	}
 	
