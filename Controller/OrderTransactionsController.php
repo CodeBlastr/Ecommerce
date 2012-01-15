@@ -28,15 +28,24 @@ class OrderTransactionsController extends OrdersAppController {
 	public $name = 'OrderTransactions';
 	public $uses = 'Orders.OrderTransaction';
 	public $components = array('Ssl', 'Orders.Payments' /*, 'Shipping.Fedex'*/);
+	public $paidStatusValue = 'paid';
 	
-	function index() {
+	public function __construct($request = null, $response = null) {
+		parent::__construct($request, $response);
+		if (defined('__ORDERS_STATUSES')) {
+			$orderStatuses = unserialize(__ORDERS_STATUSES);
+			$this->shippedStatus = !empty($orderStatuses['paid']) ? $orderStatuses['paid'] : $this->shippedStatus;
+		}
+	}
+	
+	public function index() {
 		#$this->OrderTransaction->recursive = 0;
 		$this->paginate['order'] = array('OrderTransaction.status, OrderTransaction.created');
 		$this->paginate['contain'] = array('OrderItem', 'Creator');
 		$this->set('orderTransactions', $this->paginate());
 	}
 	
-	function view($id = null) {
+	public function view($id = null) {
 		if (!$id) {
 			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
 		}
@@ -46,7 +55,7 @@ class OrderTransactionsController extends OrdersAppController {
 		)));
 	}
 
-	function add() {
+	public function add() {
 		if (!empty($this->request->data)) {
 			$this->OrderTransaction->create();
 			if ($this->OrderTransaction->save($this->request->data)) {
@@ -60,7 +69,7 @@ class OrderTransactionsController extends OrdersAppController {
  * 
  * @todo 	The transaction doesn't actually get edited on this page, only the order item status, and that goes to a different function (OrderItems.change_status()):
  */
-	function edit($id = null) {
+	public function edit($id = null) {
 		if (!$id) {
 			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
 		}
@@ -81,7 +90,7 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->set(compact('statuses', 'itemStatuses')); 
 	}
 
-	function delete($id = null) {
+	public function delete($id = null) {
 		if (!$id) {
 			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
 		}
@@ -97,7 +106,7 @@ class OrderTransactionsController extends OrdersAppController {
  * @param {string}		noPayment means don't submit the form, instead just update the checkoutVariables
  * @todo		Need to add an checkout callback for items that have the model/foreignKey relationship for both failed and successful transactions.  For example, when you checkout and have purchased a banner, we would want this checkout() function to fire a call back to function within the banner model, which marks the banner as paid.  Noting that we would want the item itself to notify checkout that this callback needs to be fired.  Noting further that we would send the entire $this->request->data, back with any callback to cover a wide range of use cases for the callback.
  */
-	function checkout(){
+	public function checkout(){
 		if (!empty($this->request->data)) {
 			$this->_paymentSubmitted();
 		} 
@@ -110,7 +119,7 @@ class OrderTransactionsController extends OrdersAppController {
  *
  * Using this function we set the variables for an index of transactions have been assigned to the logged in user.
  */
-	function assigned() {
+	public function assigned() {
 		$orderItems = $this->OrderTransaction->OrderItem->find('all', array(
 			'conditions' => array(
 				'OrderItem.assignee_id' => $this->Session->read('Auth.User.id'),
@@ -132,7 +141,7 @@ class OrderTransactionsController extends OrdersAppController {
  *
  * Using this function we set the variables for an index of transactions which are for the logged in user.
  */
-	function customer() {
+	public function customer() {
 		#$this->OrderTransaction->recursive = 0;
 		$this->paginate = array(
 			'conditions'=>array(
@@ -149,7 +158,7 @@ class OrderTransactionsController extends OrdersAppController {
 /** 
  * There was a ton of variables in the checkout() action, so moved them here to help clean up a bit.
  */
-	function _checkoutVariables() {
+	private function _checkoutVariables() {
 		# setup ssl variables (note: https rarely works on localhost, so its removed)
 		if (defined('__ORDERS_SSL') && !strpos($_SERVER['HTTP_HOST'], 'localhost')) : $this->Ssl->force(); endif;
 		$ssl = defined('__ORDERS_SSL') ? unserialize(__ORDERS_SSL) : null;
@@ -229,13 +238,13 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 	
 	
-	/**
-	 * Used to decide whether shipping options are necessary, and if they are which shipping options should be available
-	 *
-	 * @param {array}	an array of order items to check for shipping options that should be available
-	 * @todo 			Move more of the shipping logic into this function from checkout()
-	 */
-	function _shippingOptions($orderItems = null) {
+/**
+ * Used to decide whether shipping options are necessary, and if they are which shipping options should be available
+ *
+ * @param {array}	an array of order items to check for shipping options that should be available
+ * @todo 			Move more of the shipping logic into this function from checkout()
+ */
+	private function _shippingOptions($orderItems = null) {
 		if (!empty($orderItems) && defined('__ORDERS_ENABLE_SHIPPING')) {
 			# if all items are virtual return null
 			foreach ($orderItems as $orderItem) {
@@ -262,7 +271,7 @@ class OrderTransactionsController extends OrdersAppController {
  * @param {data} 	billing information
  * @param {total} 	the total to try and get approved
  */	
-	function _charge($data , $total, $mode){
+	private function _charge($data , $total, $mode){
 		$response = null;
 		if (!empty($data)) {
 			// Split card expiration date into month and year
@@ -310,7 +319,7 @@ class OrderTransactionsController extends OrdersAppController {
  * @todo		As much as possible this needs to go to the model.
  * @todo		The coupon gets "used" even if the transaction fails.  Need to fix that.
  */
-	function _paymentSubmitted() {
+	private function _paymentSubmitted() {
 		# update pricing by applying final price check
 		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data;
 		$total = $this->request->data['OrderTransaction']['total'];
@@ -348,7 +357,7 @@ class OrderTransactionsController extends OrdersAppController {
 			$this->request->data['OrderTransaction']['order_payment_id'] = $response['transaction_id'];
 			$this->request->data['OrderTransaction']['processor_response'] = $response['reason_text'];
 			$this->request->data['OrderTransaction']['total'] = $response['amount'];
-			$this->request->data['OrderTransaction']['status'] = 'paid';
+			$this->request->data['OrderTransaction']['status'] = $this->paidStatusValue;
 			$this->request->data['OrderTransaction']['is_arb'] = isset($response['is_arb']) ? $response['is_arb'] : 0;
 			$this->request->data['OrderTransaction']['customer_id'] = $this->Session->read('Auth.User.id');
 			$this->request->data['OrderTransaction']['assignee_id'] = $this->Session->read('Auth.User.id');

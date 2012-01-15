@@ -10,6 +10,15 @@ class OrderItemsController extends OrdersAppController {
 	public $name = 'OrderItems';
 	public $uses = 'Orders.OrderItem';
 	public $allowedActions = array('delete');
+	public $shippedStatus = 'shipped';
+	
+	public function __construct($request = null, $response = null) {
+		parent::__construct($request, $response);
+		if (defined('__ORDERS_STATUSES')) {
+			$orderStatuses = unserialize(__ORDERS_STATUSES);
+			$this->shippedStatus = !empty($orderStatuses['shipped']) ? $orderStatuses['shipped'] : $this->shippedStatus;
+		}
+	}
 
 
 	public function index($status = null) {
@@ -175,7 +184,7 @@ class OrderItemsController extends OrdersAppController {
 					#unset($this->request->data['OrderTransaction']['status']);
 					break;
 				else : 
-					$this->request->data['OrderTransaction']['status'] = 'shipped';
+					$this->request->data['OrderTransaction']['status'] = $this->shippedStatus;
 				endif;
 			endforeach; 
 			

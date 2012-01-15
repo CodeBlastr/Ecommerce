@@ -443,14 +443,10 @@ class OrderItem extends OrdersAppModel {
 	
 	
 	public function statuses() {
-		return array(
-			'pending' => 'Pending',
-			'sent' => 'Delivered' ,
-			'paid' => 'Paid', 
-			'frozen' => 'Frozen', 
-			'cancelled' => 'Cancelled',
-			'return' => 'Returned',
-			'returnRequest' => 'Request Return');
+		foreach(Zuha::enum('ORDER_ITEM_STATUS') as $status) {
+			$statuses[Inflector::underscore($status)] = $status;
+		}		
+		return array_merge(array('paid' => 'Paid', 'shipped' => 'Shipped'), $statuses);
 	}
 	
 }

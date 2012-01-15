@@ -32,7 +32,6 @@
       <th>Status </th>
     </tr>
 <?php 
-$status = array('pending' =>'Pending','sent'=>'Sent' ,'paid'=>'Paid','frozen'=>'Frozen','cancelled'=>'Cancelled'); 
 	foreach($orderTransaction['OrderItem'] as $orderItem) { ?>
     <tr>
       <td>

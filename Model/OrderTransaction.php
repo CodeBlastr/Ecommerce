@@ -273,14 +273,11 @@ class OrderTransaction extends OrdersAppModel {
  *
  */
 	public function statuses() {
-		return array(
-			'failed' => 'Failed',
-			'success' => 'Success',
-			'paid' => 'Paid',
-			'pending' => 'Pending',
-			'shipped' => 'Shipped',
-			'frozen' => 'Frozen',
-			'cancelled' => 'Cancelled');
+		foreach(Zuha::enum('ORDER_TRANSACTION_STATUS') as $status) {
+			$statuses[Inflector::underscore($status)] = $status;
+		}		
+		return array_merge(array('failed' => 'Failed', 'paid' => 'Paid', 'shipped' => 'Shipped'), $statuses);
 	}
+	
 }
 ?>
