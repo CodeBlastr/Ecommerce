@@ -60,12 +60,12 @@
 <?php 
 	foreach($orderTransaction['OrderItem'] as $key => $orderItem) { ?>
     <tr>
-      <td><?php echo $this->Form->hidden('OrderItem.'.$key.'.id', array('value' => $orderItem['id'])); ?> <?php echo $orderItem['name']?></td>
+      <td> <?php echo $orderItem['name']?></td>
       <td><?php echo !empty($orderItem['CatalogItem']['CatalogItemBrand']) ? $orderItem['CatalogItem']['CatalogItemBrand']['name'] : null; ?></td>
       <td><?php echo $this->Form->input('OrderItem.'.$key.'.tracking_no', array('value' => $orderItem['tracking_no'], 'label' => false)); ?></td>
       <td><?php echo $this->Form->input('OrderItem.'.$key.'.status', array('options' => $itemStatuses, 'selected' => $orderItem['status'], 'label' => false)); ?></td>
     </tr>
-  		<?php echo $this->Form->hidden('OrderItem.'.$key.'.order_transaction_id', array('value' => $orderItem['order_transaction_id'])); ?>
+    <?php echo $this->Form->hidden('OrderItem.'.$key.'.id', array('value' => $orderItem['id'])); ?>
     <?php } // end orderItems loop ?>
   </table>
   <?php echo $this->Form->end('Update')?>

@@ -26,40 +26,40 @@ class OrderItem extends OrdersAppModel {
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 	
 	var $belongsTo = array(
-		'CatalogItem'=>array(
-			'className'=>'Catalogs.CatalogItem',
-			'foreignKey'=>'catalog_item_id',
-			'conditions'=>'',
-			'fields'=>'',
-			'order'=>''
+		'CatalogItem' => array(
+			'className' => 'Catalogs.CatalogItem',
+			'foreignKey' => 'catalog_item_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
-		'User'=>array(
-			'className'=>'User',
-			'foreignKey'=>'customer_id',
-			'conditions'=>'',
-			'fields'=>'',
-			'order'=>''
+		'User' => array(
+			'className' => 'Users.User',
+			'foreignKey' => 'customer_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
-		'OrderPayment'=>array(
-			'className'=>'Orders.OrderPayment',
-			'foreignKey'=>'order_payment_id',
-			'conditions'=>'',
-			'fields'=>'',
-			'order'=>''
+		'OrderPayment' => array(
+			'className' => 'Orders.OrderPayment',
+			'foreignKey' => 'order_payment_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
-		'OrderShipment'=>array(
-			'className'=>'Orders.OrderShipment',
-			'foreignKey'=>'order_shipment_id',
-			'conditions'=>'',
-			'fields'=>'',
-			'order'=>''
+		'OrderShipment' => array(
+			'className' => 'Orders.OrderShipment',
+			'foreignKey' => 'order_shipment_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
-		'OrderTransaction'=>array(
-			'className'=>'OrderTransaction',
-			'foreignKey'=>'order_transaction_id',
-			'conditions'=>'',
-			'fields'=>'',
-			'order'=>''
+		'OrderTransaction' => array(
+			'className' => 'Orders.OrderTransaction',
+			'foreignKey' => 'order_transaction_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
 		),
 	);	
 	

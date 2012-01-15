@@ -175,7 +175,7 @@ class OrderItemsController extends OrdersAppController {
  * @todo 	These status fields need to be updated to use "enumerations".  Enumerations are what allow us to have different labels in multi-sites.  One site might call a completed transaction, "Shipped", the other might call it, "Completed".  We have to use enumerations for all drop downs for this reason.  (just set the enumeration to is_system, if its id number is hard coded anywhere, and then we'll make sure its included with the install of zuha.)
  * @todo	When all order items are sent, we should have a status for the order_transaction of "shipped".  But it really should be in the model not specifically here.
  */
-	public function atus() {
+	public function change_status() {
 		if(!empty($this->request->data['OrderItem'])) {
 			# if all items are sent then set status of the whole transaction to shipped
 			$statuses = Set::extract('/status', $this->request->data['OrderItem']);
