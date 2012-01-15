@@ -1,5 +1,5 @@
 <div class="transactions index">
-<h2><?php echo __('Transactions');?></h2>
+<h2><?php echo $page_title_for_layout;?></h2>
 <table cellpadding="0" cellspacing="0">
 <tr>
 	<th><?php echo $this->Paginator->sort('status');?></th>
@@ -23,43 +23,30 @@ foreach ($orderTransactions as $orderTransaction):
 			<?php echo $orderTransaction['OrderTransaction']['total']; ?>
 		</td>
 		<td>
-			<?php echo $orderTransaction['OrderTransaction']['created']; ?>
+			<?php echo ZuhaInflector::dateize($orderTransaction['OrderTransaction']['created']); ?>
 		</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View', true), array('action' => 'view', $orderTransaction['OrderTransaction']['id'])); ?>
-			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', $orderTransaction['OrderTransaction']['id'])); ?>
-			<?php echo $this->Html->link(__('Delete', true), array('action' => 'delete', $orderTransaction['OrderTransaction']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $orderTransaction['OrderTransaction']['id'])); ?>
+            <?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', $orderTransaction['OrderTransaction']['id'])); ?>
 		</td>
-	</tr>
-	<tr>
-		<table>
-		<?php 
-			foreach($orderTransaction['OrderItem'] as $key => $oi) :
-		?>
-			<tr>
-				<?php $key++; ?>
-				<td><?php echo "Item $key : " . $oi['name']?></td>
-				<td>
-				<?php 
-					if($oi['is_virtual'] == 1) :
-						echo $this->Html->link('Virtual Item : '  . $oi['name'],
-								array('plugin' => 'webpages', 'controller' => 'webpages', 
-									'action' => 'view', $oi['foreign_key']));
-					endif;
-				?>
-				</td>
-			</tr>
-		<?php
-			endforeach; 
-		?>
-		</table>
 	</tr>
 <?php endforeach; ?>
 </table>
 </div>
-<?php echo $this->Element('paging'); ?>
-<div class="actions">
-	<ul>
-		<li><?php //echo $this->Html->link(__('Successful Transactions', true), array('action' => 'add')); ?></li>
-	</ul>
-</div>
+<?php
+echo $this->element('paging');
+// set the contextual menu items
+$this->set('context_menu', array('menus' => array(
+	array(
+		'heading' => 'Order Items',
+		'items' => array(
+			$this->Html->link('Failed', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:failed')),
+			$this->Html->link('Successful', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:success')),
+			$this->Html->link('Paid', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:paid')),
+			$this->Html->link('Pending', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:pending')),
+			$this->Html->link('Shipped', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:shipped')),
+			$this->Html->link('Frozen', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:frozen')),
+			$this->Html->link('Cancelled', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:cancelled')),            
+			)
+		),
+	))); ?>

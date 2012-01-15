@@ -76,6 +76,9 @@ class OrderTransactionsController extends OrdersAppController {
 				)
 			)
 		));
+		$statuses = $this->OrderTransaction->statuses();
+		$itemStatuses = $this->OrderTransaction->OrderItem->statuses();
+		$this->set(compact('statuses', 'itemStatuses')); 
 	}
 
 	function delete($id = null) {

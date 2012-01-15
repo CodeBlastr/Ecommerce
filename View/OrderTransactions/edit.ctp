@@ -1,31 +1,32 @@
 <div class="transactions edit">
   <div class="transactionDetails">
     <h2>
-      <?php  __('Transaction Details');?>
+      <?php echo __('Transaction Details');?>
     </h2>
+ 	<?php echo $this->Form->create('OrderItem', array('action' => 'change_status'))?> 
     <p class="transactionDetail" id="transactionDetailStatus"><span class="label">
       <?php echo __('Amount: '); ?>
       </span><?php echo $orderTransaction['OrderTransaction']['total']; ?></p>
     <p class="transactionDetail" id="transactionDetailSystemStatus"><span class="label">
-      <?php echo __('System Status: '); ?>
-      </span><?php echo $orderTransaction['OrderTransaction']['status']; ?></p>
+      <?php echo __('Transaction Status: '); ?>
+      </span><?php echo $this->Form->input('OrderTransaction.status', array('selected' => $orderTransaction['OrderTransaction']['status'], 'label' => false)); ?></p>
     <p class="transactionDetail" id="transactionDetailPaymentStatus"><span class="label">
       <?php echo __('Payment Status: '); ?>
       </span><?php echo $orderTransaction['OrderTransaction']['processor_response']; ?></p>
   </div>
   <div class="shippingDetails">
     <h2>
-      <?php  __('Shipping Details');?>
+      <?php echo __('Shipping Details');?>
     </h2>
     <p class="shippingDetail" id="shippingDetailName"><span class="label">
       <?php echo __('Name: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['first_name']; ?> <?php echo $orderTransaction['OrderShipment']['last_name']; ?></p>
-    <!--p class="shippingDetail" id="shippingDetailCompany"><span class="label">
+    <p class="shippingDetail" id="shippingDetailCompany"><span class="label">
       <?php echo __('Company: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['company']; ?></p>
     <p class="shippingDetail" id="shippingDetailEmail"><span class="label">
       <?php echo __('Email: '); ?>
-      </span><?php echo $orderTransaction['OrderShipment']['email']; ?></p-->
+      </span><?php echo $orderTransaction['OrderShipment']['email']; ?></p>
     <p class="shippingDetail" id="shippingDetailStreetOne"><span class="label">
       <?php echo __('Street: '); ?>
       </span><?php echo $orderTransaction['OrderShipment']['street_address_1']; ?></p>
@@ -48,7 +49,6 @@
   <h2>
     <?php  __('Items');?>
   </h2>
-  <?php echo $this->Form->create('OrderItem', array('action' => 'change_status'))?> 
   <?php echo $this->Form->hidden('OrderTransaction.id', array('value' => $orderTransaction['OrderTransaction']['id'])); ?> 
   <table>
     <tr>
@@ -57,22 +57,16 @@
       <th>Tracking # </th>
       <th>Status </th>
     </tr>
-<?php $status = array('pending' => 'Pending',
-		'sent' => 'Delivered' ,
-		'paid' => 'Paid', 
-		'frozen' => 'Frozen', 
-		'cancelled' => 'Cancelled',
-		'return' => 'Returned',
-		'returnRequest' => 'Request Return');
-		foreach($orderTransaction['OrderItem'] as $key => $oi) : ?>
+<?php 
+	foreach($orderTransaction['OrderItem'] as $key => $orderItem) { ?>
     <tr>
-      <td><?php echo $this->Form->hidden('OrderItem.'.$key.'.id', array('value' => $oi['id'])); ?> <?php echo $oi['name']?></td>
-      <td><?php if(!empty($oi['CatalogItem']['CatalogItemBrand']))echo $oi['CatalogItem']['CatalogItemBrand']['name']?></td>
-      <td><?php echo $this->Form->input('OrderItem.'.$key.'.tracking_no', array('value' => $oi['tracking_no'], 'label' => false)); ?></td>
-      <td><?php echo $this->Form->input('OrderItem.'.$key.'.status', array('options'=>$status, 'selected'=>$oi['status'], 'label'=>false)); ?></td>
+      <td><?php echo $this->Form->hidden('OrderItem.'.$key.'.id', array('value' => $orderItem['id'])); ?> <?php echo $orderItem['name']?></td>
+      <td><?php echo !empty($orderItem['CatalogItem']['CatalogItemBrand']) ? $orderItem['CatalogItem']['CatalogItemBrand']['name'] : null; ?></td>
+      <td><?php echo $this->Form->input('OrderItem.'.$key.'.tracking_no', array('value' => $orderItem['tracking_no'], 'label' => false)); ?></td>
+      <td><?php echo $this->Form->input('OrderItem.'.$key.'.status', array('options' => $itemStatuses, 'selected' => $orderItem['status'], 'label' => false)); ?></td>
     </tr>
-  		<?php echo $this->Form->hidden('OrderItem.'.$key.'.order_transaction_id', array('value' => $oi['order_transaction_id'])); ?>
-    <?php endforeach; ?>
+  		<?php echo $this->Form->hidden('OrderItem.'.$key.'.order_transaction_id', array('value' => $orderItem['order_transaction_id'])); ?>
+    <?php } // end orderItems loop ?>
   </table>
   <?php echo $this->Form->end('Update')?>
 </div>

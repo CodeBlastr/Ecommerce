@@ -1,10 +1,8 @@
 <div class="orderItems index">
-<h2><?php echo __('OrderItem Items');?></h2>
+<h2><?php echo $page_title_for_layout;?></h2>
 <table cellpadding="0" cellspacing="0">
 <tr>
 	<th><?php echo $this->Paginator->sort('id');?></th>
-	<th><?php echo $this->Paginator->sort('order_payment_id');?></th>
-	<th><?php echo $this->Paginator->sort('order_shipment_id');?></th>
 	<th><?php echo $this->Paginator->sort('order_status_id');?></th>
 	<th><?php echo $this->Paginator->sort('assignee_id');?></th>
 	<th><?php echo $this->Paginator->sort('contact_id');?></th>
@@ -24,12 +22,6 @@ foreach ($orderItems as $orderItem):
 	<tr<?php echo $class;?>>
 		<td>
 			<?php echo $orderItem['OrderItem']['id']; ?>
-		</td>
-		<td>
-			<?php echo $this->Html->link($orderItem['OrderPayment']['name'], array('controller' => 'order_payments', 'action' => 'view', $orderItem['OrderPayment']['id'])); ?>
-		</td>
-		<td>
-			<?php echo $this->Html->link($orderItem['OrderShipment']['name'], array('controller' => 'order_shipments', 'action' => 'view', $orderItem['OrderShipment']['id'])); ?>
 		</td>
 		<td>
 			<?php echo $orderItem['OrderItem']['status']; ?>
@@ -57,16 +49,20 @@ foreach ($orderItems as $orderItem):
 <?php endforeach; ?>
 </table>
 </div>
-<?php echo $this->element('paging'); ?>
-<div class="actions">
-	<ul>
-		<li><?php echo $this->Html->link(__('New OrderItem', true), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List OrderItem Payments', true), array('controller' => 'order_payments', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New OrderItem Payment', true), array('controller' => 'order_payments', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List OrderItem Shipments', true), array('controller' => 'order_shipments', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New OrderItem Shipment', true), array('controller' => 'order_shipments', 'action' => 'add')); ?> </li>
-		<li><?php echo $this->Html->link(__('List Catalog Items', true), array('controller' => 'catalog_items', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Catalog Item', true), array('controller' => 'catalog_items', 'action' => 'add')); ?> </li>
-	</ul>
-</div>
-<?php #pr($orderItem); ?>
+<?php
+echo $this->element('paging');
+// set the contextual menu items
+$this->set('context_menu', array('menus' => array(
+	array(
+		'heading' => 'Order Items',
+		'items' => array(
+			$this->Html->link('Completed Items', array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'index', 'filter' => 'status:successful')),
+			$this->Html->link('Pending Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:pending')),
+			$this->Html->link('In Cart Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:incart')),
+			$this->Html->link('Sent Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:sent')),
+			$this->Html->link('Paid Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:paid')),
+			$this->Html->link('Frozen Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:frozen')),
+			$this->Html->link('Cancelled Items', array('plugin'=>'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:cancelled')),
+			)
+		),
+	))); ?>

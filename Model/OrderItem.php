@@ -441,5 +441,17 @@ class OrderItem extends OrdersAppModel {
 
 	}
 	
+	
+	public function statuses() {
+		return array(
+			'pending' => 'Pending',
+			'sent' => 'Delivered' ,
+			'paid' => 'Paid', 
+			'frozen' => 'Frozen', 
+			'cancelled' => 'Cancelled',
+			'return' => 'Returned',
+			'returnRequest' => 'Request Return');
+	}
+	
 }
 ?>

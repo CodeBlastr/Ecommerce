@@ -6,16 +6,18 @@ App::uses('OrdersAppModel', 'Orders.Model');
  * @property OrderTransaction $OrderTransaction
  */
 class OrderTransaction extends OrdersAppModel {
-	var $name = 'OrderTransaction';
+	
+	public $name = 'OrderTransaction';
+	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
-	var $hasMany = array(
+	public $hasMany = array(
 		'OrderItem' => array(
 			'className' => 'Orders.OrderItem',
 			'foreignKey' => 'order_transaction_id'
 		),
 	);
 	
-	var $hasOne = array(
+	public $hasOne = array(
 		'OrderShipment' => array(
 			'className' => 'Orders.OrderShipment',
 			'foreignKey' => 'order_transaction_id'
@@ -26,14 +28,14 @@ class OrderTransaction extends OrdersAppModel {
 		),
 	);
 	
-	var $belongsTo = array(
-//		'OrderPayment' => array(
-//			'className' => 'Orders.OrderPayment',
-//			'foreignKey' => 'order_payment_id',
-//			'conditions' => '',
-//			'fields' => '',
-//			'order' => ''
-//		),
+	public $belongsTo = array(
+		#'OrderPayment' => array(
+		#	'className' => 'Orders.OrderPayment',
+		#	'foreignKey' => 'order_payment_id',
+		#	'conditions' => '',
+		#	'fields' => '',
+		#	'order' => ''
+		#),
 		'OrderCoupon' => array(
 			'className' => 'Orders.OrderCoupon',
 			'foreignKey' => 'order_coupon_id',
@@ -71,14 +73,14 @@ class OrderTransaction extends OrdersAppModel {
 		)
 	);
 
-	/*
-	 * add the transaction to DB.
-	 *
-	 * @param {array} 	$data to be added 
-	 * @param {int}		$response: response from the payment after charging card.
-	 * @param {int}		$user_id:  logged user id
-	 */	
-	function add($data = null) {
+/*
+ * add the transaction to DB.
+ *
+ * @param {array} 	$data to be added 
+ * @param {int}		$response: response from the payment after charging card.
+ * @param {int}		$user_id:  logged user id
+ */	
+	public function add($data = null) {
 		if (!empty($data)) {
 			# save the order transaction
 			if ($this->save($data)) {
@@ -114,13 +116,13 @@ class OrderTransaction extends OrdersAppModel {
 	}
 	
 	
-	/** 
-	 * Save Order Shipment and Payment Data
-	 * 
-	 * @param {array}		Data array with some non-typical keys
-	 * @todo				This could probably be normalized a bit, and moved to the respective models.
-	 */
-	function _shipmentAndPayment($data) {
+/** 
+ * Save Order Shipment and Payment Data
+ * 
+ * @param {array}		Data array with some non-typical keys
+ * @todo				This could probably be normalized a bit, and moved to the respective models.
+ */
+	public function _shipmentAndPayment($data) {
 		
 		$this->OrderPayment->create();
 		$this->OrderShipment->create();
@@ -181,7 +183,7 @@ class OrderTransaction extends OrdersAppModel {
  * @param {$user_id}		user id according to which profile id return
  * return {OrderTransaction.id}
  */
-	function getArbTransactionId($user_id = null) {
+	public function getArbTransactionId($user_id = null) {
 		$orderTransaction = $this->find('first', array(
 			'conditions' => array(
 				'is_arb' => 1, 
@@ -201,7 +203,7 @@ class OrderTransaction extends OrdersAppModel {
  * @param {$order_transaction_id}	user id according to which profile id return
  * return {OrderTransaction.mode}
  */
-	function getArbPaymentMode($orderTransactionId = null) {
+	public function getArbPaymentMode($orderTransactionId = null) {
 		$orderTransaction = $this->find('first', array('conditions' => array('id' => $orderTransactionId)));
 		return $orderTransaction['OrderTransaction']['mode'] ;			 
 	}
@@ -215,7 +217,7 @@ class OrderTransaction extends OrdersAppModel {
  *Fetch Transaction Id from Order Payment Table and update 
  *Order Transaction with new Status
  */
-	function changeStatus($orderTransactionId, $status, $processorResponse){		
+	public function changeStatus($orderTransactionId, $status, $processorResponse){		
 		$data['OrderTransaction']['id'] = $orderTransactionId ;
 		$data['OrderTransaction']['status'] = $status;
 		$data['OrderTransaction']['processor_response'] = $processorResponse;
@@ -229,7 +231,7 @@ class OrderTransaction extends OrdersAppModel {
  * @param {$order_transaction_id} transaction_id according to which transaction amount return
  * return {OrderTransaction.total}
  */
-	function getArbTransactionAmount($orderTransactionId = null) {		
+	public function getArbTransactionAmount($orderTransactionId = null) {		
 		$orderTransaction = $this->find('first', array(
 			'fields' => array('total'),
 			'conditions' => array('id' => $orderTransactionId) 
@@ -244,7 +246,7 @@ class OrderTransaction extends OrdersAppModel {
  * @param {$order_transaction_id} transaction_id according to which transaction amount return
  * return {OrderTransaction.customer_id}
  */
-	function getArbTransactionUserId($orderTransactionId = null) {
+	public function getArbTransactionUserId($orderTransactionId = null) {
 		$orderTransaction = $this->find('first', array(
 			'fields' => array('customer_id'),
 			'conditions' => array('id' => $orderTransactionId) 
@@ -258,12 +260,27 @@ class OrderTransaction extends OrdersAppModel {
  * @param {$order_transaction_id} transaction_id according to which transaction status return
  * return {OrderTransaction.status}
  */
-	function getArbTransactionStatus($orderTransactionId = null) {
+	public function getArbTransactionStatus($orderTransactionId = null) {
 		$orderTransaction = $this->find('first', array(
 			'fields' => array('status'),
 			'conditions' => array('id' => $orderTransactionId) 
 			));
 		return $orderTransaction['OrderTransaction']['status'] ;			 
+	}
+	
+/**
+ * An array of options for select inputs
+ *
+ */
+	public function statuses() {
+		return array(
+			'failed' => 'Failed',
+			'success' => 'Success',
+			'paid' => 'Paid',
+			'pending' => 'Pending',
+			'shipped' => 'Shipped',
+			'frozen' => 'Frozen',
+			'cancelled' => 'Cancelled');
 	}
 }
 ?>

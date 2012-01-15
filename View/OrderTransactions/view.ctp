@@ -1,7 +1,7 @@
 <div class="transactions view">
   <div class="transactionDetails">
     <h2>
-      <?php  __('Transaction Details');?>
+      <?php echo __('Transaction Details');?>
     </h2>
     <p class="transactionDetail" id="transactionDetailStatus"><span class="label"> <?php echo __('Amount: '); ?> </span><?php echo $orderTransaction['OrderTransaction']['total']; ?></p>
     <p class="transactionDetail" id="transactionDetailSystemStatus"><span class="label"> <?php echo __('System Status: '); ?> </span><?php echo $orderTransaction['OrderTransaction']['status']; ?></p>
@@ -9,7 +9,7 @@
   </div>
   <div class="shippingDetails">
     <h2>
-      <?php  __('Shipping Details');?>
+      <?php echo __('Shipping Details');?>
     </h2>
     <p class="shippingDetail" id="shippingDetailName"><span class="label"> <?php echo __('Name: '); ?> </span><?php echo $orderTransaction['OrderShipment']['first_name']; ?> <?php echo $orderTransaction['OrderShipment']['last_name']; ?></p>
     <p class="shippingDetail" id="shippingDetailCompany"><span class="label"> <?php echo __('Company: '); ?> </span><?php echo $orderTransaction['OrderShipment']['company']; ?></p>
