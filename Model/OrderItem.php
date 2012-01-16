@@ -443,10 +443,11 @@ class OrderItem extends OrdersAppModel {
 	
 	
 	public function statuses() {
+		$statuses = array();
 		foreach(Zuha::enum('ORDER_ITEM_STATUS') as $status) {
 			$statuses[Inflector::underscore($status)] = $status;
 		}		
-		return array_merge(array('paid' => 'Paid', 'shipped' => 'Shipped'), $statuses);
+		return array_merge(array('incart' => 'In Cart', 'paid' => 'Paid', 'shipped' => 'Shipped'), $statuses);
 	}
 	
 }

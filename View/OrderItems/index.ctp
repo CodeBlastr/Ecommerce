@@ -42,8 +42,7 @@ foreach ($orderItems as $orderItem):
 			<?php echo $orderItem['OrderItem']['created']; ?>
 		</td>
 		<td class="actions">
-			<?php echo $this->Html->link(__('View', true), array('action' => 'view', $orderItem['OrderItem']['id'])); ?>
-			<?php echo $this->Html->link(__('Edit', true), array('action' => 'edit', $orderItem['OrderItem']['id'])); ?>
+			<?php echo !empty($orderItem['OrderItem']['order_transaction_id']) ? $this->Html->link(__('View Transaction'), array('controller' => 'order_transactions', 'action' => 'view', $orderItem['OrderItem']['order_transaction_id'])) : $this->Html->link(__('Delete'), array('controller' => 'order_items', 'action' => 'delete', $orderItem['OrderItem']['id']), null, sprintf(__('Are you sure you want to delete # %s?'), $orderItem['OrderItem']['id'])); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -52,17 +51,13 @@ foreach ($orderItems as $orderItem):
 <?php
 echo $this->element('paging');
 // set the contextual menu items
+$items[] = $this->Html->link('List', array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'index'));
+foreach ($statuses as $key => $status) {
+	$items[] = $this->Html->link($status, array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'index', 'filter' => 'status:' . $key));
+}
 $this->set('context_menu', array('menus' => array(
 	array(
 		'heading' => 'Order Items',
-		'items' => array(
-			$this->Html->link('Completed Items', array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'index', 'filter' => 'status:successful')),
-			$this->Html->link('Pending Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:pending')),
-			$this->Html->link('In Cart Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:incart')),
-			$this->Html->link('Sent Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:sent')),
-			$this->Html->link('Paid Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:paid')),
-			$this->Html->link('Frozen Items', array('plugin' => 'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:frozen')),
-			$this->Html->link('Cancelled Items', array('plugin'=>'orders', 'controller' => 'order_items', 'action' => 'index', 'filter' => 'status:cancelled')),
-			)
+		'items' => $items,
 		),
 	))); ?>

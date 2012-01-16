@@ -43,16 +43,26 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->paginate['order'] = array('OrderTransaction.status, OrderTransaction.created');
 		$this->paginate['contain'] = array('OrderItem', 'Creator');
 		$this->set('orderTransactions', $this->paginate());
+		$this->set('statuses', $this->OrderTransaction->statuses());
 	}
 	
 	public function view($id = null) {
 		if (!$id) {
 			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
 		}
-		$this->set('orderTransaction', $this->OrderTransaction->find('first',
-			array('conditions' => array('OrderTransaction.id' => $id),
-				'contain' => array('OrderItem' => array('CatalogItem'=>'CatalogItemBrand'), 'Creator', 'OrderShipment')
-		)));
+		$orderTransaction = $this->OrderTransaction->find('first', array(
+			'conditions' => array(
+				'OrderTransaction.id' => $id
+				),
+			'contain' => array(
+				'OrderItem' => array(
+					'CatalogItem' => 'CatalogItemBrand'
+					),
+				'Creator',
+				'OrderShipment'
+				)
+			));
+		$this->set(compact('orderTransaction'));
 	}
 
 	public function add() {

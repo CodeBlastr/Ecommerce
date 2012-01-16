@@ -273,6 +273,7 @@ class OrderTransaction extends OrdersAppModel {
  *
  */
 	public function statuses() {
+		$statuses = array();
 		foreach(Zuha::enum('ORDER_TRANSACTION_STATUS') as $status) {
 			$statuses[Inflector::underscore($status)] = $status;
 		}		

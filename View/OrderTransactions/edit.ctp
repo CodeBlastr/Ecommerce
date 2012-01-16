@@ -60,7 +60,7 @@
 <?php 
 	foreach($orderTransaction['OrderItem'] as $key => $orderItem) { ?>
     <tr>
-      <td> <?php echo $orderItem['name']?></td>
+      <td> <?php echo $this->Html->link($orderItem['name'], array('plugin' => ZuhaInflector::pluginize($orderItem['model']), 'controller' => 'catalog_items')); ?></td>
       <td><?php echo !empty($orderItem['CatalogItem']['CatalogItemBrand']) ? $orderItem['CatalogItem']['CatalogItemBrand']['name'] : null; ?></td>
       <td><?php echo $this->Form->input('OrderItem.'.$key.'.tracking_no', array('value' => $orderItem['tracking_no'], 'label' => false)); ?></td>
       <td><?php echo $this->Form->input('OrderItem.'.$key.'.status', array('options' => $itemStatuses, 'selected' => $orderItem['status'], 'label' => false)); ?></td>
@@ -70,3 +70,15 @@
   </table>
   <?php echo $this->Form->end('Update')?>
 </div>
+<?php
+// set the contextual menu items
+$this->set('context_menu', array('menus' => array(
+	array(
+		'heading' => 'Order Transaction',
+		'items' => array(
+			$this->Html->link(__('View', true), array('action' => 'view', $orderTransaction['OrderTransaction']['id'])),
+			$this->Html->link(__('Delete'), array('action' => 'delete', $this->Form->value('OrderItem.id')), null, sprintf(__('Are you sure you want to delete # %s?', true), $orderTransaction['OrderTransaction']['id'])),
+			$this->Html->link(__('List'), array('action' => 'index')),
+			)
+		),
+	))); ?>

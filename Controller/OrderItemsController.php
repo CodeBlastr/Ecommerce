@@ -24,6 +24,7 @@ class OrderItemsController extends OrdersAppController {
 	public function index($status = null) {
 		$this->OrderItem->recursive = 0;
 		$this->set('orderItems', $this->paginate());
+		$this->set('statuses', $this->OrderItem->statuses());
 	}
 	
 
@@ -90,11 +91,39 @@ class OrderItemsController extends OrdersAppController {
 	  		$this->redirect($redirect);
 		endif;
 	}
+
+/**
+ * edit method
+ *
+ * @param string $id
+ * @return void
+ */
+	public function edit($id = null) {
+		$this->OrderItem->id = $id;
+		if (!$this->OrderItem->exists()) {
+			throw new NotFoundException(__('Invalid order coupon'));
+		}
+		if ($this->request->is('post') || $this->request->is('put')) {
+			if ($this->OrderItem->save($this->request->data)) {
+				$this->Session->setFlash(__('The order item has been saved'));
+				$this->redirect(array('action' => 'index'));
+			} else {
+				$this->Session->setFlash(__('The order item could not be saved. Please, try again.'));
+			}
+		} else {
+			$orderItem = $this->OrderItem->read(null, $id);
+			$this->request->data = $orderItem;
+			$viewLink = !empty($orderItem['OrderItem']['model']) && !empty($orderItem['OrderItem']['model']) ? array('plugin' => ZuhaInflector::pluginize($orderItem['OrderItem']['model']), 'controller' => Inflector::tableize($orderItem['OrderItem']['model']), 'action' => 'view',  $orderItem['OrderItem']['id']) : null;
+			$this->set(compact('viewLink'));
+		}
+		# _viewVars
+		$this->set('statuses', $this->OrderItem->statuses());
+	}
 	
 /*
- * Check Payment Type
- * @params $this->request->data
- * write the common payment type in session
+ * Check the compatibility of cart items.
+ *
+ * @params {array} 
  */
 	private function _checkCartCompatibility($orderItem = null){
 		if(!empty($orderItem['OrderItem']['payment_type'])) :
@@ -113,6 +142,7 @@ class OrderItemsController extends OrdersAppController {
 			endif;
 		endif;	
 	}
+
 /*
  * Check Payment Type
  * @params $this->request->data

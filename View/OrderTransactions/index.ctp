@@ -36,17 +36,13 @@ foreach ($orderTransactions as $orderTransaction):
 <?php
 echo $this->element('paging');
 // set the contextual menu items
+$items[] = $this->Html->link('List', array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'index'));
+foreach ($statuses as $key => $status) {
+	$items[] = $this->Html->link($status, array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'index', 'filter' => 'status:' . $key));
+}
 $this->set('context_menu', array('menus' => array(
 	array(
-		'heading' => 'Order Items',
-		'items' => array(
-			$this->Html->link('Failed', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:failed')),
-			$this->Html->link('Successful', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:success')),
-			$this->Html->link('Paid', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:paid')),
-			$this->Html->link('Pending', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:pending')),
-			$this->Html->link('Shipped', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:shipped')),
-			$this->Html->link('Frozen', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:frozen')),
-			$this->Html->link('Cancelled', array('plugin' => 'orders', 'controller' => 'order_transactions', 'action' => 'index', 'filter' => 'status:cancelled')),            
-			)
+		'heading' => 'Order Transactions',
+		'items' => $items,
 		),
 	))); ?>
