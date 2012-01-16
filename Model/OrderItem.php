@@ -238,14 +238,14 @@ class OrderItem extends OrdersAppModel {
 	 */	
 	function addToCart($data, $userId = null){
 		# there are multiple itesm to add at once
-		if (!empty($data['OrderItem'][0])) :
-			if ($this->addAllToCart($data, $userId)) :
+		if (!empty($data['OrderItem'][0])) {
+			if ($this->addAllToCart($data, $userId)) {
 				$return = array('state' => true, 'msg' => 'Quantities updated.');
-			else :
+			} else {
 				$return = array('state' => false, 'msg' => 'Error updating quantities.');
-			endif;
+			}
 			return $return;
-		else :
+		} else {
 			
 			$return = array('state' => false, 'msg' => 'Item can not be added to Cart');
 			
@@ -255,7 +255,7 @@ class OrderItem extends OrdersAppModel {
 			$data['OrderItem']['customer_id']  = $userId;
 			$data = $this->createOrderItemFromCatalogItem($data, $userId);
 			
-			if($this->stockControl($data['OrderItem']['catalog_item_id']) !== 0){
+			if($this->stockControl($data['OrderItem']['catalog_item_id']) !== 0) {
 				if ($this->save($data)) {
 					$return = array('state' => true, 'msg' => 'Item was added to cart.');
 				} else {
@@ -265,31 +265,31 @@ class OrderItem extends OrdersAppModel {
 				$return['msg'] = 'Sorry, this item is out of stock';
 			}
 			return $return;
-		endif;
+		}
 	}
 	
 	
 	function addAllToCart($data, $userId = null) {
-		if (!empty($userId)) :
-			#the incoming data has many order items instead of one.
-			#reset the cart, because this data should contain all order items if we're submitting many
+		if (!empty($userId)) {
+			# the incoming data has many order items instead of one.
+			# reset the cart, because this data should contain all order items if we're submitting many
 			$orderItemIds = Set::extract('/id', $data['OrderItem']);
-			if ($this->deleteAll(array("{$this->alias}.id" => $orderItemIds))) :
-				foreach ($data['OrderItem'] as $orderItem) :
-					if ($orderItem['quantity'] > 0 && $this->addToCart(array('OrderItem' => $orderItem), $userId)) : 
+			if ($this->deleteAll(array("{$this->alias}.id" => $orderItemIds))) {
+				foreach ($data['OrderItem'] as $orderItem) {
+					if ($orderItem['quantity'] > 0 && $this->addToCart(array('OrderItem' => $orderItem), $userId)) {
 						$return = array('state' => true, 'msg' => 'All items added to cart.');
-					elseif ($orderItem['quantity'] <= 0) : 
+					} else if ($orderItem['quantity'] <= 0) {
 						#ignore it (ie. don't re-add it)
-					else :
+					} else {
 						throw new Exception('Error adding at least one item to cart.');
-					endif;
-				endforeach;
-			else :
+					}
+				} // end order item loop
+			} else {
 				throw new Exception('Error resetting cart.');
-			endif;			
-		else :
+			} // end deleteAll
+		} else {
 			throw new Exception('Cannot change quantity without a user id.');
-		endif;
+		} // end user id check
 		return $return;
 	}
 	

@@ -20,40 +20,28 @@ class OrderItemsController extends OrdersAppController {
 		}
 	}
 
-
-	public function index($status = null) {
+/**
+ * Index method
+ * 
+ * @param null
+ * @return null
+ */
+	public function index() {
 		$this->OrderItem->recursive = 0;
 		$this->set('orderItems', $this->paginate());
 		$this->set('statuses', $this->OrderItem->statuses());
 	}
-	
 
-	private function _namedParameterJoins() {
-		# category id named
-		if (!empty($this->request->params['named']['category'])) {
-			$categoryId = $this->request->params['named']['category'];
-			$this->params['joins'] = array(array(
-				'table' => 'categorizeds',
-				'alias' => 'Categorized',
-				'type' => 'INNER',
-				'conditions' => array(
-					"Categorized.foreign_key = CatalogItem.id",
-					"Categorized.model = 'CatalogItem'",
-					"Categorized.category_id = '{$categoryId}'",
-				),
-			));
-			$contain = $this->params['contain'][] = 'Category';
-			return $this->params;
-		} else {
-			return null;
-		}
-	}
-
-
+/**
+ * View method
+ *
+ * @param uuid
+ * @return null
+ */ 
 	public function view($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid order item', true));
-			$this->redirect(array('action' => 'index'));
+		$this->OrderItem->id = $id;
+		if (!$this->OrderItem->exists()) {
+			throw new NotFoundException(__('Invalid order item'));
 		}
 		$this->OrderItem->contain('OrderPayment', 'OrderShipment');
 		$this->set('orderItem', $this->OrderItem->read(null, $id));
@@ -61,11 +49,10 @@ class OrderItemsController extends OrdersAppController {
 
 
 /**
- * Ordering an item function. Add to cart is handled here too. 
- * Redirects back to CatalogItem
- * @return NULL
- * @todo	Most of this needs to go into the model, and be converted to "throw, catch" syntax.
- * @todo	We may be able to add things besides catalog items to cart, so this will need to be updated to allow that.  (it will be a model/foreignKey type of format).
+ * Add method (cart)
+ *
+ * @param null
+ * @return void
  */
   	public function add() {
 		$userId = $this->Session->read('Auth.User.id');
@@ -93,9 +80,9 @@ class OrderItemsController extends OrdersAppController {
 	}
 
 /**
- * edit method
+ * Edit method
  *
- * @param string $id
+ * @param uuid
  * @return void
  */
 	public function edit($id = null) {
@@ -120,7 +107,7 @@ class OrderItemsController extends OrdersAppController {
 		$this->set('statuses', $this->OrderItem->statuses());
 	}
 	
-/*
+/**
  * Check the compatibility of cart items.
  *
  * @params {array} 
@@ -143,10 +130,11 @@ class OrderItemsController extends OrdersAppController {
 		endif;	
 	}
 
-/*
- * Check Payment Type
- * @params $this->request->data
- * write the common payment type in session
+/**
+ * Edits the cart compatibility session
+ * Write the common payment type in session
+ *
+ * @params 
  */
 	private function _updateCartCompatibility(){
 		$userId = $this->Session->read('Auth.User.id');
