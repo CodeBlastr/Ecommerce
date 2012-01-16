@@ -21,15 +21,15 @@ App::uses('OrdersAppModel', 'Orders.Model');
  */
 class OrderItem extends OrdersAppModel {
 
-	var $name = 'OrderItem'; 
+	public $name = 'OrderItem'; 
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 	
-	var $belongsTo = array(
+	public $belongsTo = array(
 		'CatalogItem' => array(
 			'className' => 'Catalogs.CatalogItem',
-			'foreignKey' => 'catalog_item_id',
-			'conditions' => '',
+			'foreignKey' => 'foreign_key',
+			'conditions' => array('OrderItem.model' => 'CatalogItem'),
 			'fields' => '',
 			'order' => ''
 		),
@@ -77,13 +77,12 @@ class OrderItem extends OrdersAppModel {
 	} */
 	
 	
-	/**
-	 * Stock control function Determines quantity of products in stock.
-	 * @param {int} product -> The id of the product. 
-	 * @return {int}
-	 */	
-	
-	function stockControl($product){
+/**
+ * Stock control function Determines quantity of products in stock.
+ * @param {int} product -> The id of the product. 
+ * @return {int}
+ */		
+	public function stockControl($product){
 		$data = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
 				'CatalogItem.id'=>$product
@@ -100,11 +99,11 @@ class OrderItem extends OrdersAppModel {
 	
 	
 	
-	function createOrderItemFromCatalogItem($data, $userId = null) {
+	public function createOrderItemFromCatalogItem($data, $userId = null) {
 		# find the related catalog item
 		$catalogItem = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
-				'CatalogItem.id' => $data['OrderItem']['catalog_item_id'],
+				'CatalogItem.id' => $data['OrderItem']['foreign_key'],
 				),
 			));
 		# set up the default values from the db catalog item
@@ -112,6 +111,7 @@ class OrderItem extends OrdersAppModel {
 		//$defaults['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
 		$defaults['OrderItem']['price'] = ZuhaInflector::pricify($catalogItem['CatalogItem']['price']);
 		$defaults['OrderItem']['name'] = $catalogItem['CatalogItem']['name'];
+		$defaults['OrderItem']['name'] = $catalogItem['CatalogItem']['creator_id'];
 		$defaults['OrderItem']['length'] = $catalogItem['CatalogItem']['length'];;
 		$defaults['OrderItem']['width'] = $catalogItem['CatalogItem']['width'];
 		$defaults['OrderItem']['height'] = $catalogItem['CatalogItem']['height'];
@@ -120,7 +120,7 @@ class OrderItem extends OrdersAppModel {
 		$defaults['OrderItem']['arb_settings'] = $catalogItem['CatalogItem']['arb_settings'];
 		$defaults['OrderItem']['payment_type'] = $catalogItem['CatalogItem']['payment_type'];
 		$defaults['OrderItem']['is_virtual'] = $catalogItem['CatalogItem']['is_virtual'];
-		$defaults['OrderItem']['model'] = !empty($catalogItem['CatalogItem']['model']) ? $catalogItem['CatalogItem']['model'] : 'Catalog';
+		$defaults['OrderItem']['model'] = !empty($catalogItem['CatalogItem']['model']) ? $catalogItem['CatalogItem']['model'] : 'CatalogItem';
 		$defaults['OrderItem']['foreign_key'] = !empty($catalogItem['CatalogItem']['foreign_key']) ? $catalogItem['CatalogItem']['foreign_key'] : $catalogItem['CatalogItem']['id'];
 		# merge the defaults with the submitted data
 		return Set::merge($defaults, $data);
@@ -128,12 +128,13 @@ class OrderItem extends OrdersAppModel {
 	
 	
 	
-	/*
-	 * Prepare cart data for items. As sum.
-	 * @param {int} $user -> The id of the customer 
-	 * @return {array} 
-	 */
-	function prepareCartData($userId = null, $userRoleId = null){
+/**
+ * Prepare cart data for items. As sum.
+ *
+ * @param {int} $user -> The id of the customer 
+ * @return {array} 
+ */
+	public function prepareCartData($userId = null, $userRoleId = null){
 		# Get Orders by specified User
 		$orderItems = $this->find('all', array(
 			'conditions'=>array(
@@ -190,7 +191,7 @@ class OrderItem extends OrdersAppModel {
 	}
 	
 	
-	function cartExtras($orderItems = null) {
+	public function cartExtras($orderItems = null) {
 		$orderItems = $this->mergeCartDuplicates($orderItems);
 		$price = '';
 		$quantity = '';
@@ -206,12 +207,12 @@ class OrderItem extends OrdersAppModel {
 	}
 	
 	
-	/** 
-	 * Reduce the orderItems to one instance per orderItem with an updated quantity.
-	 * 
-	 * @array		An array of many orderItems
-	 */
-	function mergeCartDuplicates($orderItems = null) {		
+/** 
+ * Reduce the orderItems to one instance per orderItem with an updated quantity.
+ * 
+ * @array		An array of many orderItems
+ */
+	public function mergeCartDuplicates($orderItems = null) {		
 		if (!empty($orderItems)) :
 			foreach($orderItems as $OrderItem) :
 				if(!isset($mergedOrderItems[$OrderItem['OrderItem']['catalog_item_id']])) :
@@ -228,15 +229,13 @@ class OrderItem extends OrdersAppModel {
 	}
 
 
-	/*
-	 * Add Item to cart -> Add the item to cart(order) depending on 
-	 * @param {int} id -> The id of the order.
-	 * @return {void}
-	 * @todo 		This needs to be updated to use "throw, catch" syntax.
-	 * @todo		The work regarding price needs to go into its own re-usable function.
-	 * @todo		We need to add a configuration for how we handle guests adding things to cart.  Right now it doesnt' work at all. 
-	 */	
-	function addToCart($data, $userId = null){
+/**
+ * Add Item to cart -> Add the item to cart(order) depending on 
+ * @param {int} id -> The id of the order.
+ * @return {void}
+ * @todo 		This needs to be updated to use "throw, catch" syntax.
+ */	
+	public function addToCart($data, $userId = null){
 		# there are multiple itesm to add at once
 		if (!empty($data['OrderItem'][0])) {
 			if ($this->addAllToCart($data, $userId)) {
@@ -269,7 +268,7 @@ class OrderItem extends OrdersAppModel {
 	}
 	
 	
-	function addAllToCart($data, $userId = null) {
+	public function addAllToCart($data, $userId = null) {
 		if (!empty($userId)) {
 			# the incoming data has many order items instead of one.
 			# reset the cart, because this data should contain all order items if we're submitting many
@@ -294,11 +293,11 @@ class OrderItem extends OrdersAppModel {
 	}
 	
 	
-	/*
-	 * add() function is similar to addToCart() function 
-	 * this function does not have guestcart code. This function is used to add item in order_items
-	 */
-	function add($data, $userRoleId = null){
+/**
+ * add() function is similar to addToCart() function 
+ * this function does not have guestcart code. This function is used to add item in order_items
+ */
+	public function add($data, $userRoleId = null){
 		//Set the data		
 		$catalogItem = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
@@ -325,12 +324,12 @@ class OrderItem extends OrdersAppModel {
 	}
 	
 	
-	/**
-	 * Looks up order items for a transaction (during checkout) and sets the status to paid for all of them.
-	 *
-	 * @param {array}		Data array
-	 */
-	function pay($data) {
+/**
+ * Looks up order items for a transaction (during checkout) and sets the status to paid for all of them.
+ *
+ * @param {array}		Data array
+ */
+	public function pay($data) {
 		$return = false;	
 		$ordItems = $this->find('all', array(
 			'conditions'=>array(
@@ -380,7 +379,7 @@ class OrderItem extends OrdersAppModel {
  * 
  * @param {array} 		An array of data like you would get from any form.
  */
-	function handleVirtualItems($data = null){
+	public function handleVirtualItems($data = null){
 		$this->Aro = ClassRegistry::init('Aro');
 		$this->Aco = ClassRegistry::init('Aco');
 		$this->ArosAco = ClassRegistry::init('ArosAco');
