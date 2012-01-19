@@ -30,7 +30,7 @@
         	 	}
         	 }?>
     		
-    		<?php $model = $cartItem['OrderItem']['model'];  $plugin = pluginize($model); $controller = Inflector::tableize($model);?>
+    		<?php $model = $cartItem['OrderItem']['model'];  $plugin = ZuhaInflector::pluginize($model); $controller = Inflector::tableize($model);?>
     		<?php echo !empty($cartItem['OrderItem']['name']) ? 
 					$this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $cartItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'small', 'thumbLink' => '/catalogs/catalog_items/view/'.$cartItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries')).
 					$this->Html->link($cartItem['OrderItem']['name'] , array('plugin' => 'catalogs', 'controller'=>'catalog_items', 'action' => 'view' , $cartItem['OrderItem']['catalog_item_id'])) : 
@@ -40,13 +40,13 @@
 							 $cartItem['OrderItem']['foreign_key']));
 					?></td>
     		<td><?php echo $this->Form->input('OrderItem.'.$i.'.quantity', array('value' => $cartItem['OrderItem']['quantity'], 'label' => false)); ?></td>
-    		<td id="price<?php echo $i; ?>">$<?php echo formatPrice($cartItem['OrderItem']['price'] * $cartItem['OrderItem']['quantity']); ?></td>
+    		<td id="price<?php echo $i; ?>">$<?php echo ZuhaInflector::pricify($cartItem['OrderItem']['price'] * $cartItem['OrderItem']['quantity']); ?></td>
             <?php if(!$isCookieCart): ?>
     		<td><?php echo $this->Html->link(__($this->Html->tag('span', 'Remove'), true), array('controller' => 'order_items' , 'action' =>'delete', $cartItem['OrderItem']['id'], $i), array('escape' => false, 'class' => 'button')) ?></td>
             <?php endif; ?>
  		</tr>
         <?php echo $this->Form->hidden('OrderItem.'.$i.'.id', array('value' => $cartItem['OrderItem']['id'])); ?>
-        <?php echo $this->Form->hidden('OrderItem.'.$i.'.singlePrice', array('value' => formatPrice($cartItem['OrderItem']['price']))); ?>
+        <?php echo $this->Form->hidden('OrderItem.'.$i.'.singlePrice', array('value' => ZuhaInflector::pricify($cartItem['OrderItem']['price']))); ?>
         <?php echo $this->Form->hidden('OrderItem.'.$i.'.catalog_item_id', array('value' => $cartItem['OrderItem']['catalog_item_id'])); ?>
 	<?php $i++; endforeach;?>
 	</table>

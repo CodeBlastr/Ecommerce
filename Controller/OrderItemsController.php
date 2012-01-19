@@ -10,18 +10,38 @@ class OrderItemsController extends OrdersAppController {
 	public $name = 'OrderItems';
 	public $uses = 'Orders.OrderItem';
 	public $allowedActions = array('delete');
-
-
-	function index($status = null) {
-		#$this->OrderItem->recursive = 0;
-		$this->set('orderItems', $this->paginate());
+	public $shippedStatus = 'shipped';
+	
+	public function __construct($request = null, $response = null) {
+		parent::__construct($request, $response);
+		if (defined('__ORDERS_STATUSES')) {
+			$orderStatuses = unserialize(__ORDERS_STATUSES);
+			$this->shippedStatus = !empty($orderStatuses['shipped']) ? $orderStatuses['shipped'] : $this->shippedStatus;
+		}
 	}
 
+/**
+ * Index method
+ * 
+ * @param null
+ * @return null
+ */
+	public function index() {
+		$this->OrderItem->recursive = 0;
+		$this->set('orderItems', $this->paginate());
+		$this->set('statuses', $this->OrderItem->statuses());
+	}
 
-	function view($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid order item', true));
-			$this->redirect(array('action' => 'index'));
+/**
+ * View method
+ *
+ * @param uuid
+ * @return null
+ */ 
+	public function view($id = null) {
+		$this->OrderItem->id = $id;
+		if (!$this->OrderItem->exists()) {
+			throw new NotFoundException(__('Invalid order item'));
 		}
 		$this->OrderItem->contain('OrderPayment', 'OrderShipment');
 		$this->set('orderItem', $this->OrderItem->read(null, $id));
@@ -29,11 +49,10 @@ class OrderItemsController extends OrdersAppController {
 
 
 /**
- * Ordering an item function. Add to cart is handled here too. 
- * Redirects back to CatalogItem
- * @return NULL
- * @todo	Most of this needs to go into the model, and be converted to "throw, catch" syntax.
- * @todo	We may be able to add things besides catalog items to cart, so this will need to be updated to allow that.  (it will be a model/foreignKey type of format).
+ * Add method (cart)
+ *
+ * @param null
+ * @return void
  */
   	public function add() {
 		$userId = $this->Session->read('Auth.User.id');
@@ -59,11 +78,39 @@ class OrderItemsController extends OrdersAppController {
 	  		$this->redirect($redirect);
 		endif;
 	}
+
+/**
+ * Edit method
+ *
+ * @param uuid
+ * @return void
+ */
+	public function edit($id = null) {
+		$this->OrderItem->id = $id;
+		if (!$this->OrderItem->exists()) {
+			throw new NotFoundException(__('Invalid order coupon'));
+		}
+		if ($this->request->is('post') || $this->request->is('put')) {
+			if ($this->OrderItem->save($this->request->data)) {
+				$this->Session->setFlash(__('The order item has been saved'));
+				$this->redirect(array('action' => 'index'));
+			} else {
+				$this->Session->setFlash(__('The order item could not be saved. Please, try again.'));
+			}
+		} else {
+			$orderItem = $this->OrderItem->read(null, $id);
+			$this->request->data = $orderItem;
+			$viewLink = !empty($orderItem['OrderItem']['model']) && !empty($orderItem['OrderItem']['model']) ? array('plugin' => ZuhaInflector::pluginize($orderItem['OrderItem']['model']), 'controller' => Inflector::tableize($orderItem['OrderItem']['model']), 'action' => 'view',  $orderItem['OrderItem']['id']) : null;
+			$this->set(compact('viewLink'));
+		}
+		# _viewVars
+		$this->set('statuses', $this->OrderItem->statuses());
+	}
 	
-/*
- * Check Payment Type
- * @params $this->request->data
- * write the common payment type in session
+/**
+ * Check the compatibility of cart items.
+ *
+ * @params {array} 
  */
 	private function _checkCartCompatibility($orderItem = null){
 		if(!empty($orderItem['OrderItem']['payment_type'])) :
@@ -82,10 +129,12 @@ class OrderItemsController extends OrdersAppController {
 			endif;
 		endif;	
 	}
-/*
- * Check Payment Type
- * @params $this->request->data
- * write the common payment type in session
+
+/**
+ * Edits the cart compatibility session
+ * Write the common payment type in session
+ *
+ * @params 
  */
 	private function _updateCartCompatibility(){
 		$userId = $this->Session->read('Auth.User.id');
@@ -104,7 +153,7 @@ class OrderItemsController extends OrdersAppController {
  * View Cart 
  * @param {int} user_id
  */
-	function cart(){
+	public function cart(){
 		//get Items in Cart
 		//Configure::write('debug' , 0);
 		$orderItems = $this->_prepareCartData();
@@ -121,7 +170,7 @@ class OrderItemsController extends OrdersAppController {
  * @param {mixed} 	The id of the Order Item or X if it is a guest cart item
  * @param {int}		The array integer index of the guest cart item
  */
-	function delete($id, $index = null) {
+	public function delete($id, $index = null) {
 		if ($id == 'X') {
 			# X means it is a guest cart item
 			#$cartCount = $this->Cookie->read('OrdersCartCount');
@@ -144,16 +193,16 @@ class OrderItemsController extends OrdersAppController {
  * @todo 	These status fields need to be updated to use "enumerations".  Enumerations are what allow us to have different labels in multi-sites.  One site might call a completed transaction, "Shipped", the other might call it, "Completed".  We have to use enumerations for all drop downs for this reason.  (just set the enumeration to is_system, if its id number is hard coded anywhere, and then we'll make sure its included with the install of zuha.)
  * @todo	When all order items are sent, we should have a status for the order_transaction of "shipped".  But it really should be in the model not specifically here.
  */
-	function change_status() {
+	public function change_status() {
 		if(!empty($this->request->data['OrderItem'])) {
 			# if all items are sent then set status of the whole transaction to shipped
 			$statuses = Set::extract('/status', $this->request->data['OrderItem']);
 			foreach ($statuses as $status) : 
 				if ($status != 'sent') :
-					unset($this->request->data['OrderTransaction']['status']);
+					#unset($this->request->data['OrderTransaction']['status']);
 					break;
 				else : 
-					$this->request->data['OrderTransaction']['status'] = 'shipped';
+					$this->request->data['OrderTransaction']['status'] = $this->shippedStatus;
 				endif;
 			endforeach; 
 			

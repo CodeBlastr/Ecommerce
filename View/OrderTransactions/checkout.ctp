@@ -195,11 +195,11 @@ echo $this->Form->create('OrderTransaction');  ?>
     <fieldset id="paymentInformation">
       <legend><?php echo __('Payment Information'); ?></legend>
       <?php 
-      echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => formatPrice($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => '')); 
-	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => formatPrice($this->request->data['OrderTransaction']['order_charge'])));
+      echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => ZuhaInflector::pricify($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => '')); 
+	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => ZuhaInflector::pricify($this->request->data['OrderTransaction']['order_charge'])));
 	  $orderTotal = floatval($defaultShippingCharge) + floatval($this->request->data['OrderTransaction']['order_charge']); 
 	  echo $this->Form->input('OrderTransaction.discount', array('label' => 'Discount','readonly' => true));
-	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total <small><a id="enterPromo" href="#">Enter Promo</a></small>' ,'readonly' => true, 'value' => formatPrice($orderTotal), /*'after' => defined('__USERS_CREDITS_PER_PRICE_UNIT') ? " Or Credits : " . __USERS_CREDITS_PER_PRICE_UNIT * $orderTotal : "Or Credits : " .  $orderTotal*/ ));
+	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total <small><a id="enterPromo" href="#">Enter Promo</a></small>' ,'readonly' => true, 'value' => ZuhaInflector::pricify($orderTotal), /*'after' => defined('__USERS_CREDITS_PER_PRICE_UNIT') ? " Or Credits : " . __USERS_CREDITS_PER_PRICE_UNIT * $orderTotal : "Or Credits : " .  $orderTotal*/ ));
 	  echo $this->Form->input('OrderCoupon.code', array('label' => 'Code <small><a id="applyCode" href="#">Apply Code</a></small>'));
 	  echo $this->Form->hidden('OrderTransaction.quantity'); 
 	  echo $this->Form->input('mode', array('label' => 'Payment Type', 'options' => $paymentOptions, 'default' => $paymentMode));
