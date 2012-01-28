@@ -68,26 +68,25 @@ class OrdersAppController extends AppController {
 		$userId = $this->Session->read('Auth.User.id');
 		$cookieCart = $this->Cookie->read('cookieCart');
 		$Model = $this->name == 'OrderTransactions' ? $this->OrderTransaction->OrderItem : $this->OrderItem;
-		
-		if (!empty($cookieCart) && !empty($userId)) : 
+		if (!empty($cookieCart) && !empty($userId)) { 
 			# merge a user cart with cookieCart and delete the cookieCart			
-			foreach ($cookieCart as $items) : 
+			foreach ($cookieCart as $items) { 
 				$orderItems[] = unserialize($items);
-			endforeach;
+			}
 			
-			foreach ($orderItems as $orderItem) :
+			foreach ($orderItems as $orderItem) {
 				$cookieOrderItems[] = $Model->createOrderItemFromCatalogItem($orderItem);
-			endforeach;
+			}
 			
-			foreach ($Model->cartExtras($cookieOrderItems) as $cookieItem) : 
+			foreach ($Model->cartExtras($cookieOrderItems) as $cookieItem) {
 				$Model->addToCart($cookieItem, $userId);
-			endforeach;
+			}
 			
 			$this->Cookie->delete('cookieCart');
 			
 			return $Model->prepareCartData($userId);
 			
-		elseif (!empty($cookieCart) && empty($userId)) :
+		} else if (!empty($cookieCart) && empty($userId)) {
 			# just show the cookieCart
 			foreach ($cookieCart as $items) : 
 				$orderItems[] = unserialize($items);
@@ -98,13 +97,13 @@ class OrdersAppController extends AppController {
 			
 			return $Model->cartExtras($cookieOrderItems);
 			
-		elseif (!empty($userId)) :
+		} else if (!empty($userId)) {
 			# regular logged in cart
 			return $Model->prepareCartData($userId);
-		else :
+		} else {
 			# cart is empty
 			return null;
-		endif;
+		}
 		
 		/*$data['OrderItem']['id'] = 'X';
 		$orderItem[]['OrderItem'] = $data['OrderItem'];

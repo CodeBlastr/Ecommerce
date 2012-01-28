@@ -101,11 +101,19 @@ class OrderItem extends OrdersAppModel {
 	
 	public function createOrderItemFromCatalogItem($data, $userId = null) {
 		# find the related catalog item
+		$foreignKey = !empty($data['OrderItem']['foreign_key']) ? $data['OrderItem']['foreign_key'] : null;  // temporary!!
+		
 		$catalogItem = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
-				'CatalogItem.id' => $data['OrderItem']['foreign_key'],
+				'OR' => array(
+					'CatalogItem.id' => array(
+						$data['OrderItem']['catalog_item_id'],  // temporary!!
+						$foreignKey,
+						),
+					),					
 				),
 			));
+		
 		# set up the default values from the db catalog item
 		$defaults['OrderItem']['status'] = 'incart';
 		//$defaults['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
@@ -244,10 +252,8 @@ class OrderItem extends OrdersAppModel {
 				$return = array('state' => false, 'msg' => 'Error updating quantities.');
 			}
 			return $return;
-		} else {
-			
+		} else {			
 			$return = array('state' => false, 'msg' => 'Item can not be added to Cart');
-			
 			# update the total price for this order item record 
 			$data['OrderItem']['id']  = null; // removes X from cookieCart orderItems
 			$data['OrderItem']['parent_id']  = null; // gets rid of a value used in the view only

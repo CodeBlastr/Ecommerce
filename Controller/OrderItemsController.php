@@ -59,7 +59,7 @@ class OrderItemsController extends OrdersAppController {
 		# if there are multiple items then we will go to the checkout page, instead of the cart view page
 		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
 		$this->_checkCartCompatibility($this->request->data);
-		if (!empty($userId)) :
+		if (!empty($userId)) {
 			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
 			if ($ret['state']) {
 				$cart_count = $this->OrderItem->prepareCartData($this->Session->read('Auth.User.id'), $this->userRoleId);
@@ -73,10 +73,10 @@ class OrderItemsController extends OrdersAppController {
 			} else {
 				$this->Session->setFlash(__($ret['msg'], true));
 			}
-		else :
+		} else {
 			$this->_addToCookieCart($this->request->data);
 	  		$this->redirect($redirect);
-		endif;
+		}
 	}
 
 /**
