@@ -21,10 +21,10 @@ App::uses('OrdersAppModel', 'Orders.Model');
  */
 class OrderItem extends OrdersAppModel {
 
-	public $name = 'OrderItem'; 
+	public $name = 'OrderItem';
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
-	
+
 	public $belongsTo = array(
 		'CatalogItem' => array(
 			'className' => 'Catalogs.CatalogItem',
@@ -61,8 +61,8 @@ class OrderItem extends OrdersAppModel {
 			'fields' => '',
 			'order' => ''
 		),
-	);	
-	
+	);
+
 	/* If we want to remove expired items do them here!!!
 	function beforeFind() {
 		# remove items from cart if they're expired
@@ -75,13 +75,13 @@ class OrderItem extends OrdersAppModel {
 			$i++;
 		}
 	} */
-	
-	
+
+
 /**
  * Stock control function Determines quantity of products in stock.
- * @param {int} product -> The id of the product. 
+ * @param {int} product -> The id of the product.
  * @return {int}
- */		
+ */
 	public function stockControl($product){
 		$data = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
@@ -89,20 +89,20 @@ class OrderItem extends OrdersAppModel {
 				),
 			'contain' => array()
 		));
-		
+
 		if($data['CatalogItem']['stock_item'] > 0 || $data['CatalogItem']['stock_item'] === 0) :
 			return $data['CatalogItem']['stock_item'];
 		else :
 			return null;
 		endif;
 	}
-	
-	
-	
+
+
+
 	public function createOrderItemFromCatalogItem($data, $userId = null) {
 		# find the related catalog item
 		$foreignKey = !empty($data['OrderItem']['foreign_key']) ? $data['OrderItem']['foreign_key'] : null;  // temporary!!
-		
+
 		$catalogItem = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
 				'OR' => array(
@@ -110,16 +110,16 @@ class OrderItem extends OrdersAppModel {
 						$data['OrderItem']['catalog_item_id'],  // temporary!!
 						$foreignKey,
 						),
-					),					
+					),
 				),
 			));
-		
+
 		# set up the default values from the db catalog item
 		$defaults['OrderItem']['status'] = 'incart';
 		//$defaults['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
 		$defaults['OrderItem']['price'] = ZuhaInflector::pricify($catalogItem['CatalogItem']['price']);
 		$defaults['OrderItem']['name'] = $catalogItem['CatalogItem']['name'];
-		$defaults['OrderItem']['name'] = $catalogItem['CatalogItem']['creator_id'];
+		$defaults['OrderItem']['creator_id'] = $catalogItem['CatalogItem']['creator_id'];
 		$defaults['OrderItem']['length'] = $catalogItem['CatalogItem']['length'];;
 		$defaults['OrderItem']['width'] = $catalogItem['CatalogItem']['width'];
 		$defaults['OrderItem']['height'] = $catalogItem['CatalogItem']['height'];
@@ -133,14 +133,14 @@ class OrderItem extends OrdersAppModel {
 		# merge the defaults with the submitted data
 		return Set::merge($defaults, $data);
 	}
-	
-	
-	
+
+
+
 /**
  * Prepare cart data for items. As sum.
  *
- * @param {int} $user -> The id of the customer 
- * @return {array} 
+ * @param {int} $user -> The id of the customer
+ * @return {array}
  */
 	public function prepareCartData($userId = null, $userRoleId = null){
 		# Get Orders by specified User
@@ -182,23 +182,23 @@ class OrderItem extends OrdersAppModel {
 				),
 			'order'=>array('OrderItem.price')
 			));
-		
+
 		$possibleDeleteIds = Set::extract('/OrderItem/id', $orderItems);
-				
+
 		# clear Order Items
 		$cartData = $this->cartExtras($orderItems);
-		
+
 		$saveIds = Set::extract('/OrderItem/id', $cartData);
-		
+
 		$this->deleteAll(array('OrderItem.id' => array_diff($possibleDeleteIds, $saveIds)));
-		
+
 		if(!empty($saveIds)) { $this->saveAll($cartData); }
-				
-		# remove orderItems 
+
+		# remove orderItems
 		return $cartData;
 	}
-	
-	
+
+
 	public function cartExtras($orderItems = null) {
 		$orderItems = $this->mergeCartDuplicates($orderItems);
 		$price = '';
@@ -213,19 +213,19 @@ class OrderItem extends OrdersAppModel {
 		$orderItems[0]["total_quantity"] = $quantity;
 		return $orderItems;
 	}
-	
-	
-/** 
+
+
+/**
  * Reduce the orderItems to one instance per orderItem with an updated quantity.
- * 
+ *
  * @array		An array of many orderItems
  */
-	public function mergeCartDuplicates($orderItems = null) {		
+	public function mergeCartDuplicates($orderItems = null) {
 		if (!empty($orderItems)) :
 			foreach($orderItems as $OrderItem) :
 				if(!isset($mergedOrderItems[$OrderItem['OrderItem']['catalog_item_id']])) :
 					$mergedOrderItems[$OrderItem['OrderItem']['catalog_item_id']] = $OrderItem;
-				else : 
+				else :
 					$mergedOrderItems[$OrderItem['OrderItem']['catalog_item_id']]['OrderItem']['quantity'] += $OrderItem['OrderItem']['quantity'];
 				endif;
 			endforeach;
@@ -233,16 +233,16 @@ class OrderItem extends OrdersAppModel {
 			return array_values($mergedOrderItems);
 		else :
 			return null;
-		endif;		
+		endif;
 	}
 
 
 /**
- * Add Item to cart -> Add the item to cart(order) depending on 
+ * Add Item to cart -> Add the item to cart(order) depending on
  * @param {int} id -> The id of the order.
  * @return {void}
  * @todo 		This needs to be updated to use "throw, catch" syntax.
- */	
+ */
 	public function addToCart($data, $userId = null){
 		# there are multiple itesm to add at once
 		if (!empty($data['OrderItem'][0])) {
@@ -252,14 +252,14 @@ class OrderItem extends OrdersAppModel {
 				$return = array('state' => false, 'msg' => 'Error updating quantities.');
 			}
 			return $return;
-		} else {			
+		} else {
 			$return = array('state' => false, 'msg' => 'Item can not be added to Cart');
-			# update the total price for this order item record 
+			# update the total price for this order item record
 			$data['OrderItem']['id']  = null; // removes X from cookieCart orderItems
 			$data['OrderItem']['parent_id']  = null; // gets rid of a value used in the view only
 			$data['OrderItem']['customer_id']  = $userId;
 			$data = $this->createOrderItemFromCatalogItem($data, $userId);
-			
+
 			if($this->stockControl($data['OrderItem']['catalog_item_id']) !== 0) {
 				if ($this->save($data)) {
 					$return = array('state' => true, 'msg' => 'Item was added to cart.');
@@ -272,8 +272,8 @@ class OrderItem extends OrdersAppModel {
 			return $return;
 		}
 	}
-	
-	
+
+
 	public function addAllToCart($data, $userId = null) {
 		if (!empty($userId)) {
 			# the incoming data has many order items instead of one.
@@ -297,27 +297,27 @@ class OrderItem extends OrdersAppModel {
 		} // end user id check
 		return $return;
 	}
-	
-	
+
+
 /**
- * add() function is similar to addToCart() function 
+ * add() function is similar to addToCart() function
  * this function does not have guestcart code. This function is used to add item in order_items
  */
 	public function add($data, $userRoleId = null){
-		//Set the data		
+		//Set the data
 		$catalogItem = $this->CatalogItem->find('first' , array(
 			'conditions'=>array(
 				'CatalogItem.id' => $data['OrderItem']['catalog_item_id'],
 				),
 			));
-		
-		//Set Price 
+
+		//Set Price
 		$data['OrderItem']['price']  = $data['OrderItem']['quantity'] * $catalogItem['CatalogItem']['price'];
-		//save 
+		//save
 		if($catalogItem['CatalogItem']['stock'] == 0){
 			if ($this->save($data)) {
 				return true;
-			} 	
+			}
 		} else {
 			if($this->OrderItem->stockControl($catalogItem)){
 				if ($this->	save($data)) {
@@ -328,15 +328,15 @@ class OrderItem extends OrdersAppModel {
 			}
 		}
 	}
-	
-	
+
+
 /**
  * Looks up order items for a transaction (during checkout) and sets the status to paid for all of them.
  *
  * @param {array}		Data array
  */
 	public function pay($data) {
-		$return = false;	
+		$return = false;
 		$ordItems = $this->find('all', array(
 			'conditions'=>array(
 				'OrderItem.customer_id' => $data['OrderTransaction']['customer_id'],
@@ -351,18 +351,18 @@ class OrderItem extends OrdersAppModel {
 				$orderItem['OrderItem']['order_transaction_id'] = $data['OrderTransaction']['id'];
 				$orderItem['OrderItem']['order_shipment_id'] = $data['OrderTransaction']['order_shipment_id'];
 				$orderItem['OrderItem']['order_payment_id'] = $data['OrderTransaction']['order_payment_id'];
-	
+
 				if(isset($orderItem['OrderItem']['catalog_item_id'])) {
 					$data = $this->CatalogItem->find('first' , array(
 							'conditions'=>array(
-								'CatalogItem.id'=>$orderItem['OrderItem']['catalog_item_id'] 
+								'CatalogItem.id'=>$orderItem['OrderItem']['catalog_item_id']
 							)
 						));
-					
-					$orderItem['CatalogItem'] = $data['CatalogItem']; 	
+
+					$orderItem['CatalogItem'] = $data['CatalogItem'];
 					$orderItem['CatalogItem']['stock_item'] -= $orderItem['OrderItem']['quantity'] ;
 				}
-				
+
 				if ($this->saveAll($orderItem)) {
 					$return = true;
 				} else {
@@ -371,18 +371,18 @@ class OrderItem extends OrdersAppModel {
 				}
 			}
 		endif;
-		
+
 		return $return;
 	}
-	
-	
-	
+
+
+
 /*
  * Handle virtual order items
  * It will give access of a particular record to a particular user
  * This is only used in database driven workflows at the moment so there are no references
  * to this function in other code on the system.
- * 
+ *
  * @param {array} 		An array of data like you would get from any form.
  */
 	public function handleVirtualItems($data = null){
@@ -415,7 +415,7 @@ class OrderItem extends OrdersAppModel {
 				$acoId = $this->Aco->id;
 			endif;
 		endif;
-		
+
 		$arosAcosNode = $this->ArosAco->find('first', array(
 			'conditions' => array(
 				'ArosAco.aro_id' => $aroId,
@@ -445,15 +445,15 @@ class OrderItem extends OrdersAppModel {
 		}
 
 	}
-	
-	
+
+
 	public function statuses() {
 		$statuses = array();
 		foreach(Zuha::enum('ORDER_ITEM_STATUS') as $status) {
 			$statuses[Inflector::underscore($status)] = $status;
-		}		
+		}
 		return array_merge(array('incart' => 'In Cart', 'paid' => 'Paid', 'shipped' => 'Shipped'), $statuses);
 	}
-	
+
 }
 ?>
