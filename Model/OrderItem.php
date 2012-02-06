@@ -29,7 +29,6 @@ class OrderItem extends OrdersAppModel {
 		'CatalogItem' => array(
 			'className' => 'Catalogs.CatalogItem',
 			'foreignKey' => 'foreign_key',
-			'conditions' => array('OrderItem.model' => 'CatalogItem'),
 			'fields' => '',
 			'order' => ''
 		),

@@ -47,8 +47,9 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 	
 	public function view($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
+		$this->OrderTransaction->id = $id;
+		if (!$this->OrderTransaction->exists()) {
+			throw new NotFoundException(__('Invalid order transaction'));
 		}
 		$orderTransaction = $this->OrderTransaction->find('first', array(
 			'conditions' => array(
