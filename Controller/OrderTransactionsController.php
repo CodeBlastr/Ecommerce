@@ -164,6 +164,56 @@ class OrderTransactionsController extends OrdersAppController {
 			);
 		$this->set('orderTransactions', $this->paginate());
 	}
+
+
+/**
+ * Order Transactions which are Hard Shipped Items (Non-Virtual)
+ *
+ * Using this function we set the variables for an index of transactions which are for the logged in user and contains order items which are non-virtual.
+ */
+	public function actual() {
+		#$this->OrderTransaction->recursive = 0;
+		$this->paginate = array(
+			'conditions'=>array(
+				'OrderTransaction.customer_id' => $this->Session->read('Auth.User.id'),
+				),
+			'joins' => array(array(
+				'table' => 'order_items',
+				'alias' => 'OrderItem',
+				'type' => 'INNER',
+				'conditions' => array(
+					'OrderItem.order_transaction_id = OrderTransaction.id',
+					'OrderItem.is_virtual' => 0,
+					),
+				)),
+			);
+		$this->set('orderTransactions', $this->paginate());
+	}
+
+
+/**
+ * Order Transactions which are Virtual
+ *
+ * Using this function we set the variables for an index of transactions which are for the logged in user and contains order items which are virtual.
+ */
+	public function virtual() {
+		#$this->OrderTransaction->recursive = 0;
+		$this->paginate = array(
+			'conditions'=>array(
+				'OrderTransaction.customer_id' => $this->Session->read('Auth.User.id'),
+				),
+			'joins' => array(array(
+				'table' => 'order_items',
+				'alias' => 'OrderItem',
+				'type' => 'INNER',
+				'conditions' => array(
+					'OrderItem.order_transaction_id = OrderTransaction.id',
+					'OrderItem.is_virtual' => 1,
+					),
+				)),
+			);
+		$this->set('orderTransactions', $this->paginate());
+	}
 	
 	
 /** 
