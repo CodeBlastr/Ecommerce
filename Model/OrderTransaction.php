@@ -90,20 +90,20 @@ class OrderTransaction extends OrdersAppModel {
 				}	
 				
 				if ($this->_shipmentAndPayment($data)) {
-					// following are filled to be passed to order item
+					# following are filled to be passed to order item
 					$data['OrderTransaction']['order_shipment_id'] = $this->OrderShipment->id;
 					$data['OrderTransaction']['order_payment_id'] = $this->OrderPayment->id;
 					if ($this->OrderItem->pay($data)) {
 						return true;
 					} else {
-						#roll back 3x
+						# roll back 3x
 						$this->OrderShipment->delete($this->OrderShipment->id);
 						$this->OrderPayment->delete($this->OrderPayment->id);
 						$this->delete($data['OrderTransaction']['id']);
 						return false;
 					}				
 				} else {
-					#roll back order transaction
+					# roll back order transaction
 					$this->delete($data['OrderTransaction']['id']);
 					return false;
 				}

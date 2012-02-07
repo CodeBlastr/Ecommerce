@@ -31,7 +31,7 @@
 	foreach($orderTransaction['OrderItem'] as $orderItem) { ?>
     <tr>
       <td>
-		<?php echo $this->Html->link('Click here for : '  . $orderItem['name'], array('plugin' => Inflector::underscore(ZuhaInflector::pluginize($orderItem['model'])), 'controller' => Inflector::underscore($orderItem['model']), 'action' => 'view', $orderItem['foreign_key'])); ?>
+		<?php echo $this->Html->link('Click here for : '  . $orderItem['name'], array('plugin' => Inflector::underscore(ZuhaInflector::pluginize($orderItem['model'])), 'controller' => Inflector::tableize($orderItem['model']), 'action' => 'view', $orderItem['foreign_key'])); ?>
 	  </td>
       <td><?php echo !empty($orderItem['CatalogItem']['CatalogItemBrand']) ? $orderItem['CatalogItem']['CatalogItemBrand']['name'] : ''; ?></td>
       <td><?php echo $orderItem['tracking_no']?></td>

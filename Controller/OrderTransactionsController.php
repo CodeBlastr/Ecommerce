@@ -47,8 +47,9 @@ class OrderTransactionsController extends OrdersAppController {
 	}
 	
 	public function view($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid OrderTransaction', true), array('action'=>'index'));
+		$this->OrderTransaction->id = $id;
+		if (!$this->OrderTransaction->exists()) {
+			throw new NotFoundException(__('Invalid order transaction'));
 		}
 		$orderTransaction = $this->OrderTransaction->find('first', array(
 			'conditions' => array(
@@ -160,6 +161,56 @@ class OrderTransactionsController extends OrdersAppController {
 			'contain'=>array(
 				'OrderItem',
 				),
+			);
+		$this->set('orderTransactions', $this->paginate());
+	}
+
+
+/**
+ * Order Transactions which are Hard Shipped Items (Non-Virtual)
+ *
+ * Using this function we set the variables for an index of transactions which are for the logged in user and contains order items which are non-virtual.
+ */
+	public function actual() {
+		#$this->OrderTransaction->recursive = 0;
+		$this->paginate = array(
+			'conditions'=>array(
+				'OrderTransaction.customer_id' => $this->Session->read('Auth.User.id'),
+				),
+			'joins' => array(array(
+				'table' => 'order_items',
+				'alias' => 'OrderItem',
+				'type' => 'INNER',
+				'conditions' => array(
+					'OrderItem.order_transaction_id = OrderTransaction.id',
+					'OrderItem.is_virtual' => 0,
+					),
+				)),
+			);
+		$this->set('orderTransactions', $this->paginate());
+	}
+
+
+/**
+ * Order Transactions which are Virtual
+ *
+ * Using this function we set the variables for an index of transactions which are for the logged in user and contains order items which are virtual.
+ */
+	public function virtual() {
+		#$this->OrderTransaction->recursive = 0;
+		$this->paginate = array(
+			'conditions'=>array(
+				'OrderTransaction.customer_id' => $this->Session->read('Auth.User.id'),
+				),
+			'joins' => array(array(
+				'table' => 'order_items',
+				'alias' => 'OrderItem',
+				'type' => 'INNER',
+				'conditions' => array(
+					'OrderItem.order_transaction_id = OrderTransaction.id',
+					'OrderItem.is_virtual' => 1,
+					),
+				)),
 			);
 		$this->set('orderTransactions', $this->paginate());
 	}
@@ -351,6 +402,7 @@ class OrderTransactionsController extends OrdersAppController {
 		} 
 			
 		# Charge the card
+		
 		$response = $this->_charge($this->request->data , $total, $this->request->data['OrderTransaction']['mode']);
 		
 		if($response['response_code'] != 1){
@@ -400,11 +452,11 @@ class OrderTransactionsController extends OrdersAppController {
 				$url = !empty($url) ? $url : array('plugin' => $plugin, 'controller'=>$controller , 'action'=>$action, !empty($foreign_key['OrderItem']['foreign_key']) ? $foreign_key['OrderItem']['foreign_key'] : '' );
 				# get foreign key of OrderItem using given setings
 				$foreign_key = $this->OrderTransaction->OrderItem->find('first', 
-						array('fields' => $pass, 
-							'conditions' => array(
-								'OrderItem.order_transaction_id' => $this->OrderTransaction->id,
-								)
-							));
+					array('fields' => $pass, 
+						'conditions' => array(
+							'OrderItem.order_transaction_id' => $this->OrderTransaction->id,
+							)
+						));
 				$this->redirect($url);
 			} else {
 				$this->redirect(array('controller' => 'order_transactions' , 'action' => 'view', $this->OrderTransaction->id));
