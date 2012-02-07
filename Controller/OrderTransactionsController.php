@@ -402,6 +402,7 @@ class OrderTransactionsController extends OrdersAppController {
 		} 
 			
 		# Charge the card
+		
 		$response = $this->_charge($this->request->data , $total, $this->request->data['OrderTransaction']['mode']);
 		
 		if($response['response_code'] != 1){
@@ -451,11 +452,11 @@ class OrderTransactionsController extends OrdersAppController {
 				$url = !empty($url) ? $url : array('plugin' => $plugin, 'controller'=>$controller , 'action'=>$action, !empty($foreign_key['OrderItem']['foreign_key']) ? $foreign_key['OrderItem']['foreign_key'] : '' );
 				# get foreign key of OrderItem using given setings
 				$foreign_key = $this->OrderTransaction->OrderItem->find('first', 
-						array('fields' => $pass, 
-							'conditions' => array(
-								'OrderItem.order_transaction_id' => $this->OrderTransaction->id,
-								)
-							));
+					array('fields' => $pass, 
+						'conditions' => array(
+							'OrderItem.order_transaction_id' => $this->OrderTransaction->id,
+							)
+						));
 				$this->redirect($url);
 			} else {
 				$this->redirect(array('controller' => 'order_transactions' , 'action' => 'view', $this->OrderTransaction->id));

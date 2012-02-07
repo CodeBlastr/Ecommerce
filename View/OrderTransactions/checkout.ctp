@@ -69,7 +69,7 @@ echo $this->Form->create('OrderTransaction');  ?>
         else :  ?>
     <div class="orderTransactionItem">
       <?php
-		echo $this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $orderItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'small', 'thumbLink' => '/catalogs/catalog_items/view/'.$orderItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries')); 
+		echo $this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $orderItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'large', 'thumbLink' => '/catalogs/catalog_items/view/'.$orderItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries')); 
 		echo '<span class="orderTransactionQuantity">' . $orderItem['OrderItem']['quantity'] . ' qty, of </span> ' . $orderItem['OrderItem']['name']?>
     </div>
     <?php

@@ -28,7 +28,7 @@ class OrderItem extends OrdersAppModel {
 	public $belongsTo = array(
 		'CatalogItem' => array(
 			'className' => 'Catalogs.CatalogItem',
-			'foreignKey' => 'foreign_key',
+			'foreignKey' => 'catalog_item_id',
 			'fields' => '',
 			'order' => ''
 		),
