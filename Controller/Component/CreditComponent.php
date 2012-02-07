@@ -65,8 +65,8 @@ class CreditComponent extends Object{
 				$parsedResponse['description'] = 'Transaction Completed';
 		} else {
 				$parsedResponse['response_code'] = 3; // similar to authorize
-				$parsedResponse['reason_text'] = 'Unsuccesful Payment';
-				$parsedResponse['description'] = 'Transaction Can not Completed';
+				$parsedResponse['reason_text'] = 'Not enough credits.';
+				$parsedResponse['description'] = 'Please purchase credits separately.';
 			}
 		$parsedResponse['amount'] = $response['amount'];
 		$this->response = $parsedResponse;
