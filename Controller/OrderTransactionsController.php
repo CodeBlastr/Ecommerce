@@ -3,9 +3,8 @@ App::uses('OrdersAppController', 'Orders.Controller');
 /**
  * Order Transactions Controller
  *
- * All transactions should be pushed through this controller. It is the catch all 
- * and should be able to (though it doesn't as of today) handle all monetary transaction
- * types.  
+ * All transactions should be pushed through this controller. It 
+ * is the catch all, and handles transaction types.  
  *
  * PHP versions 5
  *
@@ -16,7 +15,7 @@ App::uses('OrdersAppController', 'Orders.Controller');
  * Must retain the above copyright notice and release modifications publicly.
  *
  * @copyright     Copyright 2009-2010, Zuha Foundation Inc. (http://zuha.com)
- * @link          http://zuha.com Zuha� Project
+ * @link          http://zuha.com Zuha(tm) Project
  * @package       zuha
  * @subpackage    zuha.app.plugins.orders.controllers
  * @since         Zuha(tm) v 0.0.1

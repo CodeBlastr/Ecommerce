@@ -112,7 +112,7 @@ class OrderItemsController extends OrdersAppController {
  *
  * @params {array} 
  */
-	private function _checkCartCompatibility($orderItem = null){
+	protected function _checkCartCompatibility($orderItem = null){
 		if(!empty($orderItem['OrderItem']['payment_type'])) :
 			if($this->Session->check('OrderPaymentType')) :
 				$paymentTypes = $this->Session->read('OrderPaymentType');
@@ -136,7 +136,7 @@ class OrderItemsController extends OrdersAppController {
  *
  * @params 
  */
-	private function _updateCartCompatibility(){
+	protected function _updateCartCompatibility(){
 		$userId = $this->Session->read('Auth.User.id');
 		if (!empty($userId)) {
 			$orderItems = $this->OrderItem->find('all', array('conditions' => array('OrderItem.customer_id' => $userId)));

@@ -1,13 +1,13 @@
 <?php
 class AuthorizeComponent extends Object { 
 	
-	var $components = array('Orders.Arb');
-	var $response = array();
-	var $recurring = false;
-	var $x_type = 'AUTH_CAPTURE';
+	public $components = array('Orders.Arb');
+	public $response = array();
+	public $recurring = false;
+	public $x_type = 'AUTH_CAPTURE';
 	
 	//set recurring value default is false
-	function recurring($val = false) {
+	public function recurring($val = false) {
 		$this->recurring = $val;
 	}
 	
@@ -15,13 +15,13 @@ class AuthorizeComponent extends Object {
 	 * authorizeonly function use to set the value of 
 	 * x_type variable for the payment  
 	 */
-	function authorizeonly($val = false) {
+	public function authorizeonly($val = false) {
 		if($val) {
 			$this->x_type = 'AUTH_ONLY';	
 		}
 	}
 	
-	function startup(&$controller) { 
+	public function startup(&$controller) { 
         // This method takes a reference to the controller which is loading it. 
         // Perform controller initialization here. 
     }
@@ -30,7 +30,7 @@ class AuthorizeComponent extends Object {
  * Payment by chargin CC based on Authorize.net
  *
  */
-	function Pay($data) {
+	public function Pay($data) {
 		App::import('Component', 'Orders.Arb');
 		$this->Arb = new ArbComponent();
 		if($this->recurring) {
@@ -51,7 +51,7 @@ class AuthorizeComponent extends Object {
 	 * @params 
 	 * $profileId: profile id of buyer
 	 */
-	function ManageRecurringPaymentsProfileStatus($profileId, $action = 'Suspend'){
+	public function ManageRecurringPaymentsProfileStatus($profileId, $action = 'Suspend'){
 		App::import('Component', 'Orders.Arb');
 		$this->Arb = new ArbComponent();
 		$this->arbPaymentSuspend($profileId);
@@ -62,7 +62,7 @@ class AuthorizeComponent extends Object {
 	 * @param $data: user + p-ayment data 
 	 * @return unknown_type
 	 */
-	function simplePayment($data) {	
+	public function simplePayment($data) {	
 		// setup variables 
 		$ccexp = $data['CreditCard']['expiration_month'] 
 				. '/' . $data['CreditCard']['expiration_year']; 
@@ -178,7 +178,7 @@ class AuthorizeComponent extends Object {
  *
  * @todo		There are more codes we could add. List is here : http://developer.authorize.net/guides/AIM/
  */
-	function _parseAuthorizeResponse($response) {
+	protected function _parseAuthorizeResponse($response) {
 		$parsedResponse['response_code'] = $response[1]; // 1 = approved, 2 = declined, 3 = error, 4 = held for review
 		$parsedResponse['response_subcode'] = $response[2]; // A code used by the payment gateway for internal transaction tracking
 		$parsedResponse['reason_code'] = $response[3]; // A code that provides more details about the result of the transaction
@@ -217,85 +217,87 @@ class AuthorizeComponent extends Object {
 		$this->response = $parsedResponse;
 	}
 	
-function arbPayment($data) {
+	public function arbPayment($data) {
 
-	$login	=  defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ?
+		$login	=  defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ?
 										__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID : '' ; 
-	$transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY') ? 
+		$transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY') ? 
 										__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY : '' ;
 		
-// for test API hardcoded TRUE.
-	$this->Arb->AuthnetARB($login,$transkey);
+		# for test API hardcoded TRUE.
+		$this->Arb->AuthnetARB($login,$transkey);
 
-	$this->Arb->setParameter('interval_length', $data['Billing']['interval_length']);
-	$this->Arb->setParameter('interval_unit', 'months'); 
-	$this->Arb->setParameter('startDate', date('Y-m-d', mktime(date('H'), date('i'), date('s'), date("m"), date("d")+1, date("Y")))); 
-	$this->Arb->setParameter('totalOccurrences', $data['Billing']['totalOccurrences']); 
-	$this->Arb->setParameter('trialOccurrences', $data['Billing']['trialOccurrences']); 
-	$this->Arb->setParameter('trialAmount', $data['Billing']['trialAmount']);
-	$this->Arb->setParameter('amount', $data['Order']['theTotal']);
-	//@todo: make this refID (optional) to come from some field or store this for later use 
-	$this->Arb->setParameter('refID', 150); 
-	//$this->Arb->setParameter('subscriptionId', $data['Order']['subscription_id']);
-	$this->Arb->setParameter('cardNumber',$data['CreditCard']['card_number']); 
-	//$this->Arb->setParameter('expirationDate', $data['CreditCard']['expiration_year']
-	//		."-".$data['CreditCard']['expiration_month']);
-	$this->Arb->setParameter('expirationDate', '2016-05');
+		$this->Arb->setParameter('interval_length', $data['Billing']['interval_length']);
+		$this->Arb->setParameter('interval_unit', 'months'); 
+		$this->Arb->setParameter('startDate', date('Y-m-d', mktime(date('H'), date('i'), date('s'), date("m"), date("d")+1, date("Y")))); 
+		$this->Arb->setParameter('totalOccurrences', $data['Billing']['totalOccurrences']); 
+		$this->Arb->setParameter('trialOccurrences', $data['Billing']['trialOccurrences']); 
+		$this->Arb->setParameter('trialAmount', $data['Billing']['trialAmount']);
+		$this->Arb->setParameter('amount', $data['Order']['theTotal']);
+		
+		# @todo: make this refID (optional) to come from some field or store this for later use 
+		$this->Arb->setParameter('refID', 150); 
+		
+		# $this->Arb->setParameter('subscriptionId', $data['Order']['subscription_id']);
+		$this->Arb->setParameter('cardNumber',$data['CreditCard']['card_number']); 
+		# $this->Arb->setParameter('expirationDate', $data['CreditCard']['expiration_year']
+		#		."-".$data['CreditCard']['expiration_month']);
+		$this->Arb->setParameter('expirationDate', '2016-05');
 	
-	$this->Arb->setParameter('firstName', $data['Member']['first_name']); 
-	$this->Arb->setParameter('lastName', $data['Member']['last_name']); 
-	$this->Arb->setParameter('address', $data['Member']['billing_address']);
-	$this->Arb->setParameter('city', $data['Member']['billing_city']);
-	$this->Arb->setParameter('state', $data['Member']['billing_state']);
+		$this->Arb->setParameter('firstName', $data['Member']['first_name']); 
+		$this->Arb->setParameter('lastName', $data['Member']['last_name']); 
+		$this->Arb->setParameter('address', $data['Member']['billing_address']);
+		$this->Arb->setParameter('city', $data['Member']['billing_city']);
+		$this->Arb->setParameter('state', $data['Member']['billing_state']);
+		
+		$this->Arb->setParameter('zip', $data['Member']['billing_zip']);
+		$this->Arb->setParameter('country', $data['Member']['billing_country']);
 	
-	$this->Arb->setParameter('zip', $data['Member']['billing_zip']);
-	$this->Arb->setParameter('country', $data['Member']['billing_country']);
+		$this->Arb->setParameter('subscrName', $data['Member']['first_name']); 
+		# $this->Arb->deleteAccount();exit;
+		$this->Arb->createAccount();
+		$this->_parseARBResponse($this->Arb);
+	}
 
-	$this->Arb->setParameter('subscrName', $data['Member']['first_name']); 
-	//$this->Arb->deleteAccount();exit;
-	$this->Arb->createAccount();
-	$this->_parseARBResponse($this->Arb);
-}
+	public function arbPaymentUpdate($data) {
+		$login	=  defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ?
+											__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID : '' ; 
+		$transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY') ? 
+											__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY : '' ;
+		
+		# for test API hardcoded TRUE.
+		$this->Arb->AuthnetARB($login,$transkey, TRUE);
+	
+		$this->Arb->setParameter('amount', $data['Order']['theTotal']);
+		#@todo: make this refID (optional) to come from some field or store this for later use 
+		$this->Arb->setParameter('refID', 150); 
+		$this->Arb->setParameter('subscriptionId', $data['Billing']['arb_profile_id']);
+		$this->Arb->updateAccount();
+		$this->_parseARBResponse($this->Arb);
+	}
+	
 
-function arbPaymentUpdate($data) {
-	$login	=  defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ?
+	public function arbPaymentSuspend($profileId) {
+		$login	=  defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ?
 										__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID : '' ; 
-	$transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY') ? 
+		$transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY') ? 
 										__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY : '' ;
 		
-// for test API hardcoded TRUE.
-	$this->Arb->AuthnetARB($login,$transkey, TRUE);
+		# for test API hardcoded TRUE.
+		$this->Arb->AuthnetARB($login,$transkey, TRUE);
 
-	$this->Arb->setParameter('amount', $data['Order']['theTotal']);
-	//@todo: make this refID (optional) to come from some field or store this for later use 
-	$this->Arb->setParameter('refID', 150); 
-	$this->Arb->setParameter('subscriptionId', $data['Billing']['arb_profile_id']);
-	$this->Arb->updateAccount();
-	$this->_parseARBResponse($this->Arb);
-}
-	
-
-function arbPaymentSuspend($profileId) {
-	$login	=  defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ?
-										__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID : '' ; 
-	$transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY') ? 
-										__ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY : '' ;
-		
-// for test API hardcoded TRUE.
-	$this->Arb->AuthnetARB($login,$transkey, TRUE);
-
-	//@todo: make this refID (optional) to come from some field or store this for later use 
-	$this->Arb->setParameter('refID', 150); 
-	$this->Arb->setParameter('subscriptionId', $profileId);
-	$this->Arb->deleteAccount();
-	$this->_parseARBResponse($this->Arb);
-}
+		# @todo: make this refID (optional) to come from some field or store this for later use 
+		$this->Arb->setParameter('refID', 150); 
+		$this->Arb->setParameter('subscriptionId', $profileId);
+		$this->Arb->deleteAccount();
+		$this->_parseARBResponse($this->Arb);
+	}
 
 /**
-	 * ParseARB() 
-	 *
-	 */
-	function _parseARBResponse($arb) {
+ * ParseARB() 
+ *
+ */
+	protected function _parseARBResponse($arb) {
 				
 		if ($this->Arb->isSuccessful()) { 
 			$parsedResponse['response_code'] = 1;
@@ -322,4 +324,3 @@ function arbPaymentSuspend($profileId) {
 	}
 	
 }
-?>
