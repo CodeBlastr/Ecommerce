@@ -42,7 +42,7 @@ class AuthorizeComponent extends Object {
 				$this->arbPayment($data);
 			}
 		} else {
-     		 	$this->simplePayment($data);
+     		 $this->simplePayment($data);
 		}
 	}
     
@@ -302,7 +302,7 @@ class AuthorizeComponent extends Object {
 		if ($this->Arb->isSuccessful()) { 
 			$parsedResponse['response_code'] = 1;
 			$parsedResponse['is_arb'] = 1;
-			$parsedResponse['reason_code'] =$this->Arb->getSubscriberID();
+			$parsedResponse['reason_code'] = $this->Arb->getSubscriberID();
 			$parsedResponse['description'] = 'Transaction Completed';
 	   	}
 	   	else { $parsedResponse['response_code'] = 3; 

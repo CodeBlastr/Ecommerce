@@ -54,10 +54,12 @@ class OrderItemsController extends OrdersAppController {
  * @param null
  * @return void
  */
-  	public function add() {
+  	public function add($catalogItemId = null) {
 		$userId = $this->Session->read('Auth.User.id');
-		# if there are multiple items then we will go to the checkout page, instead of the cart view page
-		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
+		$this->_linkToCheckout($catalogItemId); 
+		
+		# if there are multiple items then we will go to the cart, otherwise to the checkout
+		$redirect = empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
 		$this->_checkCartCompatibility($this->request->data);
 		if (!empty($userId)) {
 			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
@@ -78,6 +80,26 @@ class OrderItemsController extends OrdersAppController {
 	  		$this->redirect($redirect);
 		}
 	}
+	
+	
+/**
+ * Add to cart with one click (no form input needed)
+ * 
+ * @param string
+ */
+	protected function _linkToCheckout($catalogItemId = null) {
+		if (empty($this->request->data) && !empty($catalogItemId)) {
+			$catalogItem = $this->OrderItem->CatalogItem->find('first', array('conditions' => array('CatalogItem.id' => $catalogItemId)));
+			if (!empty($catalogItem)) {
+				$this->request->data['OrderItem']['quantity'] = 1;
+				$this->request->data['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
+				$this->request->data['OrderItem']['catalog_item_id'] = $catalogItem['CatalogItem']['id'];
+				$this->request->data['OrderItem']['price'] = $catalogItem['CatalogItem']['price'];
+				$this->request->data['OrderItem']['payment_type'] = $catalogItem['CatalogItem']['payment_type'];
+			}
+		}
+	}
+ 
 
 /**
  * Edit method

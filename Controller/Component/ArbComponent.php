@@ -28,7 +28,7 @@ class ArbComponent extends Object{
   }
 
   function getString() {
-    if (!$this->request->params) {
+    if (!$this->params) {
       return (string) $this;
     }
 
@@ -36,7 +36,7 @@ class ArbComponent extends Object{
     $output .= '<table summary="Authnet Results" id="authnet">' . "\n";
     $output .= '<tr>' . "\n\t\t" . '<th colspan="2"><b>Outgoing Parameters</b></th>' . "\n" . '</tr>' . "\n";
 
-    foreach ($this->request->params as $key => $value) {
+    foreach ($this->params as $key => $value) {
       $output .= "\t" . '<tr>' . "\n\t\t" . '<td><b>' . $key . '</b></td>';
       $output .= '<td>' . $value . '</td>' . "\n" . '</tr>' . "\n";
     }
@@ -80,36 +80,37 @@ class ArbComponent extends Object{
                           <name>" . $this->login . "</name>
                           <transactionKey>" . $this->transkey . "</transactionKey>
                       </merchantAuthentication>
-                      <refId>" . $this->request->params['refID'] ."</refId>
+                      <refId>" . $this->params['refID'] ."</refId>
                       <subscription>
-                          <name>". $this->request->params['subscrName'] ."</name>
+                          <name>". $this->params['subscrName'] ."</name>
                           <paymentSchedule>
                               <interval>
-                                  <length>". $this->request->params['interval_length'] ."</length>
-                                  <unit>". $this->request->params['interval_unit'] ."</unit>
+                                  <length>". $this->params['interval_length'] ."</length>
+                                  <unit>". $this->params['interval_unit'] ."</unit>
                               </interval>
-                              <startDate>" . $this->request->params['startDate'] . "</startDate>
-                              <totalOccurrences>". $this->request->params['totalOccurrences'] . "</totalOccurrences>
-                              <trialOccurrences>". $this->request->params['trialOccurrences'] . "</trialOccurrences>
+                              <startDate>" . $this->params['startDate'] . "</startDate>
+                              <totalOccurrences>". $this->params['totalOccurrences'] . "</totalOccurrences>
+                              <trialOccurrences>". $this->params['trialOccurrences'] . "</trialOccurrences>
                           </paymentSchedule>
-                          <amount>". $this->request->params['amount'] ."</amount>
-                          <trialAmount>" . $this->request->params['trialAmount'] . "</trialAmount>
+                          <amount>". $this->params['amount'] ."</amount>
+                          <trialAmount>" . $this->params['trialAmount'] . "</trialAmount>
                           <payment>
                               <creditCard>
-                                  <cardNumber>" . $this->request->params['cardNumber'] . "</cardNumber>
-                                  <expirationDate>" . $this->request->params['expirationDate'] . "</expirationDate>
+                                  <cardNumber>" . $this->params['cardNumber'] . "</cardNumber>
+                                  <expirationDate>" . $this->params['expirationDate'] . "</expirationDate>
                               </creditCard>
                           </payment>
                          
                           <billTo>
-                              <firstName>". $this->request->params['firstName'] . "</firstName>
-                              <lastName>" . $this->request->params['lastName'] . "</lastName>
-                              <address>" . $this->request->params['address'] . "</address>
-                              <city>" . $this->request->params['city'] . "</city>
-                              <state>" . $this->request->params['state'] . "</state>
+                              <firstName>". $this->params['firstName'] . "</firstName>
+                              <lastName>" . $this->params['lastName'] . "</lastName>
+
+                              <address>" . $this->params['address'] . "</address>
+                              <city>" . $this->params['city'] . "</city>
+                              <state>" . $this->params['state'] . "</state>
                               
-                              <zip>" . $this->request->params['zip'] . "</zip>
-                              <country>" . $this->request->params['country'] . "</country>
+                              <zip>" . $this->params['zip'] . "</zip>
+                              <country>" . $this->params['country'] . "</country>
                           </billTo>
                       </subscription>
                   </ARBCreateSubscriptionRequest>";
@@ -123,10 +124,10 @@ class ArbComponent extends Object{
                           <name>" . $this->login . "</name>
                           <transactionKey>" . $this->transkey . "</transactionKey>
                       </merchantAuthentication>
-                      <refId>". $this->request->params['refID'] ."</refId>
-                      <subscriptionId>". $this->request->params['subscriptionId'] ."</subscriptionId>
+                      <refId>". $this->params['refID'] ."</refId>
+                      <subscriptionId>". $this->params['subscriptionId'] ."</subscriptionId>
                       <subscription>
-                      <amount>". $this->request->params['amount'] ."</amount>
+                      <amount>". $this->params['amount'] ."</amount>
                       </subscription>
                   </ARBUpdateSubscriptionRequest>";
     $this->process();
@@ -139,8 +140,8 @@ class ArbComponent extends Object{
                           <name>" . $this->login . "</name>
                           <transactionKey>" . $this->transkey . "</transactionKey>
                       </merchantAuthentication>
-                      <refId>" . $this->request->params['refID'] ."</refId>
-                      <subscriptionId>" . $this->request->params['subscriptionId'] . "</subscriptionId>
+                      <refId>" . $this->params['refID'] ."</refId>
+                      <subscriptionId>" . $this->params['subscriptionId'] . "</subscriptionId>
                   </ARBCancelSubscriptionRequest>";
     $this->process();
   }
@@ -182,7 +183,7 @@ class ArbComponent extends Object{
       die("setParameter() requires a parameter value to be assigned: $field");
     }
 
-    $this->request->params[$field] = $value;
+    $this->params[$field] = $value;
   }
 
   function isSuccessful() {
