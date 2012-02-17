@@ -58,8 +58,6 @@ class OrderItemsController extends OrdersAppController {
 		$userId = $this->Session->read('Auth.User.id');
 		$this->_linkToCheckout($catalogItemId); 
 		
-		# if there are multiple items then we will go to the cart, otherwise to the checkout
-		$redirect = empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
 		$this->_checkCartCompatibility($this->request->data);
 		if (!empty($userId)) {
 			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
@@ -71,13 +69,13 @@ class OrderItemsController extends OrdersAppController {
 				}
 		  		$this->Session->write('OrdersCartCount', $cart_count);
 		  		$this->Session->setFlash($ret['msg']);
-		  		$this->redirect($redirect);
+		  		$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
 			} else {
 				$this->Session->setFlash(__($ret['msg'], true));
 			}
 		} else {
 			$this->_addToCookieCart($this->request->data);
-	  		$this->redirect($redirect);
+	  		$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
 		}
 	}
 	
