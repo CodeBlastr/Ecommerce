@@ -14,28 +14,28 @@
     		<td>
 
 
-		
+
         <?php
-        $name = ''; 
+        $name = '';
         	$is_unserialized = @unserialize($cartItem['OrderItem']['name']);
 			if ($is_unserialized !== false) {
 			    $unserializeValue = unserialize ($cartItem['OrderItem']['name']);
 			} else {
 				$name = $cartItem['OrderItem']['name'];
-			} 
-			 
+			}
+
         	if(isset($unserializeValue)){
         	 	foreach($unserializeValue as $key => $value) {
-	        	 	$name .= $key . ' : ' . $value. ',';	
+	        	 	$name .= $key . ' : ' . $value. ',';
         	 	}
         	 }?>
-    		
+
     		<?php $model = $cartItem['OrderItem']['model'];  $plugin = ZuhaInflector::pluginize($model); $controller = Inflector::tableize($model);?>
-    		<?php echo !empty($cartItem['OrderItem']['name']) ? 
-					$this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $cartItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'small', 'thumbLink' => '/catalogs/catalog_items/view/'.$cartItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries')).
-					$this->Html->link($cartItem['OrderItem']['name'] , array('plugin' => 'catalogs', 'controller'=>'catalog_items', 'action' => 'view' , $cartItem['OrderItem']['catalog_item_id'])) : 
-					$this->Html->link(substr($name, 0, 20), 
-							array('plugin' => $plugin, 
+    		<?php echo !empty($cartItem['OrderItem']['name']) ?
+					$this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $cartItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'large', 'thumbLink' => '/catalogs/catalog_items/view/'.$cartItem['OrderItem']['foreign_key']), array('plugin' => 'galleries')).
+					$this->Html->link($cartItem['OrderItem']['name'] , array('plugin' => 'catalogs', 'controller'=>'catalog_items', 'action' => 'view' , $cartItem['OrderItem']['foreign_key'])) :
+					$this->Html->link(substr($name, 0, 20),
+							array('plugin' => $plugin,
 							'controller'=>$controller, 'action' => 'view' ,
 							 $cartItem['OrderItem']['foreign_key']));
 					?></td>

@@ -54,10 +54,14 @@ class OrderItemsController extends OrdersAppController {
  * @param null
  * @return void
  */
-  	public function add() {
+  	public function add($catalogItemId = null) {
 		$userId = $this->Session->read('Auth.User.id');
-		# if there are multiple items then we will go to the checkout page, instead of the cart view page
+		# redirect to cart if not coming from the cart page (go to check out if you are coming from the cart page)
 		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
+		
+		# temporary for this to redo $redirect, until guest cart checkout is implemented
+		$redirect = $this->_linkToCheckout($catalogItemId, $redirect); 
+		
 		$this->_checkCartCompatibility($this->request->data);
 		if (!empty($userId)) {
 			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
@@ -78,6 +82,29 @@ class OrderItemsController extends OrdersAppController {
 	  		$this->redirect($redirect);
 		}
 	}
+	
+	
+/**
+ * Add to cart with one click (no form input needed)
+ * 
+ * @param string
+ */
+	protected function _linkToCheckout($catalogItemId = null, $redirect) {
+		if (empty($this->request->data) && !empty($catalogItemId)) {
+			$catalogItem = $this->OrderItem->CatalogItem->find('first', array('conditions' => array('CatalogItem.id' => $catalogItemId)));
+			if (!empty($catalogItem)) {
+				$this->request->data['OrderItem']['quantity'] = 1;
+				$this->request->data['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
+				$this->request->data['OrderItem']['catalog_item_id'] = $catalogItem['CatalogItem']['id'];
+				$this->request->data['OrderItem']['price'] = $catalogItem['CatalogItem']['price'];
+				$this->request->data['OrderItem']['payment_type'] = $catalogItem['CatalogItem']['payment_type'];
+				# temporary for this to redo $redirect, until guest cart checkout is implemente	
+				return array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout');
+			}
+		}
+		return $redirect;
+	}
+ 
 
 /**
  * Edit method
@@ -112,7 +139,7 @@ class OrderItemsController extends OrdersAppController {
  *
  * @params {array} 
  */
-	private function _checkCartCompatibility($orderItem = null){
+	protected function _checkCartCompatibility($orderItem = null){
 		if(!empty($orderItem['OrderItem']['payment_type'])) :
 			if($this->Session->check('OrderPaymentType')) :
 				$paymentTypes = $this->Session->read('OrderPaymentType');
@@ -136,7 +163,7 @@ class OrderItemsController extends OrdersAppController {
  *
  * @params 
  */
-	private function _updateCartCompatibility(){
+	protected function _updateCartCompatibility(){
 		$userId = $this->Session->read('Auth.User.id');
 		if (!empty($userId)) {
 			$orderItems = $this->OrderItem->find('all', array('conditions' => array('OrderItem.customer_id' => $userId)));

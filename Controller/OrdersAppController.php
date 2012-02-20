@@ -6,19 +6,19 @@ App::uses('AppController', 'Controller');
  * @property OrdersAppController $Order
  */
 class OrdersAppController extends AppController {
-	
+
 	public $components = array('Cookie'); // used for the guest cart
-	
+
 	function beforeFilter() {
 		# used for guest cart
 		$this->Cookie->name = 'zuhaCart';
 		$this->Cookie->time = '2 Weeks';
 		$this->Cookie->domain = $_SERVER['HTTP_HOST'];
 		$this->Cookie->key = 'ghh8398kjfkju3889';
-		parent::beforeFilter();	
+		parent::beforeFilter();
 	}
-	
-	
+
+
 	function _addToCookieCart($data) {
 		# there are multiple items to add at once
 		if (!empty($data['OrderItem'][0])) :
@@ -37,9 +37,9 @@ class OrdersAppController extends AppController {
 			return true;
 		endif;
 	}
-		
-	
-	/** 
+
+
+	/**
 	 * Used for the incoming cookie data that has many order items instead of one.
 	 * Must contain all order items that should be in the cart (any not submitted will be deleted)
 	 */
@@ -48,63 +48,69 @@ class OrdersAppController extends AppController {
 		foreach ($data['OrderItem'] as $orderItem) :
 			$orderItems[] = array('OrderItem' => $orderItem);
 		endforeach;
-		
+
 		# merge the items into one order item with updated quantities
 		$mergedItems = $this->OrderItem->mergeCartDuplicates($orderItems);
 		foreach ($mergedItems as $item) :
 			$cookieCart[] = serialize($this->OrderItem->createOrderItemFromCatalogItem($item));
 		endforeach;
-		
+
 		# write the cookie data
-		if($this->Cookie->write('cookieCart', $cookieCart)) : 
+		if($this->Cookie->write('cookieCart', $cookieCart)) :
 			return true;
 		else :
 			return false;
 		endif;
 	}
-		
-		
+
+
 	function _prepareCartData() {
 		$userId = $this->Session->read('Auth.User.id');
 		$cookieCart = $this->Cookie->read('cookieCart');
 		$Model = $this->name == 'OrderTransactions' ? $this->OrderTransaction->OrderItem : $this->OrderItem;
-		if (!empty($cookieCart) && !empty($userId)) { 
-			# merge a user cart with cookieCart and delete the cookieCart			
-			foreach ($cookieCart as $items) { 
+		if (!empty($cookieCart) && !empty($userId)) {
+          #debug('merged');
+			# merge a user cart with cookieCart and delete the cookieCart
+			foreach ($cookieCart as $items) {
 				$orderItems[] = unserialize($items);
 			}
-			
+
 			foreach ($orderItems as $orderItem) {
 				$cookieOrderItems[] = $Model->createOrderItemFromCatalogItem($orderItem);
 			}
-			
+            #debug($cookieCart);
+            #debug($orderItems);
+            #debug($cookieOrderItems);
 			foreach ($Model->cartExtras($cookieOrderItems) as $cookieItem) {
 				$Model->addToCart($cookieItem, $userId);
 			}
-			
+
 			$this->Cookie->delete('cookieCart');
-			
+
 			return $Model->prepareCartData($userId);
-			
+
 		} else if (!empty($cookieCart) && empty($userId)) {
+          #debug('cookieCart');
 			# just show the cookieCart
-			foreach ($cookieCart as $items) : 
+			foreach ($cookieCart as $items) :
 				$orderItems[] = unserialize($items);
 			endforeach;
 			foreach ($orderItems as $orderItem) :
 				$cookieOrderItems[] = $Model->createOrderItemFromCatalogItem($orderItem);
 			endforeach;
-			
+
 			return $Model->cartExtras($cookieOrderItems);
-			
+
 		} else if (!empty($userId)) {
+          #debug('logged-in cart');
 			# regular logged in cart
 			return $Model->prepareCartData($userId);
 		} else {
+          #debug('empty cart');
 			# cart is empty
 			return null;
 		}
-		
+
 		/*$data['OrderItem']['id'] = 'X';
 		$orderItem[]['OrderItem'] = $data['OrderItem'];
 		$this->Session->delete('GuestCart');
