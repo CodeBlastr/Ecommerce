@@ -56,7 +56,11 @@ class OrderItemsController extends OrdersAppController {
  */
   	public function add($catalogItemId = null) {
 		$userId = $this->Session->read('Auth.User.id');
-		$this->_linkToCheckout($catalogItemId); 
+		# redirect to cart if not coming from the cart page (go to check out if you are coming from the cart page)
+		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
+		
+		# temporary for this to redo $redirect, until guest cart checkout is implemented
+		$redirect = $this->_linkToCheckout($catalogItemId, $redirect); 
 		
 		$this->_checkCartCompatibility($this->request->data);
 		if (!empty($userId)) {
@@ -69,13 +73,13 @@ class OrderItemsController extends OrdersAppController {
 				}
 		  		$this->Session->write('OrdersCartCount', $cart_count);
 		  		$this->Session->setFlash($ret['msg']);
-		  		$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
+		  		$this->redirect($redirect);
 			} else {
 				$this->Session->setFlash(__($ret['msg'], true));
 			}
 		} else {
 			$this->_addToCookieCart($this->request->data);
-	  		$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
+	  		$this->redirect($redirect);
 		}
 	}
 	
@@ -85,7 +89,7 @@ class OrderItemsController extends OrdersAppController {
  * 
  * @param string
  */
-	protected function _linkToCheckout($catalogItemId = null) {
+	protected function _linkToCheckout($catalogItemId = null, $redirect) {
 		if (empty($this->request->data) && !empty($catalogItemId)) {
 			$catalogItem = $this->OrderItem->CatalogItem->find('first', array('conditions' => array('CatalogItem.id' => $catalogItemId)));
 			if (!empty($catalogItem)) {
@@ -94,8 +98,11 @@ class OrderItemsController extends OrdersAppController {
 				$this->request->data['OrderItem']['catalog_item_id'] = $catalogItem['CatalogItem']['id'];
 				$this->request->data['OrderItem']['price'] = $catalogItem['CatalogItem']['price'];
 				$this->request->data['OrderItem']['payment_type'] = $catalogItem['CatalogItem']['payment_type'];
+				# temporary for this to redo $redirect, until guest cart checkout is implemente	
+				return array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout');
 			}
 		}
+		return $redirect;
 	}
  
 
