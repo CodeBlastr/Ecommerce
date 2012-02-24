@@ -184,7 +184,7 @@ class OrderItemsController extends OrdersAppController {
 		//get Items in Cart
 		//Configure::write('debug' , 0);
 		$orderItems = $this->_prepareCartData();
-		#$dat = $this->OrderItem->prepareCartData($this->Auth->user("id"));		
+		#$dat = $this->OrderItem->prepareCartData($this->Auth->user("id"));
 		$this->set('data' , $orderItems);
 		$isCookieCart = $this->Cookie->read('cookieCart');
 		$this->set('isCookieCart', $isCookieCart);
