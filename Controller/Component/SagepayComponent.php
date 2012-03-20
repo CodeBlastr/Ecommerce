@@ -85,8 +85,9 @@ class SagepayComponent extends Object {
     $formatted['CardNumber'] = str_replace(" ", "", $data['CreditCard']['card_number']);
     $formatted['StartDateMonth'] = $data['CreditCard']['start_month'];
     $formatted['StartDateYear'] = $data['CreditCard']['start_year'];
-    $formatted['ExpiryDateMonth'] = $data['CreditCard']['expiration_month'];
-    $formatted['ExpiryDateYear'] = $data['CreditCard']['expiration_year'];
+    $creditMM = str_pad($data['CreditCard']['expiration_month'], 2, "0", STR_PAD_LEFT);
+    $creditYY = substr($data['CreditCard']['expiration_year'], 2, 2);
+    $formatted['ExpiryDate'] = $creditMM . $creditYY;
     $formatted['CardType'] = $data['CreditCard']['CardType'];/** @todo (VISA, etc) optional? */
     $formatted['IssueNumber'] = $data['CreditCard']['IssueNumber'];/** @todo (Older Switch cards only. 1 or 2 digits as printed on the card) */
     $formatted['CV2'] = $data['CreditCard']['cv_code'];
