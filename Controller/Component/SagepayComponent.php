@@ -16,7 +16,8 @@ class SagepayComponent extends Object {
           $status = '', // status returned from the cURL request
           $error = '';
   private
-  $env = 'DEVELOPMENT';
+          $env = 'SIMULATOR',
+          $url = '';
 
   //set recurring value default is false
   public function recurring($val = false) {
@@ -100,7 +101,7 @@ class SagepayComponent extends Object {
     $formatted['BillingPostCode'] = $data['Billing']['zip'];
 
     $formatted['Amount'] = $data['Order']['theTotal'];
-    $formatted['Currency'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY') ? __ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY : 'gbp';
+    $formatted['Currency'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY') ? __ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY : 'usd';
 
 
     return $formatted;
