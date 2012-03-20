@@ -223,7 +223,8 @@ class SagepayComponent extends Object {
 
     $parsedResponse = array(
         'response_code' => $this->status,
-        'description' => $this->error
+        'description' => $this->error,
+        'reason_text' => $this->response['StatusDetail']
     );
 
     $this->response = $parsedResponse;
