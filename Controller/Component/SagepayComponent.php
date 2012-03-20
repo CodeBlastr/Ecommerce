@@ -115,6 +115,16 @@ class SagepayComponent extends Object {
     $formatted['BillingCity'] = $data['Billing']['city'];
     $formatted['BillingCountry'] = $data['Billing']['country'];
     $formatted['BillingPostCode'] = $data['Billing']['zip'];
+    $formatted['BillingPhone'] = '';
+
+    $formatted['DeliveryFirstnames'] = $data['Shipping']['first_name'];
+    $formatted['DeliverySurname'] = $data['Shipping']['last_name'];
+    $formatted['DeliveryAddress1'] = $data['Shipping']['street_address_1'];
+    $formatted['DeliveryAddress2'] = $data['Shipping']['street_address_2'];
+    $formatted['DeliveryCity'] = $data['Shipping']['city'];
+    $formatted['DeliverygCountry'] = $data['Shipping']['country'];
+    $formatted['DeliveryPostCode'] = $data['Shipping']['zip'];
+    $formatted['DeliveryPhone'] =  '';
 
     $formatted['Amount'] = $data['Order']['theTotal'];
     $formatted['Currency'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY') ? __ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY : 'usd';
