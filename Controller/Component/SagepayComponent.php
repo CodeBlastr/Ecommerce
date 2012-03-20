@@ -122,7 +122,7 @@ class SagepayComponent extends Object {
     $formatted['DeliveryAddress1'] = $data['Shipping']['street_address_1'];
     $formatted['DeliveryAddress2'] = $data['Shipping']['street_address_2'];
     $formatted['DeliveryCity'] = $data['Shipping']['city'];
-    $formatted['DeliverygCountry'] = $data['Shipping']['country'];
+    $formatted['DeliveryCountry'] = $data['Shipping']['country'];
     $formatted['DeliveryPostCode'] = $data['Shipping']['zip'];
     $formatted['DeliveryPhone'] =  '';
 
