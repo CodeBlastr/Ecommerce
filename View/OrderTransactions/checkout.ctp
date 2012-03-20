@@ -1,8 +1,8 @@
-<?php 
+<?php
 /**
  * OrderTransactions Checkout View
  *
- * Displays the checkout form for conducting transactions.  
+ * Displays the checkout form for conducting transactions.
  *
  * PHP versions 5
  *
@@ -30,7 +30,7 @@ echo $this->Form->create('OrderTransaction');  ?>
     <h2>
       <?php echo __('You are 30 seconds away from ordering...'); ?>
     </h2>
-    <?php 
+    <?php
 	foreach ($orderItems as $i => $orderItem) :
 		# this adds hidden input fields with arb settings
 		if(!empty($orderItem['OrderItem']['arb_settings'])) :
@@ -39,21 +39,21 @@ echo $this->Form->create('OrderTransaction');  ?>
 			    $arbSettings = unserialize ($orderItem['OrderItem']['arb_settings']);
 			    $isArb = 1;
 			endif;
-		endif;	
+		endif;
 		echo $this->Form->hidden("OrderPayment.arb" , array('value' => $isArb));
-		
+
 		if(isset($arbSettings)) :
 			foreach($arbSettings as $arb_setting => $arb_value) :
         		echo $this->Form->hidden("OrderPayment.{$arb_setting}" , array('value' => $arb_value));
          	endforeach;
 		endif;
-			
+
 		# this is for a special order item case where multiple variables are in the item name (banners)
 		$isUnserialized = @unserialize($orderItem['OrderItem']['name']);
 		if ($isUnserialized !== false) :
 		    $unserializeValue = unserialize ($orderItem['OrderItem']['name']);
 		endif;
-		
+
 		# this is for sending payments to multiple recipients
 		if(isset($unserializeValue)) :
        		foreach($unserializeValue as $key => $value) :
@@ -63,13 +63,13 @@ echo $this->Form->create('OrderTransaction');  ?>
         	 		endforeach;
         	 	else : ?>
     <div class="orderTransactionItem"> <?php echo $key ; ?> <?php echo $value ; ?> </div>
-    <?php 		
+    <?php
 				endif; // is_array($value) && $key == 'Chained'
         	endforeach;
         else :  ?>
     <div class="orderTransactionItem">
       <?php
-		echo $this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $orderItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'large', 'thumbLink' => '/catalogs/catalog_items/view/'.$orderItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries')); 
+		echo $this->element('thumb', array('model' => 'CatalogItem', 'foreignKey' => $orderItem['OrderItem']['catalog_item_id'], 'thumbSize' => 'large', 'thumbLink' => '/catalogs/catalog_items/view/'.$orderItem['OrderItem']['catalog_item_id']), array('plugin' => 'galleries'));
 		echo '<span class="orderTransactionQuantity">' . $orderItem['OrderItem']['quantity'] . ' qty, of </span> ' . $orderItem['OrderItem']['name']?>
     </div>
     <?php
@@ -85,7 +85,7 @@ echo $this->Form->create('OrderTransaction');  ?>
       <div id="dimmensions"> <?php echo $this->Form->hidden("length" , array('value' => $length[$i])); ?> <?php echo $this->Form->hidden("width" , array('value' => $width[$i])); ?> <?php echo $this->Form->hidden("height" , array('value' => $height[$i])); ?> <?php echo $this->Form->hidden("weight" , array('value' => $weight[$i])); ?> <?php echo $this->Form->hidden("shipping_ammount", array('value' => '')); ?> </div>
       <div id="selector"> <?php echo $this->Form->select("shippingType", $fedexSettings, array('value' => $orderItem['CatalogItem']['shipping_type'], 'empty'=> false , 'class' => 'shipping_type')); ?> </div>
     </div>
-    <?php 
+    <?php
 		if(isset($orderItem['CatalogItem']['shipping_charge'])) :
 			$defaultShippingCharge += $orderItem['CatalogItem']['shipping_charge']; ?>
     <script type="text/javascript">
@@ -95,21 +95,21 @@ echo $this->Form->create('OrderTransaction');  ?>
 				var shippingCharge = parseFloat($('#OrderTransactionShippingCharge').val());
 				if(isNaN(shippingCharge))
 					shippingCharge = 0;
-				
+
 				shippingCharge += shippingamnt;
 				var orderCharge = parseFloat(<?php echo $this->request->data['OrderTransaction']['order_charge'] ;?>);
 				if(isNaN(orderCharge))
 					orderCharge = 0;
-				orderCharge += shippingCharge;	
-		  			$('#OrderTransactionShippingAmmount').val(shippingamnt));
+				orderCharge += shippingCharge;
+		  			$('#OrderTransactionShippingAmmount').val(shippingamnt);
 				$('#OrderTransactionShippingCharge').val(shippingCharge);
 		  			$('#OrderTransactionTotal').val(orderCharge);
 	   		</script>
     <?php
-		else : 
+		else :
 			$param = null;
 			# if dimensions are not set
-			if(!empty($weight[$i]) && !empty($length[$i]) && !empty($height[$i]) && !empty($width[$i])) 
+			if(!empty($weight[$i]) && !empty($length[$i]) && !empty($height[$i]) && !empty($width[$i]))
 				{  $param = 'weight:'. $weight[$i] .'/length:' . $length[$i] . '/height:' . $height[$i]
 			       						 . '/width:' . $width[$i] ;
 				} ?>
@@ -119,7 +119,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 						type: "POST",
 						data: $('#OrderTransactionCheckoutForm').serialize(),
 						url: "/shipping/shippings/getShippingCharge/" ,
-					    dataType: "text",						 
+					    dataType: "text",
 					        success:function(data){
 					        	if (data.length > 0) {
 					        		var response = JSON.parse(data);
@@ -130,25 +130,25 @@ echo $this->Form->create('OrderTransaction');  ?>
 					        				shipcharge = 0;
 					        			shipcharge += amt;
 					        			var ocharge = parseFloat($('#OrderTransactionOrderCharge').val());
-					        			
+
 					        			ocharge += shipcharge;
 					        			$('#OrderTransactionShippingAmmount').val(amt);
 					        			$('#OrderTransactionShippingCharge').val(shipcharge);
 					        			$('#OrderTransactionTotal').val(ocharge);
-					        		} 
+					        		}
 					        	}
 					        }
 				   	});
 			   	});
 			</script>
-    <?php 
-		endif; //isset($orderItem['CatalogItem']['shipping_charge']) 
-	endif; // $enableShipping 
-	
-	echo $this->Form->hidden("OrderItem.{$i}.name", array('value' => $orderItem['CatalogItem']['name']) ); 
-	echo $this->Form->hidden("OrderItem.{$i}.id", array('value' => $orderItem['OrderItem']['id']) ); 
-	echo $this->Form->hidden("OrderItem.{$i}.CatalogItem.id", array('value' => $orderItem['CatalogItem']['id']) ); 
-	echo $this->Form->hidden("OrderItem.{$i}.CatalogItem.model", array('value' => $orderItem['CatalogItem']['model']) ); 
+    <?php
+		endif; //isset($orderItem['CatalogItem']['shipping_charge'])
+	endif; // $enableShipping
+
+	echo $this->Form->hidden("OrderItem.{$i}.name", array('value' => $orderItem['CatalogItem']['name']) );
+	echo $this->Form->hidden("OrderItem.{$i}.id", array('value' => $orderItem['OrderItem']['id']) );
+	echo $this->Form->hidden("OrderItem.{$i}.CatalogItem.id", array('value' => $orderItem['CatalogItem']['id']) );
+	echo $this->Form->hidden("OrderItem.{$i}.CatalogItem.model", array('value' => $orderItem['CatalogItem']['model']) );
 	echo $this->Form->hidden("OrderItem.{$i}.CatalogItem.foreign_key", array('value' => $orderItem['CatalogItem']['foreign_key']) ); ?>
     <?php
 	endforeach; // $orderItems ?>
@@ -162,7 +162,7 @@ echo $this->Form->create('OrderTransaction');  ?>
       <legend>
       <?php echo __('Billing Address'); ?>
       </legend>
-      <?php 
+      <?php
 	  echo $this->Form->input('OrderPayment.first_name' , array('class' => 'required'));
 	  echo $this->Form->input('OrderPayment.last_name', array('class' => 'required'));
 	  echo $this->Form->input('OrderPayment.street_address_1', array('label' => 'Street', 'class' => 'required'));
@@ -178,7 +178,7 @@ echo $this->Form->create('OrderTransaction');  ?>
     <fieldset id="shippingAddress">
       <legend><?php echo __('Shipping Address'); ?></legend>
       <div id="shipping_error"></div>
-      <?php 
+      <?php
 	  echo $this->Form->input('OrderShipment.first_name' , array('label' => 'First Name '));
 	  echo $this->Form->input('OrderShipment.last_name', array('label' => 'Last Name '));
 	  echo $this->Form->input('OrderShipment.street_address_1' , array('label' => 'Street '));
@@ -189,19 +189,19 @@ echo $this->Form->create('OrderTransaction');  ?>
 	  echo $this->Form->hidden('OrderShipment.country' , array('label' => 'Country ', 'value' => 'US'));
 	  echo $this->Form->hidden('OrderShipment.user_id' , array('value' => $this->Session->read('Auth.User.id'))); ?>
     </fieldset>
-    </div> 
-    
-    
+    </div>
+
+
     <fieldset id="paymentInformation">
       <legend><?php echo __('Payment Information'); ?></legend>
-      <?php 
-      echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => ZuhaInflector::pricify($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => '')); 
+      <?php
+      echo !empty($enableShipping) ? $this->Form->input('OrderTransaction.shipping_charge', array('readonly' => true, 'value' => ZuhaInflector::pricify($defaultShippingCharge))) : $this->Form->hidden('OrderTransaction.shipping_charge', array('readonly' => true , 'value' => ''));
 	  echo $this->Form->input('OrderTransaction.order_charge', array('readonly' => true, 'value' => ZuhaInflector::pricify($this->request->data['OrderTransaction']['order_charge'])));
-	  $orderTotal = floatval($defaultShippingCharge) + floatval($this->request->data['OrderTransaction']['order_charge']); 
+	  $orderTotal = floatval($defaultShippingCharge) + floatval($this->request->data['OrderTransaction']['order_charge']);
 	  echo $this->Form->input('OrderTransaction.discount', array('label' => 'Discount','readonly' => true));
 	  echo $this->Form->input('OrderTransaction.total', array('label' => 'Total <small><a id="enterPromo" href="#">Enter Promo</a></small>' ,'readonly' => true, 'value' => ZuhaInflector::pricify($orderTotal), /*'after' => defined('__USERS_CREDITS_PER_PRICE_UNIT') ? " Or Credits : " . __USERS_CREDITS_PER_PRICE_UNIT * $orderTotal : "Or Credits : " .  $orderTotal*/ ));
 	  echo $this->Form->input('OrderCoupon.code', array('label' => 'Code <small><a id="applyCode" href="#">Apply Code</a></small>'));
-	  echo $this->Form->hidden('OrderTransaction.quantity'); 
+	  echo $this->Form->hidden('OrderTransaction.quantity');
 	  echo $this->Form->input('mode', array('label' => 'Payment Type', 'options' => $paymentOptions, 'default' => $paymentMode));
 	  echo $this->Element(strtolower($paymentMode)); ?>
       <fieldset id="creditCardInfo">
@@ -212,10 +212,10 @@ echo $this->Form->create('OrderTransaction');  ?>
           echo $this->Form->input('card_exp_month', array('label' => false, 'type' => 'select', 'options' => array_combine(range(1,12,1),range(1,12,1)), 'div' => false));
           echo $this->Form->input('card_exp_year', array('label' => false, 'type' => 'select', 'options' => array_combine(range(date('Y'),date('Y', strtotime('+ 10 years')),1),range(date('Y'),date('Y', strtotime('+ 10 years')),1)), 'dateFormat' => 'Y', 'div' => false   )); ?>
         </div>
-        <?php        
+        <?php
         echo $this->Form->input('card_sec' , array('label'=>'CCV Code ' . $this->Html->link('?', '#ccvHelp', array('class' => 'helpBox', 'title' => 'You can find this 3 or 4 digit code on the back of your card, typically in the signature area.')), 'maxLength' => 4, 'size' => 4)); ?>
       </fieldset><!-- #creditCardInfo -->
-      <?php 
+      <?php
 	  echo $this->Form->end('Checkout');
       echo $this->Element('trust_logos', array('plugin' => 'orders')); ?>
     </fieldset><!-- #PaymentInformation -->
@@ -242,9 +242,9 @@ echo $this->Form->create('OrderTransaction');  ?>
 	        type: "POST",
 	        data: $('#OrderTransactionCheckoutForm').serialize(),
 			url: "/orders/order_coupons/verify.json" ,
-	        dataType: "json",						 
+	        dataType: "json",
 	        success:function(data){
-				var discount = $("#OrderTransactionOrderCharge").val() - data['data']['OrderTransaction']['order_charge']; 
+				var discount = $("#OrderTransactionOrderCharge").val() - data['data']['OrderTransaction']['order_charge'];
 				$('#OrderTransactionTotal').val(data['data']['OrderTransaction']['order_charge']);
 				$("#OrderTransactionDiscount").val(discount.toFixed(2));
 				$("#OrderTransactionDiscount").parent().show();
@@ -256,11 +256,11 @@ echo $this->Form->create('OrderTransaction');  ?>
 				$('#OrderTransactionTotal').val($("#OrderTransactionOrderCharge").val());
 				alert('Code out of date or does not apply.');
 			}
-	    });	
+	    });
     });
-	
-	
-	
+
+
+
 	var shipTypeValue = $('#OrderTransactionShippingType').val();
 	<?php
 	if ($allVirtual) : ?>
@@ -290,7 +290,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 		}
 		if ( $('#OrderTransactionShipping').attr("checked") == true) {
 			$('#shippingAddress').show();
-		}			
+		}
 	});
 
 	$('#OrderTransactionMode').change(function(e){
@@ -302,8 +302,8 @@ echo $this->Form->create('OrderTransaction');  ?>
 		shipTypeValue = $(this).val();
 		var dimmensions = new Array();
 		$(this).parent().siblings().children().each(function() {
-			dimmensions[$(this).attr("id")] = $(this).val() ; 
-			 
+			dimmensions[$(this).attr("id")] = $(this).val() ;
+
 		});
 		getShipRate(shipTypeValue, dimmensions);
 	});
@@ -331,12 +331,12 @@ echo $this->Form->create('OrderTransaction');  ?>
 	        type: "POST",
 	        data: $('#OrderTransactionCheckoutForm').serialize(),
 			url: "/shipping/shippings/getShippingCharge/" ,
-	        dataType: "text",						 
+	        dataType: "text",
 	        success:function(data){
 				response(data, dimmensions['OrderTransactionShippingAmmount'])
 	        }
-	    });	
-		
+	    });
+
 	}
 
 	function response(data, prevShippingAmmount) {
@@ -348,14 +348,14 @@ echo $this->Form->create('OrderTransaction');  ?>
 			}
 			else if(response['amount']) {
 				$('#shipping_error').html('');
-				
+
 				var ordershipcharge = parseFloat($('#OrderTransactionShippingCharge').val());
 				if(isNaN(ordershipcharge))
 					ordershipcharge = 0;
 				ordershipcharge -= parseFloat(prevShippingAmmount) ;
 				ordershipcharge += parseFloat(response['amount']) ;
 				$('#OrderTransactionShippingCharge').val(ordershipcharge);
-				
+
 				$('#OrderTransactionTotal').val(parseFloat(<?php echo $this->request->data['OrderTransaction']['order_charge'] ;?>) + parseFloat(response['amount']) );
 				//$('#step3').show();
 			}
@@ -372,7 +372,7 @@ echo $this->Form->create('OrderTransaction');  ?>
 			}
 		}
 	}
-	$().ready(function() {			
+	$().ready(function() {
 		$("#OrderTransactionCheckoutForm").validate();
 	});
 </script>
