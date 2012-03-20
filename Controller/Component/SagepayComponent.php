@@ -208,6 +208,7 @@ class SagepayComponent extends Object {
     switch ($this->response['Status']) {
       case 'OK':
         // Transaction made successfully
+        $responseCode = 1;
         $this->status = 'success';
         $this->Session->write('transaction.VPSTxId', $this->response['VPSTxId']); // assign the VPSTxId to a session variable for storing if need be
         $this->Session->write('transaction.TxAuthNo', $this->response['TxAuthNo']); // assign the TxAuthNo to a session variable for storing if need be
@@ -222,35 +223,40 @@ class SagepayComponent extends Object {
         break;
       case 'REJECTED':
         // errors for if the card is declined
+        $responseCode = 2;
         $this->status = 'declined';
-        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.'."\r\n".$this->response['StatusDetail'];
+        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.';
         break;
       case 'NOTAUTHED':
         // errors for if their card doesn't authenticate
+        $responseCode = 3;
         $this->status = 'notauthed';
-        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.'."\r\n".$this->response['StatusDetail'];
+        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.';
         break;
       case 'INVALID':
         // errors for if the user provides incorrect card data
+        $responseCode = 3;
         $this->status = 'invalid';
-        $this->error = 'One or more of your card details where invalid. Please try again.'."\r\n".$this->response['StatusDetail'];
+        $this->error = 'One or more of your card details where invalid. Please try again.';
         break;
       case 'FAIL':
         // errors for if the transaction fails for any reason
+        $responseCode = 3;
         $this->status = 'fail';
-        $this->error = 'An unexpected error has occurred. Please try again.'."\r\n".$this->response['StatusDetail'];
+        $this->error = 'An unexpected error has occurred. Please try again.';
         break;
       default:
         // default error if none of the above conditions are met
+        $responseCode = 3;
         $this->status = 'error';
-        $this->error = 'An error has occurred. Please try again.'."\r\n".$this->response['StatusDetail'];
+        $this->error = 'An error has occurred. Please try again.';
         break;
     }
 
     $parsedResponse = array(
-        'response_code' => $this->status,
-        'description' => $this->error,
-        'reason_text' => $this->response['StatusDetail']
+        'response_code' => $responseCode,
+        'reason_text' => $this->error,
+        'description' => $this->response['StatusDetail']
     );
 
     $this->response = $parsedResponse;
