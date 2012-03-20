@@ -5,6 +5,8 @@
  */
 class SagepayComponent extends Object {
 
+  var $components = array('Session');
+
   public
           $components = array('Orders.Arb'),
           $response = array(),
