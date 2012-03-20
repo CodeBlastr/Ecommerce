@@ -197,27 +197,27 @@ class SagepayComponent extends Object {
       case 'REJECTED':
         // errors for if the card is declined
         $this->status = 'declined';
-        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.';
+        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.'."\r\n".$this->response['StatusDetail'];
         break;
       case 'NOTAUTHED':
         // errors for if their card doesn't authenticate
         $this->status = 'notauthed';
-        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.';
+        $this->error = 'Your payment was not authorised by your bank or your card details where incorrect.'."\r\n".$this->response['StatusDetail'];
         break;
       case 'INVALID':
         // errors for if the user provides incorrect card data
         $this->status = 'invalid';
-        $this->error = 'One or more of your card details where invalid. Please try again.';
+        $this->error = 'One or more of your card details where invalid. Please try again.'."\r\n".$this->response['StatusDetail'];
         break;
       case 'FAIL':
         // errors for if the transaction fails for any reason
         $this->status = 'fail';
-        $this->error = 'An unexpected error has occurred. Please try again.';
+        $this->error = 'An unexpected error has occurred. Please try again.'."\r\n".$this->response['StatusDetail'];
         break;
       default:
         // default error if none of the above conditions are met
         $this->status = 'error';
-        $this->error = 'An error has occurred. Please try again.';
+        $this->error = 'An error has occurred. Please try again.'."\r\n".$this->response['StatusDetail'];
         break;
     }
 
