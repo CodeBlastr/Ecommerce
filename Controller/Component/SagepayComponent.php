@@ -27,11 +27,10 @@ class SagepayComponent extends Object {
   /**
    * authorizeonly function use to set the value of x_type variable for the payment
    * @param type $val
-   * @todo find the "AUTH_ONLY" value for SagePay
    */
   public function authorizeonly($val = false) {
     if ($val) {
-      $this->x_type = 'AUTH_ONLY';
+      $this->x_type = 'AUTHENTICATE';
     }
   }
 
@@ -126,7 +125,7 @@ class SagepayComponent extends Object {
     }
 
     // Implode the array using & as the glue and store the data
-    $this->curl_str = implode('&', $arr);
+    return implode('&', $arr);
   }
 
   /**
