@@ -89,7 +89,7 @@ class SagepayComponent extends Object {
     $creditYY = substr($data['CreditCard']['expiration_year'], 2, 2);
     $formatted['ExpiryDate'] = $creditMM . $creditYY;
 
-     App::import('Core', 'Validation');
+     App::uses('Validation', 'Utility');
     if(Validation::cc($formatted['CardNumber'], 'visa')) {
       $cardType = 'VISA';
     } elseif ( Validation::cc($formatted['CardNumber'], 'amex') ) {
