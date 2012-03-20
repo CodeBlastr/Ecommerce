@@ -88,7 +88,23 @@ class SagepayComponent extends Object {
     $creditMM = str_pad($data['CreditCard']['expiration_month'], 2, "0", STR_PAD_LEFT);
     $creditYY = substr($data['CreditCard']['expiration_year'], 2, 2);
     $formatted['ExpiryDate'] = $creditMM . $creditYY;
-    $formatted['CardType'] = $data['OrderTransaction']['mode'];/** VISA / MC / DELTA / MAESTRO / AMEX / UKE / JCB / DINERS / LASER */
+
+     App::import('Core', 'Validation');
+    if(Validation::cc($formatted['CardNumber'], 'visa')) {
+      $cardType = 'VISA';
+    } elseif ( Validation::cc($formatted['CardNumber'], 'amex') ) {
+      $cardType = 'AMEX';
+    } elseif ( Validation::cc($formatted['CardNumber'], 'mc') ) {
+      $cardType = 'MC';
+    } elseif ( Validation::cc($formatted['CardNumber'], 'diners') ) {
+      $cardType = 'DINERS';
+    } elseif ( Validation::cc($formatted['CardNumber'], 'jcb') ) {
+      $cardType = 'JCB';
+    } elseif ( Validation::cc($formatted['CardNumber'], 'maestro') ) {
+      $cardType = 'MAESTRO';
+    }
+
+    $formatted['CardType'] = $cardType;/** VISA / MC / DELTA / MAESTRO / AMEX / UKE / JCB / DINERS / LASER */
     $formatted['IssueNumber'] = $data['CreditCard']['IssueNumber'];/** @todo (Older Switch cards only. 1 or 2 digits as printed on the card) */
     $formatted['CV2'] = $data['CreditCard']['cv_code'];
 
