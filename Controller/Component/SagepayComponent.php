@@ -72,7 +72,7 @@ class SagepayComponent extends Object {
 
   private function formatRawData($data) {
 
-    $formatted['VPSProtocol'] = '2.22';
+    $formatted['VPSProtocol'] = '2.23';
     $formatted['TxType'] = $this->x_type;
     $formatted['Vendor'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_VENDOR') ? __ORDERS_TRANSACTIONS_SAGEPAY_VENDOR : 'razorit';
 
