@@ -154,7 +154,25 @@ echo $this->Form->create('OrderTransaction');  ?>
 	endforeach; // $orderItems ?>
   </div>
   <!-- end orderTransactionItems -->
-  <?php # This form needs to go into an element so that we can use it on different pages besides this checkout page.  If this was an element it would allow us to put a checkout form on any page, give it some settings regarding price and then it would be a content management (a page from the webpages table) with a checkout element on it, giving us a way to make quick one product landing pages which are fully editable with the normal page editor ?>
+
+  <?php
+  /**
+   * @todo This form needs to go into an element so that we can use it on different pages besides this checkout page.
+   * If this was an element it would allow us to put a checkout form on any page,
+   * give it some settings regarding price and then it would be a content management (a page from the webpages table) with a checkout element on it,
+   * giving us a way to make quick one product landing pages which are fully editable with the normal page editor
+   */
+  ?>
+  <?php if(!$this->Session->read('Auth.User.id')) { ?>
+  <div>
+      <fieldset id="checkoutUserInfo">
+          <legend><?php echo __('Customer Information'); ?></legend>
+          <?php echo $this->Form->input('User.username' , array('label' => 'Email Address', 'class' => 'required')); ?>
+          <?php echo $this->Form->input('User.password' , array('label' => 'Password', 'after' => '(If you already have an account)')); ?>
+      </fieldset>
+  </div>
+  <?php } ?>
+
   <div id="orderTransactionForm" class="orderTransactionForm text-inputs">
     <h3><?php echo __('Please fill in your billing details'); ?></h3>
   	<div id="orderTransactionAddress">
