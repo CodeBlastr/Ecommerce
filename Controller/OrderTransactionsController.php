@@ -3,8 +3,8 @@ App::uses('OrdersAppController', 'Orders.Controller');
 /**
  * Order Transactions Controller
  *
- * All transactions should be pushed through this controller. It 
- * is the catch all, and handles transaction types.  
+ * All transactions should be pushed through this controller. It
+ * is the catch all, and handles transaction types.
  *
  * PHP versions 5
  *
@@ -20,7 +20,7 @@ App::uses('OrdersAppController', 'Orders.Controller');
  * @subpackage    zuha.app.plugins.orders.controllers
  * @since         Zuha(tm) v 0.0.1
  * @license       GPL v3 License (http://www.gnu.org/licenses/gpl.html) and Future Versions
- * @todo		  Extend this controller by leaps and bounds to handle many transaction types and scenarios. 
+ * @todo		  Extend this controller by leaps and bounds to handle many transaction types and scenarios.
  */
 class OrderTransactionsController extends OrdersAppController {
 
@@ -28,7 +28,7 @@ class OrderTransactionsController extends OrdersAppController {
 	public $uses = 'Orders.OrderTransaction';
 	public $components = array('Ssl', 'Orders.Payments' /*, 'Shipping.Fedex'*/);
 	public $paidStatusValue = 'paid';
-	
+
 	public function __construct($request = null, $response = null) {
 		parent::__construct($request, $response);
 		if (defined('__ORDERS_STATUSES')) {
@@ -36,7 +36,7 @@ class OrderTransactionsController extends OrdersAppController {
 			$this->shippedStatus = !empty($orderStatuses['paid']) ? $orderStatuses['paid'] : $this->shippedStatus;
 		}
 	}
-	
+
 	public function index() {
 		#$this->OrderTransaction->recursive = 0;
 		$this->paginate['order'] = array('OrderTransaction.status, OrderTransaction.created');
@@ -44,7 +44,7 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->set('orderTransactions', $this->paginate());
 		$this->set('statuses', $this->OrderTransaction->statuses());
 	}
-	
+
 	public function view($id = null) {
 		$this->OrderTransaction->id = $id;
 		if (!$this->OrderTransaction->exists()) {
@@ -75,8 +75,8 @@ class OrderTransactionsController extends OrdersAppController {
 		}
 	}
 
-/** 
- * 
+/**
+ *
  * @todo 	The transaction doesn't actually get edited on this page, only the order item status, and that goes to a different function (OrderItems.change_status()):
  */
 	public function edit($id = null) {
@@ -97,7 +97,7 @@ class OrderTransactionsController extends OrdersAppController {
 		));
 		$statuses = $this->OrderTransaction->statuses();
 		$itemStatuses = $this->OrderTransaction->OrderItem->statuses();
-		$this->set(compact('statuses', 'itemStatuses')); 
+		$this->set(compact('statuses', 'itemStatuses'));
 	}
 
 	public function delete($id = null) {
@@ -108,9 +108,9 @@ class OrderTransactionsController extends OrdersAppController {
 			$this->flash(__('OrderTransaction deleted', true), array('action'=>'index'));
 		}
 	}
-	
 
-/** 
+
+/**
  * Method for sending variables to the checkout view
  *
  * @param {string}		noPayment means don't submit the form, instead just update the checkoutVariables
@@ -119,7 +119,7 @@ class OrderTransactionsController extends OrdersAppController {
 	public function checkout(){
 		if (!empty($this->request->data)) {
 			$this->_paymentSubmitted();
-		} 
+		}
 		$this->_checkoutVariables();
 	}
 
@@ -213,9 +213,9 @@ class OrderTransactionsController extends OrdersAppController {
 			);
 		$this->set('orderTransactions', $this->paginate());
 	}
-	
-	
-/** 
+
+
+/**
  * There was a ton of variables in the checkout() action, so moved them here to help clean up a bit.
  */
 	private function _checkoutVariables() {
@@ -227,19 +227,19 @@ class OrderTransactionsController extends OrdersAppController {
 
 		# setup the view variables from here down
 		$orderItems = $this->_prepareCartData();
-		
+
 		# go to cart if there are no items to checkout with
 		if (empty($orderItems[0]['OrderItem'])) :
 			$this->Session->setFlash(__('Cart is empty, can\'t checkout.', true));
 			$this->redirect(array('plugin' => 'orders', 'controller'=>'order_items' , 'action' => 'cart'));
 		endif;
-		
+
 		# used to prefill customer billing and shipping data if it exists
-		$customer = $this->OrderTransaction->Customer->find('first', 
+		$customer = $this->OrderTransaction->Customer->find('first',
 			array('conditions' => array('Customer.id' => $this->Session->read('Auth.User.id'))));
 		$this->request->data['OrderTransaction'] = $customer['Customer'];
 		$shippingOptions = $this->_shippingOptions($orderItems);
-		
+
 		# please clean this up by moving it to separate functions, or to the model.  Its a mess
 		$shippingAddress = $this->OrderTransaction->OrderShipment->find('first', array(
 			'conditions' => array(
@@ -250,7 +250,7 @@ class OrderTransactionsController extends OrdersAppController {
 				'OrderShipment.modified DESC',
 				),
 			));
-		
+
 		$billingAddress = $this->OrderTransaction->OrderPayment->find('first', array(
 			'conditions' => array('OrderPayment.user_id' => $this->Auth->user('id'),
 				// 'OrderPayment.order_transaction_id' => null,  // not sure why this matters - RK?
@@ -259,15 +259,15 @@ class OrderTransactionsController extends OrdersAppController {
 				'OrderPayment.modified DESC',
 				),
 			));
-		
+
 		# see if all items are virtual
-		foreach ($orderItems as $orderItem) : 
+		foreach ($orderItems as $orderItem) :
 			$allVirtual = $orderItem['OrderItem']['is_virtual'];
 			if ($allVirtual != 1) :
 				break;
 			endif;
 		endforeach;
-		
+
 		# constants for per site options
    		$enableShipping = defined('__ORDERS_ENABLE_SHIPPING') ? __ORDERS_ENABLE_SHIPPING : false;
 		$fedexSettings = defined('__ORDERS_FEDEX') ? unserialize(__ORDERS_FEDEX) : null;
@@ -286,7 +286,7 @@ class OrderTransactionsController extends OrdersAppController {
 		# set the variables
 		$this->set(compact('orderItems', 'shippingOptions', 'defaultShippingCharge', 'shippingAddress', 'billingAddress', 'allVirtual', 'enableShipping', 'fedexSettings', 'paymentMode', 'paymentOptions'));
 		$this->set('isArb', 0);
-	
+
 		# form field values
 		$this->request->data['OrderTransaction']['order_charge'] = $orderItems[0]['total_price'] ;
 		$this->request->data['OrderTransaction']['quantity'] = $orderItems[0]['total_quantity'] ;
@@ -294,10 +294,10 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->request->data['OrderShipment'] = $shippingAddress['OrderShipment'];
 		$this->request->data['OrderPayment']['first_name'] = !empty($this->request->data['OrderTransaction']['first_name']) ? $this->request->data['OrderTransaction']['first_name'] : $this->Session->read('Auth.User.first_name');
 		$this->request->data['OrderPayment']['last_name'] = !empty($this->request->data['OrderTransaction']['last_name']) ? $this->request->data['OrderTransaction']['last_name'] :  $this->Session->read('Auth.User.last_name');
-		
+
 	}
-	
-	
+
+
 /**
  * Used to decide whether shipping options are necessary, and if they are which shipping options should be available
  *
@@ -330,7 +330,7 @@ class OrderTransactionsController extends OrdersAppController {
  *
  * @param {data} 	billing information
  * @param {total} 	the total to try and get approved
- */	
+ */
 	private function _charge($data , $total, $mode){
 		$response = null;
 		if (!empty($data)) {
@@ -338,34 +338,34 @@ class OrderTransactionsController extends OrdersAppController {
 			$year =  $data['OrderTransaction']['card_exp_year'];
 			$month = $data['OrderTransaction']['card_exp_month'];
 			$cNum = $data['OrderTransaction']["card_number"];
-	   
+
 			$paymentInfo = array(
-				'Member'=> array( 
-					'first_name'=> $data['OrderPayment']['first_name'], 
-					'last_name'=> $data['OrderPayment']['last_name'], 
-					'billing_address'=> $data['OrderPayment']['street_address_1'], 
-					'billing_address2'=> $data['OrderPayment']['street_address_2'], 
-					'billing_country'=> $data['OrderPayment']['country'], 
-					'billing_city'=> $data['OrderPayment']['city'], 
-					'billing_state'=> $data['OrderPayment']['state'], 
+				'Member'=> array(
+					'first_name'=> $data['OrderPayment']['first_name'],
+					'last_name'=> $data['OrderPayment']['last_name'],
+					'billing_address'=> $data['OrderPayment']['street_address_1'],
+					'billing_address2'=> $data['OrderPayment']['street_address_2'],
+					'billing_country'=> $data['OrderPayment']['country'],
+					'billing_city'=> $data['OrderPayment']['city'],
+					'billing_state'=> $data['OrderPayment']['state'],
 					'billing_zip'=> $data['OrderPayment']['zip']
-					), 
+					),
 				'CreditCard'=> array(
-					'credit_type' => isset($data['OrderTransaction']['credit_type']) ? $data['OrderTransaction']['credit_type'] : '', 
-					'card_number'=>$cNum, 
+					'credit_type' => isset($data['OrderTransaction']['credit_type']) ? $data['OrderTransaction']['credit_type'] : '',
+					'card_number'=>$cNum,
 					'expiration_month'=>$month,
 					'expiration_year'=> $year,
 					'cv_code'=>$data['OrderTransaction']['card_sec']
-					), 
+					),
 				'Order'=> array(
 					'theTotal' => $total
 					),
 				'Billing'=> $this->request->data['OrderPayment'],
 				'Shipping'=> $this->request->data['OrderShipment'],
 				'Meta'=> isset($this->request->data['Meta']) ? $this->request->data['Meta'] : null,
-				'Mode'=> $mode , 	
+				'Mode'=> $mode ,
 				);
-			
+
 			// set if this is recurring type or not
             $this->Payments->recurring($data['OrderPayment']['arb']);
 
@@ -383,27 +383,27 @@ class OrderTransactionsController extends OrdersAppController {
 		# update pricing by applying final price check
 		$this->request->data = !empty($this->request->data['OrderCoupon']['code']) ? $this->_finalPrice() : $this->request->data;
 		$total = $this->request->data['OrderTransaction']['total'];
-					
+
 		# if arb is true then will get arb_profile_id for current user
 		if($this->request->data['OrderPayment']['arb'] == 1) {
 			$orderTransactionId = $this->OrderTransaction->getArbTransactionId($this->Auth->user('id'));
-			
-			# if we find order_transaction_id for user then we will update the old transaction  
+
+			# if we find order_transaction_id for user then we will update the old transaction
 			if(!empty($orderTransactionId)) {
-				$this->request->data['OrderPayment']['arb_profile_id'] = 
+				$this->request->data['OrderPayment']['arb_profile_id'] =
 					$this->OrderTransaction->OrderPayment->getArbProfileId($orderTransactionId);
 					$this->request->data['OrderTransaction']['id'] = $orderTransactionId;
 			}
 		}
-			
+
 		if ($this->request->data['OrderTransaction']['shipping'] == 'on') {
 			$this->request->data['OrderShipment'] = $this->request->data['OrderPayment'];
-		} 
-			
+		}
+
 		# Charge the card
-		
+
 		$response = $this->_charge($this->request->data , $total, $this->request->data['OrderTransaction']['mode']);
-		
+
 		if($response['response_code'] != 1){
 			//OrderTransaction failed
 			$trdata["OrderTransaction"]["status"] = 'failed';
@@ -422,36 +422,36 @@ class OrderTransactionsController extends OrdersAppController {
 			$this->request->data['OrderTransaction']['is_arb'] = isset($response['is_arb']) ? $response['is_arb'] : 0;
 			$this->request->data['OrderTransaction']['customer_id'] = $this->Session->read('Auth.User.id');
 			$this->request->data['OrderTransaction']['assignee_id'] = $this->Session->read('Auth.User.id');
-			
+
 			if ($this->OrderTransaction->add($this->request->data)) {
 				$msg = __($response['reason_text'] . ' '.$response['description'], true);
 			} else {
 				$msg = 'Transaction was successful but some error has occured. Please contact Admin with transaction id: '. $response['transaction_id'];
 			}
-			
+
 			if ($this->Session->check('OrdersCartCount')) {
 				$this->Session->delete('OrdersCartCount');
 			}
 			$this->Session->setFlash($msg);
-		
+
 			# send a transaction message to the person ordering
 			$message = '<p>Thank you for your order. You can always log in and view your order status here : <a href="'.$_SERVER['HTTP_HOST'].'/orders/order_transactions/view/'.$this->OrderTransaction->id.'">'.$_SERVER['HTTP_HOST'].'/orders/order_transactions/view/'.$this->OrderTransaction->id.'</a></p>';
 			$this->__sendMail($this->Session->read('Auth.User.email'), 'Successful Order', $message, $template = 'default');
-			
-			#delete the session for payment type 
+
+			#delete the session for payment type
 			$this->Session->delete('OrderPaymentType');
-			
+
 			# this is the redirect for successful transactions
-			# if settings given for orders checkout  
+			# if settings given for orders checkout
 			if(defined('__ORDERS_CHECKOUT_REDIRECT')) {
-				# extract the settings 
+				# extract the settings
 				extract(unserialize(__ORDERS_CHECKOUT_REDIRECT));
 				$plugin = strtolower(ZuhaInflector::pluginize($model));
 				$controller = Inflector::tableize($model);
 				$url = !empty($url) ? $url : array('plugin' => $plugin, 'controller'=>$controller , 'action'=>$action, !empty($foreign_key['OrderItem']['foreign_key']) ? $foreign_key['OrderItem']['foreign_key'] : '' );
 				# get foreign key of OrderItem using given setings
-				$foreign_key = $this->OrderTransaction->OrderItem->find('first', 
-					array('fields' => $pass, 
+				$foreign_key = $this->OrderTransaction->OrderItem->find('first',
+					array('fields' => $pass,
 						'conditions' => array(
 							'OrderItem.order_transaction_id' => $this->OrderTransaction->id,
 							)
@@ -462,12 +462,12 @@ class OrderTransactionsController extends OrdersAppController {
 			}
 		}
 	}
-	
-	
+
+
 	private function _finalPrice() {
 		$data = $this->request->data;
 		$data['OrderTransaction']['total'] = $this->OrderTransaction->OrderCoupon->apply($this->request->data);
-		
+
 		return $data;
 	}
 

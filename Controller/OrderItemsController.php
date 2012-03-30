@@ -11,7 +11,7 @@ class OrderItemsController extends OrdersAppController {
 	public $uses = 'Orders.OrderItem';
 	public $allowedActions = array('delete');
 	public $shippedStatus = 'shipped';
-	
+
 	public function __construct($request = null, $response = null) {
 		parent::__construct($request, $response);
 		if (defined('__ORDERS_STATUSES')) {
@@ -22,7 +22,7 @@ class OrderItemsController extends OrdersAppController {
 
 /**
  * Index method
- * 
+ *
  * @param null
  * @return null
  */
@@ -37,7 +37,7 @@ class OrderItemsController extends OrdersAppController {
  *
  * @param uuid
  * @return null
- */ 
+ */
 	public function view($id = null) {
 		$this->OrderItem->id = $id;
 		if (!$this->OrderItem->exists()) {
@@ -57,11 +57,11 @@ class OrderItemsController extends OrdersAppController {
   	public function add($catalogItemId = null) {
 		$userId = $this->Session->read('Auth.User.id');
 		# redirect to cart if not coming from the cart page (go to check out if you are coming from the cart page)
-		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'); 
-		
+		$redirect = !empty($this->request->data['OrderItem'][0]) ? array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout') : array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart');
+
 		# temporary for this to redo $redirect, until guest cart checkout is implemented
-		$redirect = $this->_linkToCheckout($catalogItemId, $redirect); 
-		
+		$redirect = $this->_linkToCheckout($catalogItemId, $redirect);
+
 		$this->_checkCartCompatibility($this->request->data);
 		if (!empty($userId)) {
 			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
@@ -78,15 +78,43 @@ class OrderItemsController extends OrdersAppController {
 				$this->Session->setFlash(__($ret['msg'], true));
 			}
 		} else {
-			$this->_addToCookieCart($this->request->data);
-	  		$this->redirect($redirect);
+            /**
+             *  They are not logged in.
+             *  If Guest Checkout is enabled, they might have provided login credentials on the checkout page.
+             */
+             $guestCheckoutEnabled = (defined('__ORDERS_ENABLE_GUEST_CHECKOUT')) ? __ORDERS_ENABLE_GUEST_CHECKOUT : FALSE;
+             if($guestCheckoutEnabled) {
+                if(empty($this->request->data['User']['password'])) {
+                  // this is likely a new account, or a user that didn't fill out their password
+                  $this->request->data['User']['password'] = md5(rand().rand());
+                  App::uses('User', 'Users.Model');
+                  $User = new User();
+                  $User->add($this->request->data);
+                  $User->resetPassword($User->id);
+                }
+                $loginSuccess = $this->Auth->login($this->request->data);
+                if($loginSuccess) {
+                    // run this function again to continue the checkout as normally done
+                    $this->add($catalogItemId);
+                } else {
+                    // return them to the checkout to try again
+                    $this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
+                }
+             } else {
+               /**
+                * If they are here, then they are not logged in and have not seen the checkout page yet
+                */
+                $this->_addToCookieCart($this->request->data);
+                #$this->redirect($redirect);
+                $this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
+             }
 		}
 	}
-	
-	
+
+
 /**
  * Add to cart with one click (no form input needed)
- * 
+ *
  * @param string
  */
 	protected function _linkToCheckout($catalogItemId = null, $redirect) {
@@ -98,13 +126,13 @@ class OrderItemsController extends OrdersAppController {
 				$this->request->data['OrderItem']['catalog_item_id'] = $catalogItem['CatalogItem']['id'];
 				$this->request->data['OrderItem']['price'] = $catalogItem['CatalogItem']['price'];
 				$this->request->data['OrderItem']['payment_type'] = $catalogItem['CatalogItem']['payment_type'];
-				# temporary for this to redo $redirect, until guest cart checkout is implemente	
+				# temporary for this to redo $redirect, until guest cart checkout is implemente
 				return array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout');
 			}
 		}
 		return $redirect;
 	}
- 
+
 
 /**
  * Edit method
@@ -133,11 +161,11 @@ class OrderItemsController extends OrdersAppController {
 		# _viewVars
 		$this->set('statuses', $this->OrderItem->statuses());
 	}
-	
+
 /**
  * Check the compatibility of cart items.
  *
- * @params {array} 
+ * @params {array}
  */
 	protected function _checkCartCompatibility($orderItem = null){
 		if(!empty($orderItem['OrderItem']['payment_type'])) :
@@ -152,16 +180,16 @@ class OrderItemsController extends OrdersAppController {
 		  			$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
 				endif;
 			else :
-				$this->Session->write('OrderPaymentType', explode(',', $orderItem['OrderItem']['payment_type']));	 
+				$this->Session->write('OrderPaymentType', explode(',', $orderItem['OrderItem']['payment_type']));
 			endif;
-		endif;	
+		endif;
 	}
 
 /**
  * Edits the cart compatibility session
  * Write the common payment type in session
  *
- * @params 
+ * @params
  */
 	protected function _updateCartCompatibility(){
 		$userId = $this->Session->read('Auth.User.id');
@@ -175,9 +203,9 @@ class OrderItemsController extends OrdersAppController {
 			}
 		}
 	}
-	
+
 /**
- * View Cart 
+ * View Cart
  * @param {int} user_id
  */
 	public function cart(){
@@ -191,9 +219,9 @@ class OrderItemsController extends OrdersAppController {
 	}
 
 
-/** 
+/**
  * Deletes Items From Cart
- * 
+ *
  * @param {mixed} 	The id of the Order Item or X if it is a guest cart item
  * @param {int}		The array integer index of the guest cart item
  */
@@ -209,12 +237,12 @@ class OrderItemsController extends OrdersAppController {
 			#$this->Cookie->delete('GuestCart.'.$index);
 		} else {
 			$this->OrderItem->delete($id);
-			$this->_updateCartCompatibility();	
+			$this->_updateCartCompatibility();
 		}
 		$this->redirect(array('plugin' => 'orders', 'controller' => 'order_items' , 'action' => 'cart'));
 	}
-	
-	
+
+
 /**
  * Sets the variables for updating the status of an order item.
  * @todo 	These status fields need to be updated to use "enumerations".  Enumerations are what allow us to have different labels in multi-sites.  One site might call a completed transaction, "Shipped", the other might call it, "Completed".  We have to use enumerations for all drop downs for this reason.  (just set the enumeration to is_system, if its id number is hard coded anywhere, and then we'll make sure its included with the install of zuha.)
@@ -224,16 +252,16 @@ class OrderItemsController extends OrdersAppController {
 		if(!empty($this->request->data['OrderItem'])) {
 			# if all items are sent then set status of the whole transaction to shipped
 			$statuses = Set::extract('/status', $this->request->data['OrderItem']);
-			foreach ($statuses as $status) : 
+			foreach ($statuses as $status) :
 				if ($status != 'sent') :
 					#unset($this->request->data['OrderTransaction']['status']);
 					break;
-				else : 
+				else :
 					$this->request->data['OrderTransaction']['status'] = $this->shippedStatus;
 				endif;
-			endforeach; 
-			
-			if ($this->OrderItem->OrderTransaction->saveAll($this->request->data)) : 
+			endforeach;
+
+			if ($this->OrderItem->OrderTransaction->saveAll($this->request->data)) :
 				$this->Session->setFlash(__('Order updated', true));
 			else :
 				$this->Session->setFlash(__('Order could not be updated', true));
