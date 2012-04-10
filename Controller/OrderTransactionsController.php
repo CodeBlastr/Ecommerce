@@ -200,7 +200,11 @@ class OrderTransactionsController extends OrdersAppController {
 		$this->paginate = array(
 			'conditions'=>array(
 				'OrderTransaction.customer_id' => $this->Session->read('Auth.User.id'),
-				),
+                 'OR' => array(
+                        'OrderItem.hours_expire' => NULL,
+                        "HOUR(timediff(OrderItem.created, NOW())) < OrderItem.hours_expire"
+                 )
+			),
 			'joins' => array(array(
 				'table' => 'order_items',
 				'alias' => 'OrderItem',
@@ -208,9 +212,9 @@ class OrderTransactionsController extends OrdersAppController {
 				'conditions' => array(
 					'OrderItem.order_transaction_id = OrderTransaction.id',
 					'OrderItem.is_virtual' => 1,
-					),
-				)),
-			);
+				),
+			)),
+		);
 		$this->set('orderTransactions', $this->paginate());
 	}
 
