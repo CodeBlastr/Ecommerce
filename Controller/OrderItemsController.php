@@ -78,36 +78,10 @@ class OrderItemsController extends OrdersAppController {
 				$this->Session->setFlash(__($ret['msg'], true));
 			}
 		} else {
-            /**
-             *  They are not logged in.
-             *  If Guest Checkout is enabled, they might have provided login credentials on the checkout page.
-             */
-             $guestCheckoutEnabled = (defined('__ORDERS_ENABLE_GUEST_CHECKOUT')) ? __ORDERS_ENABLE_GUEST_CHECKOUT : FALSE;
-             if($guestCheckoutEnabled) {
-                if(empty($this->request->data['User']['password'])) {
-                  // this is likely a new account, or a user that didn't fill out their password
-                  $this->request->data['User']['password'] = md5(rand().rand());
-                  App::uses('User', 'Users.Model');
-                  $User = new User();
-                  $User->add($this->request->data);
-                  $User->resetPassword($User->id);
-                }
-                $loginSuccess = $this->Auth->login($this->request->data);
-                if($loginSuccess) {
-                    // run this function again to continue the checkout as normally done
-                    $this->add($catalogItemId);
-                } else {
-                    // return them to the checkout to try again
-                    $this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
-                }
-             } else {
-               /**
-                * If they are here, then they are not logged in and have not seen the checkout page yet
-                */
-                $this->_addToCookieCart($this->request->data);
-                #$this->redirect($redirect);
-                $this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
-             }
+            // If they are here, then they are not logged in and have not seen the checkout page yet
+			$this->_addToCookieCart($this->request->data);
+            $this->redirect($redirect);
+            
 		}
 	}
 
