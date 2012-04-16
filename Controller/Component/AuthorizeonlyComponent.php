@@ -2,35 +2,39 @@
 require('AuthnetCIM.php');
 class AuthorizeonlyComponent extends Object { 
 	
-	var $response = array();
-	var $recurring = false;
-	var $login	=  __ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID; 
-	var $transkey = __ORDERS_TRANSACTIONS_AUTHORIZENET_TRANSACTION_KEY;
-	var $data = null;
+	public $response = array();
+	public $recurring = false;
+	public $login	=  ''; // set in startup
+	public $transkey = ''; // set in startup
+	public $data = null;
 	
-	
-	//set recurring value default is false
-	function recurring($val = false) {
+/** 
+ * set recurring value default is false
+ */
+	public function recurring($val = false) {
 		$this->recurring = $val;
 	}
 	
-	function startup(&$controller) { 
+	public function startup(&$controller) { 
         // This method takes a reference to the controller which is loading it. 
         // Perform controller initialization here. 
+		$this->login = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ? __ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID : null;
+		$this->transkey = defined('__ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID') ? __ORDERS_TRANSACTIONS_AUTHORIZENET_LOGIN_ID : null;
+		
     }
 
 /**
  * Payment by chargin CC based on Authorize.net
  *
  */
-	function Pay($data) {
+	public function Pay($data) {
 		$this->request->data = $data;
 		//create AuthnetCIM class object
 		$this->authnetCIM = new AuthnetCIM($this->login, $this->transkey, 1);
 		$this->cimCustomerProfile($this->request->data);	
 	}
 
-	function cimPayment() {
+	public function cimPayment() {
 			
 		//@todo: make this refID (optional) to come from some field or store this for later use
 		$this->authnetCIM->setParameter('refID', 150);
@@ -43,7 +47,7 @@ class AuthorizeonlyComponent extends Object {
 		$this->_parseCIMResponse($this->authnetCIM);
 	}
 	
-	function cimPaymentProfile() {
+	public function cimPaymentProfile() {
 			
 		//@todo: make this refID (optional) to come from some field or store this for later use
 		$this->authnetCIM->setParameter('refID', 150);
@@ -66,7 +70,7 @@ class AuthorizeonlyComponent extends Object {
 	}
     
 	
-	function cimCustomerProfile() {
+	public function cimCustomerProfile() {
 			
 		//@todo: make this refID (optional) to come from some field or store this for later use
 		$this->authnetCIM->setParameter('refID', 150);
@@ -148,12 +152,12 @@ class AuthorizeonlyComponent extends Object {
 		$this->_parseCIMResponse($this->authnetCIM , $profile_id, $payment_profile_id);
 	}
 
-	/**
-	 * parseCIMResponse()
-	 * @parameters AuthnetCIM object, customer profile id, customer payment profile id   
-	 *
-	 */
-	function _parseCIMResponse($cim, $profile_id, $payment_profile_id) {
+/**
+ * parseCIMResponse()
+ * @parameters AuthnetCIM object, customer profile id, customer payment profile id   
+ *
+ */
+	public function _parseCIMResponse($cim, $profile_id, $payment_profile_id) {
 		
 		//if profile id and payment profile id is set 
 		if(isset($profile_id) && isset($payment_profile_id)) {
@@ -178,4 +182,3 @@ class AuthorizeonlyComponent extends Object {
 	}
 	
 }
-?>
