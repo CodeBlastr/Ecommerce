@@ -176,6 +176,8 @@ class OrderItem extends OrdersAppModel {
 						'CatalogItem.name',
 						'CatalogItem.model',
 						'CatalogItem.foreign_key',
+						'CatalogItem.cart_min',
+						'CatalogItem.cart_max',
 						),
 					),
 				),
@@ -200,9 +202,11 @@ class OrderItem extends OrdersAppModel {
 
 	public function cartExtras($orderItems = null) {
 		$orderItems = $this->mergeCartDuplicates($orderItems);
+		$orderItems = $this->restrictByCartLimit($orderItems);
+        #debug($orderItems); break;
 		$price = '';
 		$quantity = '';
-		$i = 0;
+		$i = 0; /** @todo this $i doesn't seem necessary **/
 		if (!empty($orderItems)) : foreach ($orderItems as $orderItem) :
 			$price += $orderItem['OrderItem']['price'] * $orderItem['OrderItem']['quantity'];
 			$quantity += $orderItem['OrderItem']['quantity'];
@@ -212,6 +216,35 @@ class OrderItem extends OrdersAppModel {
 		$orderItems[0]["total_quantity"] = $quantity;
 		return $orderItems;
 	}
+
+
+    /**
+     * Take all orderItems and reduce their quantity to the min/max cart qty that was set.
+     *
+     * @param array $orderItems The array of orderItems.
+     * @return array Same array with adjusted quantities.
+     */
+    public function restrictByCartLimit($orderItems) {
+        if (!empty($orderItems)) {
+          #debug($orderItems);
+          foreach ($orderItems as $orderItem) :
+            if( $orderItem['OrderItem']['quantity'] > $orderItem['CatalogItem']['cart_max'] && $orderItem['CatalogItem']['cart_max']) {
+                $orderItem['OrderItem']['quantity'] = $orderItem['CatalogItem']['cart_max'];
+                /** @todo Probably put a flash message here somehow. */
+            }
+            if( $orderItem['OrderItem']['quantity'] < $orderItem['CatalogItem']['cart_min'] && $orderItem['CatalogItem']['cart_min']) {
+                $orderItem['OrderItem']['quantity'] = $orderItem['CatalogItem']['cart_min'];
+                /** @todo Probably put a flash message here somehow. */
+            }
+            $limitedOrderItems[] = $orderItem;
+          endforeach;
+          return $limitedOrderItems;
+
+        } else {
+            return $orderItems;
+        }
+
+    }
 
 
 /**
