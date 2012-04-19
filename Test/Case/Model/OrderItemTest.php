@@ -12,7 +12,9 @@ class OrderItemTestCase extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array();
+	public $fixtures = array(
+		'plugin.Orders.order_item',
+		);
 
 /**
  * setUp method
@@ -22,7 +24,7 @@ class OrderItemTestCase extends CakeTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->OrderItem = ClassRegistry::init('OrderItem');
+		$this->OrderItem = ClassRegistry::init('Orders.OrderItem');
 	}
 
 /**
@@ -59,8 +61,9 @@ class OrderItemTestCase extends CakeTestCase {
  *
  * @return void
  */
-	public function testPrepareCartDatum() {
-
+	public function testPrepareCartData() {
+		$result = $this->OrderItem->prepareCartData(1, 1);
+		$this->assertEqual(1, count($result)); // admin has one item in cart		
 	}
 
 /**
