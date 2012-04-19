@@ -61,7 +61,6 @@ class OrderItemsController extends OrdersAppController {
 
 		# temporary for this to redo $redirect, until guest cart checkout is implemented
 		$redirect = $this->_linkToCheckout($catalogItemId, $redirect);
-
 		$this->_checkCartCompatibility($this->request->data);
 		if (!empty($userId)) {
 			$ret = $this->OrderItem->addToCart($this->request->data, $userId);
@@ -140,21 +139,21 @@ class OrderItemsController extends OrdersAppController {
  * @params {array}
  */
 	protected function _checkCartCompatibility($orderItem = null){
-		if(!empty($orderItem['OrderItem']['payment_type'])) :
-			if($this->Session->check('OrderPaymentType')) :
+		if(!empty($orderItem['OrderItem']['payment_type'])) {
+			if($this->Session->check('OrderPaymentType')) {
 				$paymentTypes = $this->Session->read('OrderPaymentType');
 				$newPaymentTypes = explode(',', $orderItem['OrderItem']['payment_type']);
 				$commonPaymentType = array_intersect($paymentTypes, $newPaymentTypes);
-				if(!empty($commonPaymentType)) :
+				if(!empty($commonPaymentType)) {
 					$this->Session->write('OrderPaymentType', $commonPaymentType);
-				else :
+				} else {
 					$this->Session->setFlash('The item you have added to cart is incompatible with at least one of your current cart items.  Please checkout with existing cart items first.');
 		  			$this->redirect(array('plugin' => 'orders', 'controller' => 'order_transactions' , 'action' => 'checkout'));
-				endif;
-			else :
+				}
+			} else {
 				$this->Session->write('OrderPaymentType', explode(',', $orderItem['OrderItem']['payment_type']));
-			endif;
-		endif;
+			} // end session check
+		} // end payment type check
 	}
 
 /**
