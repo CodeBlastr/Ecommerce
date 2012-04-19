@@ -78,10 +78,8 @@ class OrderItemsController extends OrdersAppController {
 				$this->Session->setFlash(__($ret['msg'], true));
 			}
 		} else {
-            // If they are here, then they are not logged in and have not seen the checkout page yet
-			$this->_addToCookieCart($this->request->data);
+            $this->_addToCookieCart($this->request->data);
             $this->redirect($redirect);
-            
 		}
 	}
 
