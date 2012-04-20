@@ -417,6 +417,49 @@ class OrderTransactionsController extends OrdersAppController {
 			$this->Session->setFlash($response['reason_text'] . ' '.$response['description']);
 			$this->redirect(array('plugin' => 'orders', 'controller'=>'order_transactions' , 'action' => 'checkout'));
 		} else {
+
+          // check to see if logged in
+          $userId = $this->Session->read('Auth.User.id');
+          if(!$userId) {
+              /**
+                *  They are not logged in.
+                *  If Guest Checkout is enabled, they might have provided login credentials on the checkout page.
+                */
+                $guestCheckoutEnabled = (defined('__ORDERS_ENABLE_GUEST_CHECKOUT')) ? __ORDERS_ENABLE_GUEST_CHECKOUT : FALSE;
+                if($guestCheckoutEnabled) {
+                    if(empty($this->request->data['User']['password'])) {
+                      // this is likely a new account, or a user that didn't fill out their password
+                      $this->request->data['User'] = $this->request->data['OrderPayment'];
+                      $this->request->data['User']['password'] = md5(rand().rand());
+
+                      App::uses('User', 'Users.Model');
+                      $User = new User();
+                      #debug($this->request->data);
+                      try {
+                        $User->add($this->request->data);
+                        $newPassSent = $User->resetPassword($User->id);
+                        #debug($newPassSent);break;
+                      } catch (Exception $exc) {
+                        #echo $exc->getTraceAsString();
+                      }
+
+
+                      #break;
+
+                    }
+                    $loginSuccess = $this->Auth->login($this->request->data);
+                    /**
+                     * @todo It appears this doesn't totally log them in to Zuha.
+                     *
+                     */
+                    #debug($loginSuccess);break;
+                    if(!$loginSuccess) {
+                          $this->Session->setFlash('Unable to create account / login.');
+                    }
+                }
+          }
+
+
 			$this->request->data['Response'] = $response;
 			# setup order transaction data
 			$this->request->data['OrderTransaction']['order_payment_id'] = $response['transaction_id'];
