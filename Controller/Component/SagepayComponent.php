@@ -5,8 +5,6 @@
  */
 class SagepayComponent extends Object {
 
-  var $components = array('Session');
-
   public
           $components = array('Orders.Arb'),
           $response = array(),
@@ -72,68 +70,67 @@ class SagepayComponent extends Object {
     }
   }
 
-  private function formatRawData($data) {
+	protected function formatRawData($data) {
+	    $formatted['VPSProtocol'] = '2.23';
+	    $formatted['TxType'] = $this->x_type;
+	    $formatted['Vendor'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_VENDOR') ? __ORDERS_TRANSACTIONS_SAGEPAY_VENDOR : 'razorit';
 
-    $formatted['VPSProtocol'] = '2.23';
-    $formatted['TxType'] = $this->x_type;
-    $formatted['Vendor'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_VENDOR') ? __ORDERS_TRANSACTIONS_SAGEPAY_VENDOR : 'razorit';
+    	$formatted['VendorTxCode'] = 'sage_' . time() . rand(0, 9999); /** @todo ideally an internal transaction code */
 
-    $formatted['VendorTxCode'] = 'sage_' . time() . rand(0, 9999); /** @todo ideally an internal transaction code */
+	    $formatted['Description'] = $data['Meta']['description'];
+	
+	    $formatted['CardHolder'] = $data['Billing']['first_name'] . ' ' . $data['Billing']['last_name'];
 
-    $formatted['Description'] = $data['Meta']['description'];
+	    $formatted['CardNumber'] = str_replace(" ", "", $data['CreditCard']['card_number']);
+	    $formatted['StartDateMonth'] = $data['CreditCard']['start_month'];
+	    $formatted['StartDateYear'] = $data['CreditCard']['start_year'];
+	    $creditMM = str_pad($data['CreditCard']['expiration_month'], 2, "0", STR_PAD_LEFT);
+	    $creditYY = substr($data['CreditCard']['expiration_year'], 2, 2);
+	    $formatted['ExpiryDate'] = $creditMM . $creditYY;
+	
+		App::uses('Validation', 'Utility');
+	    if(Validation::cc($formatted['CardNumber'], 'visa')) {
+			$cardType = 'VISA';
+	    } elseif ( Validation::cc($formatted['CardNumber'], 'amex') ) {
+    		$cardType = 'AMEX';
+		} elseif ( Validation::cc($formatted['CardNumber'], 'mc') ) {
+			$cardType = 'MC';
+	    } elseif ( Validation::cc($formatted['CardNumber'], 'diners') ) {
+			$cardType = 'DINERS';
+		} elseif ( Validation::cc($formatted['CardNumber'], 'jcb') ) {
+			$cardType = 'JCB';
+		} elseif ( Validation::cc($formatted['CardNumber'], 'maestro') ) {
+			$cardType = 'MAESTRO';
+		}
 
-    $formatted['CardHolder'] = $data['Billing']['first_name'] . ' ' . $data['Billing']['last_name'];
+    	$formatted['CardType'] = $cardType;/** VISA / MC / DELTA / MAESTRO / AMEX / UKE / JCB / DINERS / LASER */
+	    $formatted['IssueNumber'] = $data['CreditCard']['IssueNumber'];/** @todo (Older Switch cards only. 1 or 2 digits as printed on the card) */
+	    $formatted['CV2'] = $data['CreditCard']['cv_code'];
 
-    $formatted['CardNumber'] = str_replace(" ", "", $data['CreditCard']['card_number']);
-    $formatted['StartDateMonth'] = $data['CreditCard']['start_month'];
-    $formatted['StartDateYear'] = $data['CreditCard']['start_year'];
-    $creditMM = str_pad($data['CreditCard']['expiration_month'], 2, "0", STR_PAD_LEFT);
-    $creditYY = substr($data['CreditCard']['expiration_year'], 2, 2);
-    $formatted['ExpiryDate'] = $creditMM . $creditYY;
+	    $formatted['BillingFirstnames'] = $data['Billing']['first_name'];
+	    $formatted['BillingSurname'] = $data['Billing']['last_name'];
+	    $formatted['BillingAddress1'] = $data['Billing']['street_address_1'];
+	    $formatted['BillingAddress2'] = $data['Billing']['street_address_2'];
+	    $formatted['BillingCity'] = $data['Billing']['city'];
+	    $formatted['BillingCountry'] = $data['Billing']['country'];
+	    $formatted['BillingPostCode'] = $data['Billing']['zip'];
+	    $formatted['BillingPhone'] = '';
 
-     App::uses('Validation', 'Utility');
-    if(Validation::cc($formatted['CardNumber'], 'visa')) {
-      $cardType = 'VISA';
-    } elseif ( Validation::cc($formatted['CardNumber'], 'amex') ) {
-      $cardType = 'AMEX';
-    } elseif ( Validation::cc($formatted['CardNumber'], 'mc') ) {
-      $cardType = 'MC';
-    } elseif ( Validation::cc($formatted['CardNumber'], 'diners') ) {
-      $cardType = 'DINERS';
-    } elseif ( Validation::cc($formatted['CardNumber'], 'jcb') ) {
-      $cardType = 'JCB';
-    } elseif ( Validation::cc($formatted['CardNumber'], 'maestro') ) {
-      $cardType = 'MAESTRO';
-    }
+	    $formatted['DeliveryFirstnames'] = !empty($data['Shipping']['first_name']) ? $data['Shipping']['first_name'] : $formatted['BillingFirstnames'];
+	    $formatted['DeliverySurname'] = !empty($data['Shipping']['last_name']) ? $data['Shipping']['last_name'] : $formatted['BillingSurname'];
+	    $formatted['DeliveryAddress1'] = !empty($data['Shipping']['street_address_1']) ? $data['Shipping']['street_address_1'] : $formatted['BillingAddress1'];
+	    $formatted['DeliveryAddress2'] = !empty($data['Shipping']['street_address_2']) ? $data['Shipping']['street_address_2'] : $formatted['BillingAddress2'];
+	    $formatted['DeliveryCity'] = !empty($data['Shipping']['city']) ? $data['Shipping']['city'] : $formatted['BillingCity'];
+	    $formatted['DeliveryCountry'] = !empty($data['Shipping']['country']) ? $data['Shipping']['country'] : $formatted['BillingCountry'];
+	    $formatted['DeliveryPostCode'] = !empty($data['Shipping']['zip']) ? $data['Shipping']['zip'] : $formatted['BillingPostCode'];
+	    $formatted['DeliveryPhone'] =  '';
 
-    $formatted['CardType'] = $cardType;/** VISA / MC / DELTA / MAESTRO / AMEX / UKE / JCB / DINERS / LASER */
-    $formatted['IssueNumber'] = $data['CreditCard']['IssueNumber'];/** @todo (Older Switch cards only. 1 or 2 digits as printed on the card) */
-    $formatted['CV2'] = $data['CreditCard']['cv_code'];
-
-    $formatted['BillingFirstnames'] = $data['Billing']['first_name'];
-    $formatted['BillingSurname'] = $data['Billing']['last_name'];
-    $formatted['BillingAddress1'] = $data['Billing']['street_address_1'];
-    $formatted['BillingAddress2'] = $data['Billing']['street_address_2'];
-    $formatted['BillingCity'] = $data['Billing']['city'];
-    $formatted['BillingCountry'] = $data['Billing']['country'];
-    $formatted['BillingPostCode'] = $data['Billing']['zip'];
-    $formatted['BillingPhone'] = '';
-
-    $formatted['DeliveryFirstnames'] = $data['Shipping']['first_name'];
-    $formatted['DeliverySurname'] = $data['Shipping']['last_name'];
-    $formatted['DeliveryAddress1'] = $data['Shipping']['street_address_1'];
-    $formatted['DeliveryAddress2'] = $data['Shipping']['street_address_2'];
-    $formatted['DeliveryCity'] = $data['Shipping']['city'];
-    $formatted['DeliveryCountry'] = $data['Shipping']['country'];
-    $formatted['DeliveryPostCode'] = $data['Shipping']['zip'];
-    $formatted['DeliveryPhone'] =  '';
-
-    $formatted['Amount'] = $data['Order']['theTotal'];
-    $formatted['Currency'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY') ? __ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY : 'usd';
+	    $formatted['Amount'] = $data['Order']['theTotal'];
+	    $formatted['Currency'] = defined('__ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY') ? __ORDERS_TRANSACTIONS_SAGEPAY_CURRENCY : 'usd';
 
 
-    return $formatted;
-  }
+    	return $formatted;
+	}
 
   /**
    * formatData method
@@ -212,8 +209,8 @@ class SagepayComponent extends Object {
         // Transaction made successfully
         $responseCode = 1;
         $this->status = 'success';
-        $this->Session->write('transaction.VPSTxId', $this->response['VPSTxId']); // assign the VPSTxId to a session variable for storing if need be
-        $this->Session->write('transaction.TxAuthNo', $this->response['TxAuthNo']); // assign the TxAuthNo to a session variable for storing if need be
+        CakeSession::write('transaction.VPSTxId', $this->response['VPSTxId']); // assign the VPSTxId to a session variable for storing if need be
+        CakeSession::write('transaction.TxAuthNo', $this->response['TxAuthNo']); // assign the TxAuthNo to a session variable for storing if need be
         break;
       case '3DAUTH':
         // Transaction required 3D Secure authentication
