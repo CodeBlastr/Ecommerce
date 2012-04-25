@@ -453,9 +453,9 @@ class OrderTransactionsController extends OrdersAppController {
                      *
                      */
                     #debug($loginSuccess);break;
-                    if(!$loginSuccess) {
-                          $this->Session->setFlash('Unable to create account / login.');
-                    }
+                    #if(!$loginSuccess) {
+                          #$this->Session->setFlash('Unable to create account / login.');
+                    #}
                 }
           }
 
