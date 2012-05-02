@@ -203,24 +203,32 @@ class SagepaymentComponent extends Object {
     if($responseIndicator == 'A') {
 
         $this->status = 'success';
-
+        $parsedResponse = array(
+            'response_code' => '1',
+            'reason_text' => substr($response, 8, 32),
+            'description' => substr($response, 8, 32)
+        );
     } else if($responseIndicator == 'E') {
 
         $this->status = 'invalid';
         $this->error = substr($response, 8, 32);
-
+        $parsedResponse = array(
+            'response_code' => substr($response, 2, 6),
+            'reason_text' => substr($response, 8, 32),
+            'description' => substr($response, 8, 32)
+        );
     } else { // 'X'
 
         $this->status = 'declined';
         $this->error = substr($response, 8, 32);
-
+        $parsedResponse = array(
+            'response_code' => substr($response, 2, 6),
+            'reason_text' => substr($response, 8, 32),
+            'description' => substr($response, 8, 32)
+        );
     }
 
-    $parsedResponse = array(
-        'response_code' => substr($response, 2, 6),
-        'reason_text' => substr($response, 8, 32),
-        'description' => substr($response, 8, 32)
-    );
+
 
     $this->response = $parsedResponse;
   }
