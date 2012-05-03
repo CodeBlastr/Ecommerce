@@ -347,6 +347,7 @@ class OrderTransactionsController extends OrdersAppController {
 				'Member'=> array(
 					'first_name'=> $data['OrderPayment']['first_name'],
 					'last_name'=> $data['OrderPayment']['last_name'],
+					'email_address'=> $data['User']['username'],
 					'billing_address'=> $data['OrderPayment']['street_address_1'],
 					'billing_address2'=> $data['OrderPayment']['street_address_2'],
 					'billing_country'=> $data['OrderPayment']['country'],

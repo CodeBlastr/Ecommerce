@@ -171,7 +171,9 @@ echo $this->Form->create('OrderTransaction');  ?>
           <?php echo $this->Form->input('User.password' , array('label' => 'Password', 'after' => '(If you already have an account)')); ?>
       </fieldset>
   </div>
-  <?php } ?>
+  <?php } else { ?>
+            <?php echo $this->Form->hidden('User.username' , array('value' => $this->Session->read('Auth.User.username'))); ?>
+<?php } ?>
 
   <div id="orderTransactionForm" class="orderTransactionForm text-inputs">
     <h3><?php echo __('Please fill in your billing details'); ?></h3>
