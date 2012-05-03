@@ -89,8 +89,8 @@ class OrderItem extends OrdersAppModel {
 			'contain' => array()
 		));
 
-		if($data['CatalogItem']['stock_item'] > 0 || $data['CatalogItem']['stock_item'] === 0) :
-			return $data['CatalogItem']['stock_item'];
+		if($data['CatalogItem']['stock'] > 0 || $data['CatalogItem']['stock'] === 0) :
+			return $data['CatalogItem']['stock'];
 		else :
 			return null;
 		endif;
@@ -392,7 +392,7 @@ class OrderItem extends OrdersAppModel {
 						));
 
 					$orderItem['CatalogItem'] = $data['CatalogItem'];
-					$orderItem['CatalogItem']['stock_item'] -= $orderItem['OrderItem']['quantity'] ;
+					$orderItem['CatalogItem']['stock'] -= $orderItem['OrderItem']['quantity'] ;
 				}
 
 				if ($this->saveAll($orderItem)) {
