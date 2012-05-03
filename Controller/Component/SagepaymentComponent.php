@@ -88,7 +88,7 @@ class SagepaymentComponent extends Object {
 	    $formatted['C_state'] = $data['Billing']['state'];
 	    $formatted['C_zip'] = $data['Billing']['zip'];
 	    $formatted['C_country'] = $data['Billing']['country']; // optional
-	    $formatted['C_email'] = $data['Billing']['email']; /** @todo **/
+	    $formatted['C_email'] = $data['Member']['email_address'];
         $formatted['C_cardnumber'] = str_replace(" ", "", $data['CreditCard']['card_number']);
 	    $formatted['C_exp'] = $creditMM . $creditYY;
         $formatted['C_cvv'] = $data['CreditCard']['cv_code']; // optional. CVV
