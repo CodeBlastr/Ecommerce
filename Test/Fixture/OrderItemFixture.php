@@ -13,41 +13,12 @@ class OrderItemFixture extends CakeTestFixture {
 	public $name = 'OrderItem';
 	
 /**
- * Fields
+ * Import
  *
  * @var array
  */
-	public $fields = array(
-		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary'),
-		'name' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 512, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'catalog_item_id' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 36, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'order_payment_id' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 36, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'order_shipment_id' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 36, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'order_transaction_id' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 36, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'quantity' => array('type' => 'float', 'null' => false, 'default' => '1'),
-		'price' => array('type' => 'float', 'null' => false, 'default' => '0'),
-		'weight' => array('type' => 'float', 'null' => true, 'default' => NULL),
-		'height' => array('type' => 'float', 'null' => true, 'default' => NULL),
-		'width' => array('type' => 'float', 'null' => true, 'default' => NULL),
-		'length' => array('type' => 'float', 'null' => true, 'default' => NULL),
-		'status' => array('type' => 'string', 'null' => true, 'default' => 'incart', 'length' => 100, 'collate' => 'utf8_general_ci', 'comment' => '\'\',\'pending\',\'sent\',\'successful\',\'paid\',\'frozen\',\'cancelled\',\'incart\',\'requestReturn\',\'return\'', 'charset' => 'utf8'),
-		'tracking_no' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 100, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'arb_settings' => array('type' => 'text', 'null' => true, 'default' => NULL, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'payment_type' => array('type' => 'string', 'null' => true, 'default' => NULL, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'featured' => array('type' => 'boolean', 'null' => false, 'default' => NULL),
-		'foreign_key' =>  array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 36, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'model' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 50, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
-		'is_virtual' => array('type' => 'boolean', 'null' => true, 'default' => NULL),
-		'customer_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'contact_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'assignee_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'creator_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'modifier_id' => array('type' => 'integer', 'null' => true, 'default' => NULL),
-		'created' => array('type' => 'datetime', 'null' => false, 'default' => NULL),
-		'modified' => array('type' => 'datetime', 'null' => false, 'default' => NULL),
-		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
-		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'MyISAM')
-	);
+	public $import = array('config' => 'Orders.OrderItems', 'file' => 'schema');
+	
 
 /**
  * Records
@@ -56,7 +27,7 @@ class OrderItemFixture extends CakeTestFixture {
  */
 	public $records = array(
 		array(
-			'id' => 1,
+			'id' => '0asdjfalkdjf',
 			'name' => 'Instant Coffee',
 			'catalog_item_id' => '189813-12831-12831923-12312',
 			'order_payment_id' => '189813-12831-12831923-12312',
