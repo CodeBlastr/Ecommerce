@@ -44,7 +44,6 @@ class OrderItemTestCase extends CakeTestCase {
  * @return void
  */
 	public function testStockControl() {
-
 	}
 
 /**

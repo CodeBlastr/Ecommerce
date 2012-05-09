@@ -17,7 +17,7 @@ class OrderItemFixture extends CakeTestFixture {
  *
  * @var array
  */
-	public $import = array('config' => 'Orders.OrderItems', 'file' => 'schema');
+	public $import = array('config' => 'Orders.OrderItems');
 	
 
 /**
@@ -27,7 +27,7 @@ class OrderItemFixture extends CakeTestFixture {
  */
 	public $records = array(
 		array(
-			'id' => '0asdjfalkdjf',
+			'id' => '189813-12831-12831923-12312',
 			'name' => 'Instant Coffee',
 			'catalog_item_id' => '189813-12831-12831923-12312',
 			'order_payment_id' => '189813-12831-12831923-12312',
