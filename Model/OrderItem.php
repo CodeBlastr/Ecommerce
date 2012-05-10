@@ -116,6 +116,7 @@ class OrderItem extends OrdersAppModel {
 		# set up the default values from the db catalog item
 		$defaults['OrderItem']['status'] = 'incart';
 		//$defaults['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
+        unset($data['OrderItem']['price']); // the price that was in $data was not being overwritten by the database price.
 		$defaults['OrderItem']['price'] = ZuhaInflector::pricify($catalogItem['CatalogItem']['price']);
 		$defaults['OrderItem']['name'] = $catalogItem['CatalogItem']['name'];
 		$defaults['OrderItem']['creator_id'] = $catalogItem['CatalogItem']['creator_id'];
@@ -227,17 +228,26 @@ class OrderItem extends OrdersAppModel {
     public function restrictByCartLimit($orderItems) {
         if (!empty($orderItems)) {
           #debug($orderItems);
+
           foreach ($orderItems as $orderItem) :
-            if( $orderItem['OrderItem']['quantity'] > $orderItem['CatalogItem']['cart_max'] && $orderItem['CatalogItem']['cart_max']) {
-                $orderItem['OrderItem']['quantity'] = $orderItem['CatalogItem']['cart_max'];
-                /** @todo Probably put a flash message here somehow. */
+
+            if(isset($orderItem['CatalogItem']['cart_max'])) {
+                if( $orderItem['OrderItem']['quantity'] > $orderItem['CatalogItem']['cart_max'] && $orderItem['CatalogItem']['cart_max']) {
+                    $orderItem['OrderItem']['quantity'] = $orderItem['CatalogItem']['cart_max'];
+                    /** @todo Probably put a flash message here somehow. */
+                }
             }
-            if( $orderItem['OrderItem']['quantity'] < $orderItem['CatalogItem']['cart_min'] && $orderItem['CatalogItem']['cart_min']) {
-                $orderItem['OrderItem']['quantity'] = $orderItem['CatalogItem']['cart_min'];
-                /** @todo Probably put a flash message here somehow. */
+            if(isset($orderItem['CatalogItem']['cart_max'])) {
+                if( $orderItem['OrderItem']['quantity'] < $orderItem['CatalogItem']['cart_min'] && $orderItem['CatalogItem']['cart_min']) {
+                    $orderItem['OrderItem']['quantity'] = $orderItem['CatalogItem']['cart_min'];
+                    /** @todo Probably put a flash message here somehow. */
+                }
             }
+
             $limitedOrderItems[] = $orderItem;
+
           endforeach;
+
           return $limitedOrderItems;
 
         } else {
