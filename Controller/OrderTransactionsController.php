@@ -69,7 +69,7 @@ class OrderTransactionsController extends OrdersAppController {
 		if (!empty($this->request->data)) {
 			$this->OrderTransaction->create();
 			if ($this->OrderTransaction->save($this->request->data)) {
-				$this->flash(__('OrderTransaction saved.', true), array('action'=>'index'));
+				$this->flash(__('OrderTransaction saved.'), array('action'=>'index'));
 			} else {
 			}
 		}
