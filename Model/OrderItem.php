@@ -113,6 +113,33 @@ class OrderItem extends OrdersAppModel {
 				),
 			));
 
+        // Use a custom set CatalogItemPrice if applicable
+        if($userId) {
+            // find their userRoleId
+            $userRoleId = $this->User->find('first', array(
+                'conditions' => array(
+                    'User.id' => $userId,
+                ),
+                'fields' => array('user_role_id')
+            ));
+
+            if($userRoleId) {
+                // find the price for this userLevel
+                $catalogItemPrice = $this->CatalogItem->CatalogItemPrice->find('first', array(
+                  'conditions' => array(
+                      'CatalogItemPrice.catalog_item_id' => $data['OrderItem']['catalog_item_id'],
+                      'CatalogItemPrice.user_role_id' => $userRoleId['User']['user_role_id']
+                  ),
+                  'fields' => array('price')
+                ));
+
+                if($catalogItemPrice) {
+                  // set the price of this item to the correct price
+                  $catalogItem['CatalogItem']['price'] = $catalogItemPrice['CatalogItemPrice']['price'];
+                }
+            }//if($userRoleId)
+        }//if($userId)
+
 		# set up the default values from the db catalog item
 		$defaults['OrderItem']['status'] = 'incart';
 		//$defaults['OrderItem']['parent_id'] = $catalogItem['CatalogItem']['id'];
