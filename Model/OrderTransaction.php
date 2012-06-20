@@ -100,9 +100,12 @@ class OrderTransaction extends OrdersAppModel {
                     # following are filled to be passed to order item
                     $data['OrderTransaction']['order_shipment_id'] = $this->OrderShipment->id;
                     $data['OrderTransaction']['order_payment_id'] = $this->OrderPayment->id;
+//                    debug($data['OrderTransaction']['order_shipment_id']);
+//                    debug($data['OrderTransaction']['order_payment_id']);
                     if ($this->OrderItem->pay($data)) {
                         return true;
                     } else {
+                        debug('deleting');
                         # roll back 3x
                         $this->OrderShipment->delete($this->OrderShipment->id);
                         $this->OrderPayment->delete($this->OrderPayment->id);

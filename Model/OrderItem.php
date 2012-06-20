@@ -403,6 +403,7 @@ class OrderItem extends OrdersAppModel {
             )
                 ));
         if (!empty($ordItems)) :
+//                    debug($data['OrderTransaction']['order_shipment_id']);break;
             foreach ($ordItems as $ordItem) {
                 # this converts data in find(all) format to saveAll format, and updates the values
                 $orderItem['OrderItem'] = $ordItem['OrderItem'];
@@ -412,13 +413,13 @@ class OrderItem extends OrdersAppModel {
                 $orderItem['OrderItem']['order_payment_id'] = $data['OrderTransaction']['order_payment_id'];
 
                 if (isset($orderItem['OrderItem']['catalog_item_id'])) {
-                    $data = $this->CatalogItem->find('first', array(
+                    $itemData = $this->CatalogItem->find('first', array(
                         'conditions' => array(
                             'CatalogItem.id' => $orderItem['OrderItem']['catalog_item_id']
                         )
                             ));
 
-                    $orderItem['CatalogItem'] = $data['CatalogItem'];
+                    $orderItem['CatalogItem'] = $itemData['CatalogItem'];
                     $orderItem['CatalogItem']['stock'] -= $orderItem['OrderItem']['quantity'];
                 }
 
