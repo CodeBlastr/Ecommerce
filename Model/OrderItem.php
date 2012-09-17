@@ -513,5 +513,3 @@ class OrderItem extends OrdersAppModel {
     }
 
 }
-
-?>
