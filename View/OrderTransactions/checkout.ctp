@@ -397,4 +397,3 @@ echo $this->Form->create('OrderTransaction');  ?>
 		$("#OrderTransactionCheckoutForm").validate();
 	});
 </script>
-</script>
