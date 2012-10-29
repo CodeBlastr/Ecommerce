@@ -72,21 +72,21 @@ class OrderTransaction extends OrdersAppModel {
         )
     );
 
-    /*
-     * add the transaction to DB.
-     *
-     * @param {array} 	$data to be added
-     * @param {int}		$response: response from the payment after charging card.
-     * @param {int}		$user_id:  logged user id
-     */
+/*
+ * add the transaction to DB.
+ *
+ * @param {array} 	$data to be added
+ * @param {int}		$response: response from the payment after charging card.
+ * @param {int}		$user_id:  logged user id
+ */
 
-    /**
-     * add the transaction to DB.
-     * @param array $data
-     * @return boolean
-     *
-     * @todo When you buy more than one thing, the OrderShipment.Id and OrderPayment.Id are blank after the 1st item?
-     */
+/**
+ * add the transaction to DB.
+ * @param array $data
+ * @return boolean
+ *
+ * @todo When you buy more than one thing, the OrderShipment.Id and OrderPayment.Id are blank after the 1st item?
+ */
     public function add($data = null) {
         if (!empty($data)) {
             # save the order transaction
@@ -125,12 +125,12 @@ class OrderTransaction extends OrdersAppModel {
         }
     }
 
-    /**
-     * Save Order Shipment and Payment Data
-     *
-     * @param {array}		Data array with some non-typical keys
-     * @todo			This could probably be normalized a bit, and moved to the respective models.
-     */
+/**
+ * Save Order Shipment and Payment Data
+ *
+ * @param {array}		Data array with some non-typical keys
+ * @todo			This could probably be normalized a bit, and moved to the respective models.
+ */
     public function _shipmentAndPayment($data) {
 
         $this->OrderPayment->create();
@@ -183,12 +183,12 @@ class OrderTransaction extends OrdersAppModel {
         }
     }
 
-    /**
-     * Get Arb Profile Id
-     *
-     * @param {$user_id}		user id according to which profile id return
-     * return {OrderTransaction.id}
-     */
+/**
+ * Get Arb Profile Id
+ *
+ * @param {$user_id}		user id according to which profile id return
+ * return {OrderTransaction.id}
+ */
     public function getArbTransactionId($user_id = null) {
         $orderTransaction = $this->find('first', array(
             'conditions' => array(
@@ -202,25 +202,25 @@ class OrderTransaction extends OrdersAppModel {
         return $orderTransaction['OrderTransaction']['id'];
     }
 
-    /**
-     * Get Arb Payment Mode
-     *
-     * @param {$order_transaction_id}	user id according to which profile id return
-     * return {OrderTransaction.mode}
+/**
+ * Get Arb Payment Mode
+ *
+ * @param {$order_transaction_id}	user id according to which profile id return
+ * return {OrderTransaction.mode}
      */
     public function getArbPaymentMode($orderTransactionId = null) {
         $orderTransaction = $this->find('first', array('conditions' => array('id' => $orderTransactionId)));
         return $orderTransaction['OrderTransaction']['mode'];
     }
 
-    /**
-     * Change Status
-     * @param {$transactionId} profile id of arb transaction in order payment
-     * @param {$status}
-     * @param {$processor_response}
-     * Fetch Transaction Id from Order Payment Table and update
-     * Order Transaction with new Status
-     */
+/**
+ * Change Status
+ * @param {$transactionId} profile id of arb transaction in order payment
+ * @param {$status}
+ * @param {$processor_response}
+ * Fetch Transaction Id from Order Payment Table and update
+ * Order Transaction with new Status
+ */
     public function changeStatus($orderTransactionId, $status, $processorResponse) {
         $data['OrderTransaction']['id'] = $orderTransactionId;
         $data['OrderTransaction']['status'] = $status;
@@ -228,12 +228,12 @@ class OrderTransaction extends OrdersAppModel {
         $this->save($data);
     }
 
-    /**
-     * Get Arb Transaction Amount
-     *
-     * @param {$order_transaction_id} transaction_id according to which transaction amount return
-     * return {OrderTransaction.total}
-     */
+/**
+ * Get Arb Transaction Amount
+ *
+ * @param {$order_transaction_id} transaction_id according to which transaction amount return
+ * return {OrderTransaction.total}
+ */
     public function getArbTransactionAmount($orderTransactionId = null) {
         $orderTransaction = $this->find('first', array(
             'fields' => array('total'),
@@ -242,12 +242,12 @@ class OrderTransaction extends OrdersAppModel {
         return $orderTransaction['OrderTransaction']['total'];
     }
 
-    /**
-     * Get Arb Transaction User Id
-     *
-     * @param {$order_transaction_id} transaction_id according to which transaction amount return
-     * return {OrderTransaction.customer_id}
-     */
+/**
+ * Get Arb Transaction User Id
+ *
+ * @param {$order_transaction_id} transaction_id according to which transaction amount return
+ * return {OrderTransaction.customer_id}
+ */
     public function getArbTransactionUserId($orderTransactionId = null) {
         $orderTransaction = $this->find('first', array(
             'fields' => array('customer_id'),
@@ -256,12 +256,12 @@ class OrderTransaction extends OrdersAppModel {
         return $orderTransaction['OrderTransaction']['customer_id'];
     }
 
-    /**
-     * Get Arb Transaction Status
-     *
-     * @param {$order_transaction_id} transaction_id according to which transaction status return
-     * return {OrderTransaction.status}
-     */
+/**
+ * Get Arb Transaction Status
+ *
+ * @param {$order_transaction_id} transaction_id according to which transaction status return
+ * return {OrderTransaction.status}
+ */
     public function getArbTransactionStatus($orderTransactionId = null) {
         $orderTransaction = $this->find('first', array(
             'fields' => array('status'),
@@ -270,10 +270,10 @@ class OrderTransaction extends OrdersAppModel {
         return $orderTransaction['OrderTransaction']['status'];
     }
 
-    /**
-     * An array of options for select inputs
-     *
-     */
+/**
+ * An array of options for select inputs
+ *
+ */
     public function statuses() {
         $statuses = array();
         foreach (Zuha::enum('ORDER_TRANSACTION_STATUS') as $status) {
@@ -283,5 +283,3 @@ class OrderTransaction extends OrdersAppModel {
     }
 
 }
-
-?>
